@@ -100,7 +100,7 @@ View *window_open_buffer (
     }
 
     if (buffer->file.mode != 0 && !buffer->readonly && access(filename, W_OK)) {
-        error_msg(ebuf, "No write permission to %s, marking read-only", filename);
+        info_msg(ebuf, "No write permission to %s, marking read-only", filename);
         buffer->readonly = true;
     }
 
