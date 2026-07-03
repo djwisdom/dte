@@ -277,12 +277,12 @@ static void test_macro_record(TestContext *ctx)
     EXPECT_TRUE(handle_normal_command(e, "eol; right; insert -m .; new-line", true));
 
     const StringView t1 = strview("test 1\n");
-    insert_text(e->view, t1.data, t1.length, true);
-    macro_insert_text_hook(m, t1.data, t1.length);
+    insert_text(e->view, t1, true);
+    macro_insert_text_hook(m, t1);
 
     const StringView t2 = strview("-- test 2");
-    insert_text(e->view, t2.data, t2.length, true);
-    macro_insert_text_hook(m, t2.data, t2.length);
+    insert_text(e->view, t2, true);
+    macro_insert_text_hook(m, t2);
 
     macro_search_hook(m, "[12]", true, false);
 

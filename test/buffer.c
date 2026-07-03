@@ -128,10 +128,11 @@ static void test_get_indent_for_next_line(TestContext *ctx)
 
 static void test_buffer_insert_bytes(TestContext *ctx)
 {
-    size_t len = 600; // (> BLOCK_EDIT_SIZE)
-    char *text = xmalloc(len);
+    char text[600];
+    size_t len = sizeof(text); // > BLOCK_EDIT_SIZE
     memset(text, 'a', len);
     text[len - 1] = '\n';
+
     for (size_t i = 72; i < len; i += 72) {
         text[i] = '\n';
     }
@@ -145,22 +146,22 @@ static void test_buffer_insert_bytes(TestContext *ctx)
     EXPECT_EQ(counts[1], 0);
     EXPECT_EQ(buffer->nl, 0);
 
-    buffer_insert_bytes(view, text, len);
+    const StringView ins = string_view(text, len);
+    buffer_insert_bytes(view, ins);
     buffer_count_blocks_and_bytes(buffer, counts);
     EXPECT_EQ(counts[0], 2);
-    EXPECT_EQ(counts[1], len);
+    EXPECT_EQ(counts[1], ins.length);
     EXPECT_EQ(buffer->nl, 9);
 
-    block_iter_goto_offset(&view->cursor, len / 2);
+    block_iter_goto_offset(&view->cursor, ins.length / 2);
     EXPECT_EQ(view->cursor.offset, 300);
-    buffer_insert_bytes(view, text, len);
+    buffer_insert_bytes(view, ins);
     EXPECT_EQ(view->cursor.offset, 300);
     buffer_count_blocks_and_bytes(buffer, counts);
     EXPECT_EQ(counts[0], 4);
-    EXPECT_EQ(counts[1], len * 2);
+    EXPECT_EQ(counts[1], ins.length * 2);
     EXPECT_EQ(buffer->nl, 18);
 
-    free(text);
     window_close_current_view(e->window);
 }
 

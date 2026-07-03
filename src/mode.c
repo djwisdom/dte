@@ -10,6 +10,7 @@
 #include "insert.h"
 #include "terminal/paste.h"
 #include "util/debug.h"
+#include "util/string-view.h"
 #include "util/unicode.h"
 #include "util/xmalloc.h"
 #include "view.h"
@@ -26,10 +27,11 @@ static bool insert_paste(EditorState *e, const ModeHandler *handler, bool bracke
 {
     String str = term_read_paste(&e->terminal.ibuf, bracketed);
     if (handler->cmds == &normal_commands) {
+        StringView text = strview_from_string(&str);
         begin_change(CHANGE_MERGE_NONE);
-        insert_text(e->view, str.buffer, str.len, true);
+        insert_text(e->view, text, true);
         end_change();
-        macro_insert_text_hook(&e->macro, str.buffer, str.len);
+        macro_insert_text_hook(&e->macro, text);
     } else {
         CommandLine *c = &e->cmdline;
         string_replace_byte(&str, '\n', ' ');

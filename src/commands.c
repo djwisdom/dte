@@ -911,23 +911,23 @@ static bool cmd_include(EditorState *e, const CommandArgs *a)
 
 static bool cmd_insert(EditorState *e, const CommandArgs *a)
 {
-    const char *str = a->args[0];
+    StringView text = strview(a->args[0]);
     if (has_flag(a, 'k')) {
-        for (size_t i = 0; str[i]; i++) {
-            insert_ch(e->view, str[i]);
+        for (size_t i = 0; i < text.length; i++) {
+            insert_ch(e->view, text.data[i]);
         }
         return true;
     }
 
     bool move_after = has_flag(a, 'm');
-    insert_text(e->view, str, strlen(str), move_after);
+    insert_text(e->view, text, move_after);
     return true;
 }
 
 static bool cmd_join(EditorState *e, const CommandArgs *a)
 {
-    const char *delim = a->args[0] ? a->args[0] : " ";
-    join_lines(e->view, delim, strlen(delim));
+    StringView delim = strview(a->args[0] ? a->args[0] : " ");
+    join_lines(e->view, delim);
     return true;
 }
 
@@ -1659,7 +1659,7 @@ static bool repeat_insert (
     );
 
 insert:
-    insert_text(view, buf, bufsize, move_after);
+    insert_text(view, string_view(buf, bufsize), move_after);
     free(buf);
     return true;
 }

@@ -12,8 +12,10 @@ void paste(Clipboard *clip, View *view, PasteLinesType type, bool move_after)
     }
 
     BUG_ON(!clip->buf);
+    StringView text = string_view(clip->buf, clip->len);
+
     if (!clip->is_lines || type == PASTE_LINES_INLINE) {
-        insert_text(view, clip->buf, clip->len, move_after);
+        insert_text(view, text, move_after);
         return;
     }
 
@@ -33,7 +35,7 @@ void paste(Clipboard *clip, View *view, PasteLinesType type, bool move_after)
         }
     }
 
-    buffer_replace_bytes(view, del_count, clip->buf, clip->len);
+    buffer_replace_bytes(view, del_count, text);
 
     if (move_after) {
         block_iter_skip_bytes(&view->cursor, clip->len);

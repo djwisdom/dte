@@ -78,7 +78,7 @@ void clear_lines(View *view, bool auto_indent)
         return;
     }
 
-    buffer_replace_bytes(view, del_count, indent.buffer, indent.len);
+    buffer_replace_bytes(view, del_count, strview_from_string(&indent));
     block_iter_skip_bytes(&view->cursor, indent.len);
     string_free(&indent);
 }

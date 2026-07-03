@@ -233,11 +233,11 @@ static void increase_indent(View *view, size_t lines, size_t levels)
             }
         } else if (info.sane) {
             // Insert whitespace
-            buffer_insert_bytes(view, indent.buffer, indent.len);
+            buffer_insert_bytes(view, strview_from_string(&indent));
         } else {
             // Replace whole indentation with sane one
             String rep = make_simple_indent(options, info.level + levels);
-            buffer_replace_bytes(view, info.bytes, rep.buffer, rep.len);
+            buffer_replace_bytes(view, info.bytes, strview_from_string(&rep));
             string_free(&rep);
         }
     } while (++i < lines && block_iter_eat_line(&view->cursor));
@@ -274,7 +274,7 @@ static void decrease_indent(View *view, size_t lines, size_t levels)
             // Replace whole indentation with sane one
             if (info.level > levels) {
                 String indent = make_simple_indent(options, info.level - levels);
-                buffer_replace_bytes(view, info.bytes, indent.buffer, indent.len);
+                buffer_replace_bytes(view, info.bytes, strview_from_string(&indent));
                 string_free(&indent);
             } else {
                 buffer_delete_bytes(view, info.bytes);

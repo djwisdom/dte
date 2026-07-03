@@ -63,14 +63,14 @@ static size_t copy_count_nl(char *dst, const char *src, size_t len)
     return nl;
 }
 
-static size_t insert_to_current(BlockIter *cursor, const char *buf, size_t len)
+static size_t insert_to_current(BlockIter *cursor, StringView text)
 {
     Block *blk = cursor->blk;
     size_t offset = cursor->offset;
-    size_t size = blk->size + len;
+    size_t size = blk->size + text.length;
     block_grow(blk, size);
-    memmove(blk->data + offset + len, blk->data + offset, blk->size - offset);
-    size_t nl = copy_count_nl(blk->data + offset, buf, len);
+    memmove(blk->data + offset + text.length, blk->data + offset, blk->size - offset);
+    size_t nl = copy_count_nl(blk->data + offset, text.data, text.length);
     blk->nl += nl;
     blk->size = size;
     return nl;
@@ -85,15 +85,15 @@ static size_t insert_to_current(BlockIter *cursor, const char *buf, size_t len)
  * • Size of any block can be larger than BLOCK_EDIT_SIZE only if there's
  *   a very long line
  */
-static size_t split_and_insert(BlockIter *cursor, const char *buf, size_t len)
+static size_t split_and_insert(BlockIter *cursor, StringView ins)
 {
     Block *blk = cursor->blk;
     ListHead *prev_node = blk->node.prev;
     const char *buf1 = blk->data;
-    const char *buf2 = buf;
+    const char *buf2 = ins.data;
     const char *buf3 = blk->data + cursor->offset;
     size_t size1 = cursor->offset;
-    size_t size2 = len;
+    size_t size2 = ins.length;
     size_t size3 = blk->size - size1;
     size_t total = size1 + size2 + size3;
     size_t start = 0; // Beginning of new block
@@ -201,30 +201,31 @@ static size_t split_and_insert(BlockIter *cursor, const char *buf, size_t len)
     return nl_added;
 }
 
-static size_t insert_bytes(BlockIter *cursor, const char *buf, size_t len)
+static size_t insert_bytes(BlockIter *cursor, StringView bytes)
 {
     // Blocks must contain whole lines.
-    // Last char of buf might not be newline.
+    // Last char of `bytes` might not be a newline.
     block_iter_normalize(cursor);
 
     Block *blk = cursor->blk;
-    size_t new_size = blk->size + len;
+    size_t new_size = blk->size + bytes.length;
     if (new_size <= blk->alloc || new_size <= BLOCK_EDIT_SIZE) {
-        return insert_to_current(cursor, buf, len);
+        return insert_to_current(cursor, bytes);
     }
 
-    if (blk->nl <= 1 && !memchr(buf, '\n', len)) {
+    if (blk->nl <= 1 && !strview_memchr(bytes, '\n')) {
         // Can't split this possibly very long line.
         // insert_to_current() is much faster than split_and_insert().
-        return insert_to_current(cursor, buf, len);
+        return insert_to_current(cursor, bytes);
     }
-    return split_and_insert(cursor, buf, len);
+
+    return split_and_insert(cursor, bytes);
 }
 
-void do_insert(View *view, const char *buf, size_t len)
+void do_insert(View *view, StringView text)
 {
     Buffer *buffer = view->buffer;
-    size_t nl = insert_bytes(&view->cursor, buf, len);
+    size_t nl = insert_bytes(&view->cursor, text);
     buffer->nl += nl;
     sanity_check_blocks(view, true);
 
@@ -323,10 +324,10 @@ char *do_delete(View *view, size_t len, bool sanity_check_newlines)
     return deleted;
 }
 
-char *do_replace(View *view, size_t del, const char *buf, size_t ins)
+char *do_replace(View *view, size_t del, StringView ins)
 {
     BUG_ON(del == 0);
-    BUG_ON(ins == 0);
+    BUG_ON(ins.length == 0);
     block_iter_normalize(&view->cursor);
 
     Block *blk = view->cursor.blk;
@@ -336,10 +337,10 @@ char *do_replace(View *view, size_t del, const char *buf, size_t ins)
         goto slow;
     }
 
-    size_t new_size = blk->size + ins - del;
+    size_t new_size = blk->size + ins.length - del;
     if (new_size > BLOCK_EDIT_SIZE) {
         // Should split
-        if (blk->nl > 1 || memchr(buf, '\n', ins)) {
+        if (blk->nl > 1 || strview_memchr(ins, '\n')) {
             // Most likely can be split
             goto slow;
         }
@@ -355,11 +356,11 @@ char *do_replace(View *view, size_t del, const char *buf, size_t ins)
     blk->nl -= del_nl;
     buffer->nl -= del_nl;
 
-    if (del != ins) {
-        memmove(ptr + ins, ptr + del, avail - del);
+    if (del != ins.length) {
+        memmove(ptr + ins.length, ptr + del, avail - del);
     }
 
-    size_t ins_nl = copy_count_nl(ptr, buf, ins);
+    size_t ins_nl = copy_count_nl(ptr, ins.data, ins.length);
     blk->nl += ins_nl;
     buffer->nl += ins_nl;
     blk->size = new_size;
@@ -384,6 +385,6 @@ slow:
     // is going to insert again at a different position:
     deleted = do_delete(view, del, false);
     BUG_ON(!deleted); // do_delete() only returns NULL if len is 0
-    do_insert(view, buf, ins);
+    do_insert(view, ins);
     return deleted;
 }

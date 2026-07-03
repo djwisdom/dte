@@ -189,13 +189,13 @@ static void parse_and_activate_tags(EditorState *e, const String *str, ExecActio
 
 static void insert_to_selection (
     View *view,
-    const String *output,
+    StringView text,
     const SelectionInfo *info
 ) {
     size_t del_count = info->eo - info->so;
-    buffer_replace_bytes(view, del_count, output->buffer, output->len);
+    buffer_replace_bytes(view, del_count, text);
 
-    if (output->len == 0) {
+    if (text.length == 0) {
         // If the selection was replaced with 0 bytes then there's nothing
         // new to select, so just unselect instead
         unselect(view);
@@ -204,7 +204,7 @@ static void insert_to_selection (
 
     // Keep the selection and adjust the size to the newly inserted text
     size_t so = info->so;
-    size_t eo = so + (output->len - 1);
+    size_t eo = so + (text.length - 1);
     block_iter_goto_offset(&view->cursor, info->swapped ? so : eo);
     view->sel_so = info->swapped ? eo : so;
     view->sel_eo = SEL_EO_RECALC;
@@ -433,10 +433,10 @@ ssize_t handle_exec (
     switch (out_action) {
     case EXEC_BUFFER:
         if (view->selection) {
-            insert_to_selection(view, output, &info);
+            insert_to_selection(view, strview_from_string(output), &info);
         } else {
             size_t del_count = replace_unselected_input ? ctx.input.length : 0;
-            buffer_replace_bytes(view, del_count, output->buffer, output->len);
+            buffer_replace_bytes(view, del_count, strview_from_string(output));
         }
         break;
     case EXEC_ECHO:

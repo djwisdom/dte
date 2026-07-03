@@ -152,7 +152,7 @@ void wrap_paragraph(View *view, size_t text_width)
         string_append_byte(&pf.buf, '\n');
     }
 
-    buffer_replace_bytes(view, len, pf.buf.buffer, pf.buf.len);
+    buffer_replace_bytes(view, len, strview_from_string(&pf.buf));
 
     if (pf.buf.len) {
         block_iter_skip_bytes(&view->cursor, pf.buf.len - 1);

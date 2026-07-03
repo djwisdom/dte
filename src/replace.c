@@ -127,7 +127,7 @@ static unsigned int replace_on_line (
                 buf = alloc;
             }
 
-            buffer_replace_bytes(view, match_len, b.buffer, b.len);
+            buffer_replace_bytes(view, match_len, strview_from_string(&b));
             nr++;
 
             // Update selection length

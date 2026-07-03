@@ -1,6 +1,5 @@
 #include "macro.h"
 #include "serialize.h"
-#include "util/string-view.h"
 
 static void merge_insert_buffer(MacroRecorder *m)
 {
@@ -109,21 +108,20 @@ void macro_insert_char_hook(MacroRecorder *m, CodePoint c)
     }
 }
 
-void macro_insert_text_hook(MacroRecorder *m, const char *text, size_t size)
+void macro_insert_text_hook(MacroRecorder *m, StringView text)
 {
     if (!m->recording) {
         return;
     }
 
     String buf = string_new(512);
-    StringView sv = string_view(text, size);
     string_append_literal(&buf, "insert -m ");
 
-    if (unlikely(strview_has_prefix(sv, "-"))) {
+    if (unlikely(strview_has_prefix(text, "-"))) {
         string_append_literal(&buf, "-- ");
     }
 
-    string_append_escaped_arg_sv(&buf, sv, true);
+    string_append_escaped_arg_sv(&buf, text, true);
     merge_insert_buffer(m);
     ptr_array_append(&m->macro, string_steal_cstring(&buf));
 }

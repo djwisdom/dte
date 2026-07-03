@@ -59,8 +59,7 @@ typedef struct {
 // NOLINTNEXTLINE(readability-function-size)
 static void open_temporary_buffer (
     EditorState *e,
-    const char *text,
-    size_t text_len,
+    StringView text,
     const char *cmd,
     const char *cmd_arg,
     const char *filetype,
@@ -79,19 +78,17 @@ static void open_temporary_buffer (
         buffer_update_syntax(e, buffer);
     }
 
-    if (text_len == 0) {
+    if (text.length == 0) {
         return;
     }
 
-    BUG_ON(!text);
-
     // We don't use buffer_insert_bytes() here, because the call to
     // record_insert() would make the initial text contents undoable
-    if (unlikely(text[text_len - 1] != '\n')) {
+    if (unlikely(!strview_has_suffix(text, "\n"))) {
         LOG_ERROR("no final newline in text");
-        do_insert(view, "\n", 1);
+        do_insert(view, strview("\n"));
     }
-    do_insert(view, text, text_len);
+    do_insert(view, text);
 
     if (flags & LASTLINE) {
         block_iter_eof(&view->cursor);
@@ -273,11 +270,12 @@ static bool show_mode(EditorState *e, const char *name, bool cflag)
     }
 
     dump_bindings(&mode->key_bindings, flag ? flag : name, &str);
+    StringView text = strview_from_string(&str);
 
     if (cflag) {
-        buffer_insert_bytes(e->view, str.buffer, str.len);
+        buffer_insert_bytes(e->view, text);
     } else {
-        open_temporary_buffer(e, str.buffer, str.len, "def-mode", name, NULL, DTERC);
+        open_temporary_buffer(e, text, "def-mode", name, NULL, DTERC);
     }
 
     string_free(&str);
@@ -291,13 +289,12 @@ static bool show_builtin(EditorState *e, const char *name, bool cflag)
         return error_msg(&e->err, "no built-in config with name '%s'", name);
     }
 
-    const StringView sv = cfg->text;
     if (cflag) {
-        buffer_insert_bytes(e->view, sv.data, sv.length);
+        buffer_insert_bytes(e->view, cfg->text);
     } else {
         bool script = str_has_prefix(name, "script/");
         const char *ft = script ? filetype_str_from_extension(name) : "dte";
-        open_temporary_buffer(e, sv.data, sv.length, "builtin", name, ft, 0);
+        open_temporary_buffer(e, cfg->text, "builtin", name, ft, 0);
     }
 
     return true;
@@ -312,10 +309,12 @@ static bool show_compiler(EditorState *e, const char *name, bool cflag)
 
     String str = string_new(512);
     dump_compiler(compiler, name, &str);
+    StringView text = strview_from_string(&str);
+
     if (cflag) {
-        buffer_insert_bytes(e->view, str.buffer, str.len);
+        buffer_insert_bytes(e->view, text);
     } else {
-        open_temporary_buffer(e, str.buffer, str.len, "errorfmt", name, NULL, DTERC);
+        open_temporary_buffer(e, text, "errorfmt", name, NULL, DTERC);
     }
 
     string_free(&str);
@@ -331,11 +330,12 @@ static bool show_msg(EditorState *e, const char *name, bool cflag)
 
     const MessageList *msgs = &e->messages[idx];
     String str = dump_messages(msgs);
+    StringView text = strview_from_string(&str);
 
     if (cflag) {
-        buffer_insert_bytes(e->view, str.buffer, str.len);
+        buffer_insert_bytes(e->view, text);
     } else {
-        open_temporary_buffer(e, str.buffer, str.len, "msg", name, NULL, 0);
+        open_temporary_buffer(e, text, "msg", name, NULL, 0);
         if (msgs->array.count > 0) {
             block_iter_goto_line(&e->view->cursor, msgs->pos);
         }
@@ -699,7 +699,8 @@ bool show(EditorState *e, const char *type, const char *key, bool cflag)
     }
 
     String str = handler->dump(e);
-    open_temporary_buffer(e, str.buffer, str.len, "show", type, NULL, handler->flags);
+    StringView text = strview_from_string(&str);
+    open_temporary_buffer(e, text, "show", type, NULL, handler->flags);
     string_free(&str);
     return true;
 }

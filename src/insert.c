@@ -10,12 +10,12 @@
 #include "util/string.h"
 #include "util/utf8.h"
 
-void insert_text(View *view, const char *text, size_t size, bool move_after)
+void insert_text(View *view, StringView text, bool move_after)
 {
     size_t del_count = view->selection ? prepare_selection(view) : 0;
     unselect(view);
-    buffer_replace_bytes(view, del_count, text, size);
-    block_iter_skip_bytes(&view->cursor, move_after ? size : 0);
+    buffer_replace_bytes(view, del_count, text);
+    block_iter_skip_bytes(&view->cursor, move_after ? text.length : 0);
 }
 
 static size_t insert_nl_and_autoindent (
@@ -26,13 +26,13 @@ static size_t insert_nl_and_autoindent (
     String indent = get_indent_for_next_line(&view->buffer->options, prev_line);
     if (indent.len == 0) {
         BUG_ON(indent.alloc > 0); // Should be nothing to free
-        buffer_replace_bytes(view, del_count, "\n", 1);
+        buffer_replace_bytes(view, del_count, strview("\n"));
         return 1;
     }
 
     string_insert_buf(&indent, 0, "\n", 1); // Prepend newline to indent
     size_t ins_count = indent.len; // Get length, before string_free() clears it
-    buffer_replace_bytes(view, del_count, indent.buffer, ins_count);
+    buffer_replace_bytes(view, del_count, strview_from_string(&indent));
     string_free(&indent);
     return ins_count;
 }
@@ -53,7 +53,7 @@ void new_line(View *view, bool above_cursor, NewlineIndentType indent_type)
             block_iter_eat_line(cursor);
         }
 
-        buffer_insert_bytes(view, indent_and_nl.buffer, indent_and_nl.len);
+        buffer_insert_bytes(view, strview_from_string(&indent_and_nl));
         block_iter_skip_bytes(cursor, indent_and_nl.len - 1);
         string_free(&indent_and_nl);
         return;
@@ -68,7 +68,7 @@ void new_line(View *view, bool above_cursor, NewlineIndentType indent_type)
         // and because an auto-indent is never needed. Thus, we
         // simply insert a newline at BOF/BOL instead.
         block_iter_bof(cursor);
-        buffer_insert_bytes(view, "\n", 1);
+        buffer_insert_bytes(view, strview("\n"));
         return;
     }
 
@@ -201,7 +201,7 @@ void insert_ch(View *view, CodePoint ch)
 
     // Make edit to Buffer (and record Change in undo history)
     begin_change(del_count ? CHANGE_MERGE_NONE : CHANGE_MERGE_INSERT);
-    buffer_replace_bytes(view, del_count, ins, ins_count);
+    buffer_replace_bytes(view, del_count, string_view(ins, ins_count));
     end_change();
     free(alloc);
 

@@ -56,7 +56,7 @@ void change_case(View *view, char mode)
         BUG("unhandled case mode");
     }
 
-    buffer_replace_bytes(view, text_len, dst.buffer, dst.len);
+    buffer_replace_bytes(view, text_len, strview_from_string(&dst));
     free(src);
 
     if (move && dst.len > 0) {

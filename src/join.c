@@ -5,7 +5,7 @@
 #include "util/debug.h"
 #include "util/unicode.h"
 
-static void join_selection(View *view, const char *delim, size_t delim_len)
+static void join_selection(View *view, StringView delim)
 {
     size_t count = prepare_selection(view);
     BlockIter bi = view->cursor;
@@ -29,9 +29,9 @@ static void join_selection(View *view, const char *delim, size_t delim_len)
         }
 
         if (join) {
-            buffer_replace_bytes(view, ws_len, delim, delim_len);
+            buffer_replace_bytes(view, ws_len, delim);
             // Skip the delimiter we inserted and the char we read last
-            block_iter_skip_bytes(&view->cursor, delim_len);
+            block_iter_skip_bytes(&view->cursor, delim.length);
             block_iter_next_char(&view->cursor, &ch);
             bi = view->cursor;
         }
@@ -47,17 +47,17 @@ static void join_selection(View *view, const char *delim, size_t delim_len)
     }
 
     if (join) {
-        size_t ins_len = (ch == '\n') ? 0 : delim_len; // Don't add delim, if at eol
-        buffer_replace_bytes(view, ws_len, delim, ins_len);
+        delim.length = (ch == '\n') ? 0 : delim.length; // Don't add delim, if at eol
+        buffer_replace_bytes(view, ws_len, delim);
     }
 
     end_change_chain(view);
 }
 
-void join_lines(View *view, const char *delim, size_t delim_len)
+void join_lines(View *view, StringView delim)
 {
     if (view->selection) {
-        join_selection(view, delim, delim_len);
+        join_selection(view, delim);
         return;
     }
 
@@ -91,6 +91,6 @@ void join_lines(View *view, const char *delim, size_t delim_len)
     } else {
         // Otherwise, join the current and next lines together, by
         // replacing the newline/whitespace with the delimiter string
-        buffer_replace_bytes(view, del_count, delim, delim_len);
+        buffer_replace_bytes(view, del_count, delim);
     }
 }

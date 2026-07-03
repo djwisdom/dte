@@ -183,9 +183,8 @@ static void test_indent_lines(TestContext *ctx)
     opts->emulate_tab = true;
     opts->expand_tab = true;
 
-    static const char text[] = "    line 1\n    line 2\n";
     BlockIter *cursor = &view->cursor;
-    buffer_insert_bytes(view, text, sizeof(text) - 1);
+    buffer_insert_bytes(view, strview("    line 1\n    line 2\n"));
     block_iter_goto_offset(cursor, 4);
     EXPECT_EQ(block_iter_get_offset(cursor), 4);
 

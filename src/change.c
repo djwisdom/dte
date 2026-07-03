@@ -185,7 +185,7 @@ static void reverse_change(View *view, Change *change)
 
     if (ins_count == 0) {
         // Convert delete to insert
-        do_insert(view, change->buf, del_count);
+        do_insert(view, string_view(change->buf, del_count));
         if (change->move_after) {
             block_iter_skip_bytes(&view->cursor, del_count);
         }
@@ -206,7 +206,7 @@ static void reverse_change(View *view, Change *change)
 
     // Reverse replace
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
-    char *buf = do_replace(view, ins_count, change->buf, del_count);
+    char *buf = do_replace(view, ins_count, string_view(change->buf, del_count));
     free(change->buf);
     change->buf = buf;
     change->ins_count = del_count;
@@ -317,25 +317,25 @@ top:
     }
 }
 
-void buffer_insert_bytes(View *view, const char *buf, const size_t len)
+void buffer_insert_bytes(View *view, StringView bytes)
 {
     view_reset_preferred_x(view);
-    if (len == 0) {
+    if (bytes.length == 0) {
         return;
     }
 
-    size_t rec_len = len;
-    if (buf[len - 1] != '\n' && block_iter_is_eof(&view->cursor)) {
+    size_t rec_len = bytes.length;
+    if (!strview_has_suffix(bytes, "\n") && block_iter_is_eof(&view->cursor)) {
         // Force newline at EOF
-        do_insert(view, "\n", 1);
+        do_insert(view, strview("\n"));
         rec_len++;
     }
 
-    do_insert(view, buf, len);
+    do_insert(view, bytes);
     record_insert(view, rec_len);
 
     if (view->buffer->views.count > 1) {
-        fix_cursors(view, block_iter_get_offset(&view->cursor), len, 0);
+        fix_cursors(view, block_iter_get_offset(&view->cursor), bytes.length, 0);
     }
 }
 
@@ -390,13 +390,13 @@ void buffer_erase_bytes(View *view, size_t len)
     buffer_delete_bytes_internal(view, len, true);
 }
 
-void buffer_replace_bytes(View *view, size_t del_count, const char *ins, size_t ins_count)
+void buffer_replace_bytes(View *view, size_t del_count, StringView ins)
 {
     if (del_count == 0) {
-        buffer_insert_bytes(view, ins, ins_count);
+        buffer_insert_bytes(view, ins);
         return;
     }
-    if (ins_count == 0) {
+    if (ins.length == 0) {
         buffer_delete_bytes(view, del_count);
         return;
     }
@@ -405,19 +405,19 @@ void buffer_replace_bytes(View *view, size_t del_count, const char *ins, size_t 
 
     // Check if all newlines from EOF would be deleted
     if (would_delete_last_bytes(view->cursor, del_count)) {
-        if (ins[ins_count - 1] != '\n') {
+        if (!strview_has_suffix(ins, "\n")) {
             // Don't replace last newline
             if (--del_count == 0) {
-                buffer_insert_bytes(view, ins, ins_count);
+                buffer_insert_bytes(view, ins);
                 return;
             }
         }
     }
 
-    char *deleted = do_replace(view, del_count, ins, ins_count);
-    record_replace(view, deleted, del_count, ins_count);
+    char *deleted = do_replace(view, del_count, ins);
+    record_replace(view, deleted, del_count, ins.length);
 
     if (view->buffer->views.count > 1) {
-        fix_cursors(view, block_iter_get_offset(&view->cursor), del_count, ins_count);
+        fix_cursors(view, block_iter_get_offset(&view->cursor), del_count, ins.length);
     }
 }
