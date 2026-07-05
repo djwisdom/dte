@@ -72,7 +72,7 @@ state start code
     noeat code
 
 # TODO: Fix up to match the D syntax spec (originally copied from C)
-state code code
+state code
     char -b a-z_ ident
     char -b A-Z ident-upper
     char 0 zero

@@ -34,7 +34,7 @@ state numeric literal
     char -b "iuz" this
     noeat hare
 
-state string string
+state string
     char "\\" .hare-escape-sequence:this
     char "\"" hare string
     eat this
@@ -52,7 +52,7 @@ state comment-ref
     str "]]" comment comment-ref
     eat this
 
-state comment comment
+state comment
     char "\n" hare comment
     str "[[" comment-ref
     eat this

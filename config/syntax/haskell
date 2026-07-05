@@ -87,7 +87,7 @@ state conid type
     char -b a-zA-Z0-9\'_ this
     noeat start
 
-state comment comment
+state comment
     char "\n" start
     eat this
 

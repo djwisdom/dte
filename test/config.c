@@ -68,7 +68,7 @@ static void test_builtin_configs(TestContext *ctx)
         const char *basename = path_basename(cfg.name);
         EXPECT_NULL(find_syntax(syntaxes, basename));
 
-        SyntaxLoadFlags flags = SYN_MUST_EXIST | SYN_WARN_ON_UNUSED_SUBSYN;
+        SyntaxLoadFlags flags = SYN_MUST_EXIST | SYN_LINT | SYN_WARN_ON_UNUSED_SUBSYN;
         Syntax *syn = load_syntax_file(e, path, flags);
         EXPECT_NONNULL(syn);
         if (!syn) {

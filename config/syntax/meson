@@ -19,7 +19,7 @@ state longstring string
     str "'''" start string
     eat this
 
-state string string
+state string
     char "'" start string
     char "\n" start
     char -b "\\" string-escape
