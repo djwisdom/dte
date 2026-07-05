@@ -1,13 +1,18 @@
+[default.extend-identifiers]
+NDKs = "NDKs"
+
 [type.c]
 extend-glob = ["*.c", "*.h"]
 extend-ignore-words-re = [
-    "^BRE|Pn|clen|doas|ede|inpu|mak|typ$",
+    "^BRE|BSE|Pn|clen|doas|ede|inpu|mak|typ|pathc$",
     "^(?i:iterm)$",
 ]
 
-[type.devmk]
-extend-glob = ["dev.mk"]
-extend-ignore-words-re = ["^clen|ede$"]
+[type.md]
+extend-glob = ["*.md"]
+extend-ignore-words-re = [
+    "^BSE|ba|ded$",
+]
 
 [type.buildmk]
 extend-glob = ["build.mk"]
