@@ -1,14 +1,54 @@
+require c-uchar
+
+syntax .tmux-escape
+
+state start special
+    char u .c-uchar4:END special
+    char U .c-uchar8:END special
+    char -b 0-9 oct2 special
+    eat END special
+
+# "Three octal digits are required, for example \001"
+# https://man7.org/linux/man-pages/man1/tmux.1.html#:~:text=Three%20octal%20digits%20are%20required
+state oct2 special
+    char -b 0-9 oct3
+    recolor error
+    noeat END
+
+state oct3 special
+    char -b 0-9 END special
+    recolor error
+    noeat END
+
+syntax .tmux-variable
+
+state variable
+    char A-Za-z0-9_ this
+    noeat END
+
 syntax tmux
 
-state start code
-    char " \t" this
+state code
+    char -b '\' .tmux-escape:this
+    char '$' .tmux-variable:this
+    char "'" sq
+    char '"' dq
     char # comment
-    noeat command
-
-state comment
-    char "\n" start
     eat this
 
-state command code
-    char "\n" start
+state sq string
+    char "'" code string
+    char "\n" code
+    eat this
+
+# https://man7.org/linux/man-pages/man1/tmux.1.html#:~:text=inside%20double%20quotes
+state dq string
+    char -b '\' .tmux-escape:this
+    char '$' .tmux-variable:this
+    char '"' code string
+    char "\n" code
+    eat this
+
+state comment
+    char "\n" code
     eat this
