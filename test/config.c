@@ -37,26 +37,49 @@ static void test_builtin_configs(TestContext *ctx)
 
     for (size_t i = 0; i < n; i++) {
         const BuiltinConfig cfg = editor_builtin_configs[i];
-        if (str_has_prefix(cfg.name, "syntax/")) {
-            if (str_has_prefix(cfg.name, "syntax/inc/")) {
-                continue;
-            }
-            // Check that built-in syntax files load without errors
-            EXPECT_NULL(find_syntax(syntaxes, path_basename(cfg.name)));
-            unsigned int saved_nr_errs = e->err.nr_errors;
-            EXPECT_NONNULL(load_syntax(e, cfg.text, cfg.name, 0));
-            EXPECT_EQ(e->err.nr_errors, saved_nr_errs);
-            EXPECT_NONNULL(find_syntax(syntaxes, path_basename(cfg.name)));
-        } else {
+        char path[4096];
+        xsnprintf(path, sizeof path, "config/%s", cfg.name);
+
+        if (!str_has_prefix(cfg.name, "syntax/")) {
             // Check that built-in configs and scripts are identical to
             // their source files
-            char path[4096];
-            xsnprintf(path, sizeof path, "config/%s", cfg.name);
             char *src;
             ssize_t size = read_file(path, &src, 8u << 20);
             EXPECT_MEMEQ(src, size, cfg.text.data, cfg.text.length);
             free(src);
+            continue;
         }
+
+        if (str_has_prefix(cfg.name, "syntax/inc/")) {
+            continue;
+        }
+
+        // Check that the files corresponding to built-in syntax files load
+        // without errors.
+        //
+        // Note that we load from disk instead of from the builtins already
+        // in memory, because it makes it much simpler to get source locations
+        // in error messages correct. For example, load_syntax(e, cfg.text, …)
+        // would produce "syntax/c:…" and would require manual adjustments if
+        // wanting e.g. `make check` (inside dte) to jump to the real source
+        // location ("config/syntax/c").
+
+        unsigned int saved_nr_errs = e->err.nr_errors;
+        const char *basename = path_basename(cfg.name);
+        EXPECT_NULL(find_syntax(syntaxes, basename));
+
+        SyntaxLoadFlags flags = SYN_MUST_EXIST | SYN_WARN_ON_UNUSED_SUBSYN;
+        Syntax *syn = load_syntax_file(e, path, flags);
+        EXPECT_NONNULL(syn);
+        if (!syn) {
+            continue;
+        }
+
+        EXPECT_EQ(e->err.nr_errors, saved_nr_errs);
+        EXPECT_STREQ(syn->name, basename);
+        EXPECT_NONNULL(syn->start_state);
+        EXPECT_TRUE(syn->states.count >= 1);
+        EXPECT_NONNULL(find_syntax(syntaxes, basename));
     }
 
     update_all_syntax_styles(&e->syntaxes, &e->styles);
