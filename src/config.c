@@ -295,15 +295,15 @@ void collect_builtin_config_variables(PointerArray *a, StringView prefix)
 
 void collect_builtin_includes(PointerArray *a, const char *prefix)
 {
-    size_t prefix_len = strlen(prefix);
+    StringView prefix_sv = strview(prefix);
+
     for (size_t i = 0; i < ARRAYLEN(builtin_configs); i++) {
-        const char *name = builtin_configs[i].name;
+        StringView name = strview(builtin_configs[i].name);
         if (
-            str_has_strn_prefix(name, prefix, prefix_len)
-            && !str_has_prefix(name, "syntax/")
-            && !str_has_prefix(name, "script/")
+            strview_has_sv_prefix(name, prefix_sv)
+            && !strview_has_either_prefix(name, "syntax/", "script/")
         ) {
-            ptr_array_append(a, xstrdup(name));
+            ptr_array_append(a, xmemdup(name.data, name.length + 1));
         }
     }
 }

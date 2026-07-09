@@ -71,7 +71,7 @@ static bool is_gitlog_commit_line(StringView line)
         return false;
     }
 
-    size_t ndigits = ascii_hex_prefix_length(line.data, line.length);
+    size_t ndigits = ascii_hex_prefix_length(line);
     if (ndigits < 40) {
         return false;
     }

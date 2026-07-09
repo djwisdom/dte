@@ -15,8 +15,7 @@
 static size_t parse_sq(const char *cmd, size_t len, String *buf)
 {
     size_t pos = 0;
-    StringView inner = get_delim(cmd, &pos, len, '\'');
-    string_append_buf(buf, inner.data, inner.length);
+    string_append_strview(buf, get_delim(cmd, &pos, len, '\''));
     return pos;
 }
 

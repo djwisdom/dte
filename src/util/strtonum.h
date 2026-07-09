@@ -27,10 +27,10 @@ static inline bool ascii_isxdigit(unsigned char c)
     return hex_decode(c) <= 0xF;
 }
 
-static inline size_t ascii_hex_prefix_length(const char *str, size_t len)
+static inline size_t ascii_hex_prefix_length(StringView str)
 {
     size_t i = 0;
-    while (i < len && ascii_isxdigit(str[i])) {
+    while (i < str.length && ascii_isxdigit(str.data[i])) {
         i++;
     }
     return i;
