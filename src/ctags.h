@@ -15,17 +15,16 @@ typedef struct {
     bool local; // Indicates if tag is local to file (e.g. "static" in C)
 } Tag;
 
-NONNULL_ARGS WARN_UNUSED_RESULT READWRITE(3) WRITEONLY(6)
+NONNULL_ARGS WARN_UNUSED_RESULT READWRITE(2) WRITEONLY(5)
 bool next_tag (
-    const char *buf,
-    size_t buf_len,
+    StringView text,
     size_t *posp,
     StringView prefix,
     bool exact,
     Tag *tag
 );
 
-bool parse_ctags_line(Tag *t, const char *line, size_t line_len) NONNULL_ARG(1);
+bool parse_ctags_line(Tag *t, StringView line) NONNULL_ARGS;
 void free_tag(Tag *t) NONNULL_ARGS;
 
 #endif

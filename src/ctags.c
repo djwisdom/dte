@@ -10,26 +10,23 @@
 
 // Convert an ex(1) style pattern from a tags(5) file to a basic POSIX
 // regex ("BRE"), so that it can be compiled with regcomp(3)
-static size_t regex_from_ex_pattern (
-    const char *ex_str,
-    size_t len,
-    char **regex_str // out param
-) {
-    BUG_ON(len == 0);
-    const char open_delim = ex_str[0];
+static size_t regex_from_ex_pattern(StringView ex, char **regex_str)
+{
+    BUG_ON(ex.length == 0);
+    const char open_delim = ex.data[0];
     BUG_ON(open_delim != '/' && open_delim != '?');
-    char *buf = xmalloc(xmul(2, len));
+    char *buf = xmalloc(xmul(2, ex.length));
 
     // The pattern isn't a real regex; special chars need to be escaped
-    for (size_t i = 1, j = 0; i < len; i++) {
-        char c = ex_str[i];
+    for (size_t i = 1, j = 0; i < ex.length; i++) {
+        char c = ex.data[i];
         if (c == '\0') {
             break;
         } else if (c == '\\') {
-            if (unlikely(++i >= len)) {
+            if (unlikely(++i >= ex.length)) {
                 break;
             }
-            c = ex_str[i];
+            c = ex.data[i];
             if (c == '\\') {
                 // Escape "\\" as "\\" (any other "\x" becomes just "x")
                 buf[j++] = '\\';
@@ -49,48 +46,50 @@ static size_t regex_from_ex_pattern (
     return 0;
 }
 
-static size_t parse_ex_cmd(Tag *tag, const char *buf, size_t size)
+static size_t parse_ex_cmd(Tag *tag, StringView cmd)
 {
-    if (unlikely(size == 0)) {
+    if (unlikely(cmd.length == 0)) {
         return 0;
     }
 
     size_t n;
-    if (buf[0] == '/' || buf[0] == '?') {
-        n = regex_from_ex_pattern(buf, size, &tag->pattern);
+    if (strview_has_either_prefix(cmd, "/", "?")) {
+        n = regex_from_ex_pattern(cmd, &tag->pattern);
     } else {
-        n = buf_parse_ulong(buf, size, &tag->lineno);
+        n = buf_parse_ulong(cmd.data, cmd.length, &tag->lineno);
     }
 
     if (n == 0) {
         return 0;
     }
 
-    bool trailing_comment = (n + 1 < size) && mem_equal(buf + n, ";\"", 2);
-    return n + (trailing_comment ? 2 : 0);
+    strview_remove_prefix(&cmd, n);
+    StringView delim = strview(";\"");
+    bool trailing_comment = strview_has_sv_prefix(cmd, delim);
+    return n + (trailing_comment ? delim.length : 0);
 }
 
-bool parse_ctags_line(Tag *tag, const char *line, size_t line_len)
+bool parse_ctags_line(Tag *tag, StringView line)
 {
     size_t pos = 0;
-    *tag = (Tag){.name = get_delim(line, &pos, line_len, '\t')};
-    if (tag->name.length == 0 || pos >= line_len) {
+    *tag = (Tag){.name = get_delim(line.data, &pos, line.length, '\t')};
+    if (tag->name.length == 0 || pos >= line.length) {
         return false;
     }
 
-    tag->filename = get_delim(line, &pos, line_len, '\t');
-    if (tag->filename.length == 0 || pos >= line_len) {
+    tag->filename = get_delim(line.data, &pos, line.length, '\t');
+    if (tag->filename.length == 0 || pos >= line.length) {
         return false;
     }
 
-    size_t len = parse_ex_cmd(tag, line + pos, line_len - pos);
+    size_t len = parse_ex_cmd(tag, strview_from_slice(line.data, pos, line.length));
     if (len == 0) {
         BUG_ON(tag->pattern);
         return false;
     }
 
     pos += len;
-    if (pos >= line_len) {
+    if (pos >= line.length) {
         return true;
     }
 
@@ -102,15 +101,15 @@ bool parse_ctags_line(Tag *tag, const char *line, size_t line_len)
      * union:NAME                         tag is member of union NAME
      * typeref:struct:NAME::MEMBER_TYPE   MEMBER_TYPE is type of the tag
      */
-    if (line[pos++] != '\t') {
+    if (line.data[pos++] != '\t') {
         // free `pattern` allocated by parse_ex_cmd()
         free_tag(tag);
         tag->pattern = NULL;
         return false;
     }
 
-    while (pos < line_len) {
-        StringView field = get_delim(line, &pos, line_len, '\t');
+    while (pos < line.length) {
+        StringView field = get_delim(line.data, &pos, line.length, '\t');
         if (field.length == 1 && ascii_isalpha(field.data[0])) {
             tag->kind = field.data[0];
         } else if (strview_equal_cstring(field, "file:")) {
@@ -123,21 +122,20 @@ bool parse_ctags_line(Tag *tag, const char *line, size_t line_len)
 }
 
 bool next_tag (
-    const char *buf,
-    size_t buf_len,
-    size_t *posp, // in-out param
+    StringView text, // Tag file contents
+    size_t *posp, // Current position within `text` [in-out param]
     StringView prefix,
     bool exact,
-    Tag *tag // out param
+    Tag *tag // [out param]
 ) {
-    for (size_t pos = *posp; pos < buf_len; ) {
-        StringView line = buf_slice_next_line(buf, &pos, buf_len);
+    for (size_t pos = *posp; pos < text.length; ) {
+        StringView line = buf_slice_next_line(text.data, &pos, text.length);
         if (
             line.length > 0 // Line is non-empty
             && line.data[0] != '!' // and not a comment
             && strview_has_sv_prefix(line, prefix) // and starts with `prefix`
             && (!exact || line.data[prefix.length] == '\t') // and matches `prefix` exactly, if applicable
-            && parse_ctags_line(tag, line.data, line.length) // and is a valid tags(5) entry
+            && parse_ctags_line(tag, line) // and is a valid tags(5) entry
         ) {
             // Advance the position; `tag` has been filled by parse_ctags_line()
             *posp = pos;

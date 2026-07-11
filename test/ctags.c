@@ -4,56 +4,56 @@
 
 static void test_parse_ctags_line(TestContext *ctx)
 {
-    const char *line = "foo\tfile.c\t/^int foo(char *s)$/;\"\tf\tfile:";
+    StringView line = strview("foo\tfile.c\t/^int foo(char *s)$/;\"\tf\tfile:");
     Tag tag = {.pattern = NULL};
-    EXPECT_TRUE(parse_ctags_line(&tag, line, strlen(line)));
+    EXPECT_TRUE(parse_ctags_line(&tag, line));
     EXPECT_EQ(tag.name.length, 3);
-    EXPECT_PTREQ(tag.name.data, line);
+    EXPECT_PTREQ(tag.name.data, line.data);
     EXPECT_EQ(tag.filename.length, 6);
-    EXPECT_PTREQ(tag.filename.data, line + 4);
+    EXPECT_PTREQ(tag.filename.data, line.data + 4);
     EXPECT_STREQ(tag.pattern, "^int foo(char \\*s)$");
     EXPECT_EQ(tag.lineno, 0);
     EXPECT_EQ(tag.kind, 'f');
     EXPECT_EQ(tag.local, true);
     free_tag(&tag);
 
-    line = "abc\t123.py\t/^backslashes \\\\ in \\ \\: pattern$/";
+    line = strview("abc\t123.py\t/^backslashes \\\\ in \\ \\: pattern$/");
     tag = (Tag){.pattern = NULL};
-    EXPECT_TRUE(parse_ctags_line(&tag, line, strlen(line)));
+    EXPECT_TRUE(parse_ctags_line(&tag, line));
     EXPECT_EQ(tag.filename.length, 6);
     EXPECT_STREQ(tag.pattern, "^backslashes \\\\ in  : pattern$");
     EXPECT_EQ(tag.lineno, 0);
     EXPECT_EQ(tag.kind, 0);
     free_tag(&tag);
 
-    line = "example\tsrc/xyz.c\t488;\"\tk";
+    line = strview("example\tsrc/xyz.c\t488;\"\tk");
     tag = (Tag){.pattern = NULL};
-    EXPECT_TRUE(parse_ctags_line(&tag, line, strlen(line)));
+    EXPECT_TRUE(parse_ctags_line(&tag, line));
     EXPECT_EQ(tag.filename.length, 9);
     EXPECT_NULL(tag.pattern);
     EXPECT_EQ(tag.lineno, 488);
     EXPECT_EQ(tag.kind, 'k');
     free_tag(&tag);
 
-    line = "x\tstr.c\t12495\tz";
+    line = strview("x\tstr.c\t12495\tz");
     tag = (Tag){.pattern = NULL};
-    EXPECT_TRUE(parse_ctags_line(&tag, line, strlen(line)));
+    EXPECT_TRUE(parse_ctags_line(&tag, line));
     EXPECT_NULL(tag.pattern);
     EXPECT_EQ(tag.lineno, 12495);
     EXPECT_EQ(tag.kind, 'z');
     free_tag(&tag);
 
-    line = "name\tfile.c\t/^char after pattern with no tab delimiter/t";
+    line = strview("name\tfile.c\t/^char after pattern with no tab delimiter/t");
     tag = (Tag){.pattern = NULL};
-    EXPECT_FALSE(parse_ctags_line(&tag, line, strlen(line)));
+    EXPECT_FALSE(parse_ctags_line(&tag, line));
     free_tag(&tag);
 
-    line = "bar\tsource.c\t/^unterminated pattern\tf";
-    EXPECT_FALSE(parse_ctags_line(&tag, line, strlen(line)));
+    line = strview("bar\tsource.c\t/^unterminated pattern\tf");
+    EXPECT_FALSE(parse_ctags_line(&tag, line));
     free_tag(&tag);
 
-    StringView sv = STRING_VIEW("tag-name\tfile.txt\t/^embedded NUL \0 char/\tf");
-    EXPECT_FALSE(parse_ctags_line(&tag, sv.data, sv.length));
+    line = (StringView)STRING_VIEW("tag-name\tfile.txt\t/^embedded NUL \0 char/\tf");
+    EXPECT_FALSE(parse_ctags_line(&tag, line));
     free_tag(&tag);
 }
 
@@ -81,10 +81,11 @@ static void test_next_tag(TestContext *ctx)
     char *buf;
     ssize_t len = read_file("test/data/ctags.txt", &buf, 8192);
     ASSERT_TRUE(len >= 64);
-
+    StringView src = string_view(buf, len);
     StringView prefix = strview("");
     Tag t;
-    for (size_t i = 0, pos = 0; next_tag(buf, len, &pos, prefix, false, &t); i++) {
+
+    for (size_t i = 0, pos = 0; next_tag(src, &pos, prefix, false, &t); i++) {
         EXPECT_STRVIEW_EQ_CSTRING(t.name, expected[i].name);
         IEXPECT_EQ(t.kind, expected[i].kind);
         IEXPECT_EQ(t.local, expected[i].local);
@@ -96,12 +97,12 @@ static void test_next_tag(TestContext *ctx)
     size_t pos = 0;
     t.name = strview(NULL);
     prefix = strview("hashmap_res");
-    EXPECT_TRUE(next_tag(buf, len, &pos, prefix, false, &t));
+    EXPECT_TRUE(next_tag(src, &pos, prefix, false, &t));
     EXPECT_STRVIEW_EQ_CSTRING(t.name, "hashmap_resize");
     free_tag(&t);
-    EXPECT_FALSE(next_tag(buf, len, &pos, prefix, false, &t));
+    EXPECT_FALSE(next_tag(src, &pos, prefix, false, &t));
     pos = 0;
-    EXPECT_FALSE(next_tag(buf, len, &pos, prefix, true, &t));
+    EXPECT_FALSE(next_tag(src, &pos, prefix, true, &t));
 
     free(buf);
 }

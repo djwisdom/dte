@@ -226,11 +226,14 @@ static void tag_file_find_tags (
     PointerArray *tags
 ) {
     Tag *tag = xmalloc(sizeof(*tag));
+    StringView src = string_view(tf->buf, tf->size);
     size_t pos = 0;
-    while (next_tag(tf->buf, tf->size, &pos, name, true, tag)) {
+
+    while (next_tag(src, &pos, name, true, tag)) {
         ptr_array_append(tags, tag);
         tag = xmalloc(sizeof(*tag));
     }
+
     free(tag);
 
     if (tags->count < 2) {
@@ -328,8 +331,10 @@ void collect_tags(TagFile *tf, PointerArray *a, StringView prefix)
 
     Tag tag;
     size_t pos = 0;
+    StringView src = string_view(tf->buf, tf->size);
     StringView prev = STRING_VIEW_INIT;
-    while (next_tag(tf->buf, tf->size, &pos, prefix, false, &tag)) {
+
+    while (next_tag(src, &pos, prefix, false, &tag)) {
         BUG_ON(tag.name.length == 0);
         if (prev.length == 0 || !strview_equal(tag.name, prev)) {
             ptr_array_append(a, xstrcut(tag.name.data, tag.name.length));
@@ -365,11 +370,12 @@ String dump_tags(TagFile *tf, ErrorBuffer *ebuf)
     }
 
     const StringView prefix = STRING_VIEW_INIT;
+    const StringView src = string_view(tf->buf, tf->size);
     size_t pos = 0;
     Tag tag;
     string_append_literal(&buf, "\n\nTag entries\n-----------\n\n");
 
-    while (next_tag(tf->buf, tf->size, &pos, prefix, false, &tag)) {
+    while (next_tag(src, &pos, prefix, false, &tag)) {
         string_append_buf(&buf, tag.name.data, tag.name.length);
         string_append_literal(&buf, "   ");
         string_append_buf(&buf, tag.filename.data, tag.filename.length);
