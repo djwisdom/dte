@@ -5,6 +5,7 @@
 #include "command/run.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 
 typedef enum {
     CMDERR_NONE,
@@ -13,7 +14,7 @@ typedef enum {
     CMDERR_UNEXPECTED_EOF,
 } CommandParseError;
 
-char *parse_command_arg(const CommandRunner *runner, const char *cmd, size_t len) RETURNS_NONNULL NONNULL_ARG(1) NONNULL_ARG_IF_NONZERO_LENGTH(2, 3);
+char *parse_command_arg(const CommandRunner *runner, StringView cmd) RETURNS_NONNULL NONNULL_ARGS;
 size_t find_end(const char *cmd, size_t pos, CommandParseError *err) NONNULL_ARGS;
 CommandParseError parse_commands(const CommandRunner *runner, PointerArray *array, const char *cmd) NONNULL_ARGS WARN_UNUSED_RESULT;
 const char *command_parse_error_to_string(CommandParseError err) RETURNS_NONNULL;

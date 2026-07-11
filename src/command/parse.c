@@ -12,46 +12,51 @@
 #include "util/xmalloc.h"
 #include "util/xstring.h"
 
-static size_t parse_sq(const char *cmd, size_t len, String *buf)
+static size_t parse_sq(StringView cmd, String *buf)
 {
     size_t pos = 0;
-    string_append_strview(buf, get_delim(cmd, &pos, len, '\''));
+    string_append_strview(buf, get_delim(cmd.data, &pos, cmd.length, '\''));
     return pos;
 }
 
-static size_t unicode_escape(const char *str, size_t count, String *buf)
+static size_t unicode_escape(StringView hexstr, String *buf)
 {
     // Note: `u` doesn't need to be initialized here, but `gcc -Og`
     // gives a spurious -Wmaybe-uninitialized warning if it's not
     unsigned int u = 0;
     static_assert(sizeof(u) >= 4);
-    size_t n = buf_parse_hex_uint(str, count, &u);
+    size_t n = buf_parse_hex_uint(hexstr, &u);
     if (likely(n > 0 && u_is_unicode(u))) {
         string_append_codepoint(buf, u);
     }
     return n;
 }
 
-static size_t hex_escape(const char *str, size_t count, String *buf)
+static size_t hex_escape(StringView hexstr, String *buf)
 {
     unsigned int x = 0;
-    size_t n = buf_parse_hex_uint(str, count, &x);
+    size_t n = buf_parse_hex_uint(hexstr, &x);
     if (likely(n == 2)) {
         string_append_byte(buf, x);
     }
     return n;
 }
 
-static size_t parse_dq(const char *cmd, size_t len, String *buf)
+static StringView slice(StringView cmd, size_t pos, size_t maxlen)
+{
+    return string_view(cmd.data + pos, MIN(maxlen, cmd.length - pos));
+}
+
+static size_t parse_dq(StringView cmd, String *buf)
 {
     size_t pos = 0;
-    while (pos < len) {
-        unsigned char ch = cmd[pos++];
+    while (pos < cmd.length) {
+        unsigned char ch = cmd.data[pos++];
         if (ch == '"') {
             break;
         }
-        if (ch == '\\' && pos < len) {
-            ch = cmd[pos++];
+        if (ch == '\\' && pos < cmd.length) {
+            ch = cmd.data[pos++];
             switch (ch) {
             case 'a': ch = '\a'; break;
             case 'b': ch = '\b'; break;
@@ -65,13 +70,11 @@ static size_t parse_dq(const char *cmd, size_t len, String *buf)
             case '"':
                 break;
             case 'x':
-                pos += hex_escape(cmd + pos, MIN(2, len - pos), buf);
+                pos += hex_escape(slice(cmd, pos, 2), buf);
                 continue;
             case 'u':
-                pos += unicode_escape(cmd + pos, MIN(4, len - pos), buf);
-                continue;
             case 'U':
-                pos += unicode_escape(cmd + pos, MIN(8, len - pos), buf);
+                pos += unicode_escape(slice(cmd, pos, ch == 'U' ? 8 : 4), buf);
                 continue;
             default:
                 string_append_byte(buf, '\\');
@@ -125,20 +128,19 @@ static size_t parse_bracketed_var (
 
 static size_t parse_var (
     const CommandRunner *runner,
-    const char *cmd,
-    size_t len,
+    StringView cmd,
     String *buf
 ) {
-    char ch = len ? cmd[0] : 0;
+    char ch = cmd.length ? cmd.data[0] : 0;
     if (!is_alpha_or_underscore(ch)) {
         bool bracketed = (ch == '{');
-        return bracketed ? parse_bracketed_var(runner, cmd, len, buf) : 0;
+        return bracketed ? parse_bracketed_var(runner, cmd.data, cmd.length, buf) : 0;
     }
 
     AsciiCharType type_mask = ASCII_ALNUM | ASCII_UNDERSCORE;
-    size_t var_len = ascii_type_prefix_length(cmd, len, type_mask);
-    TRACE_CMD("expanding variable: $%.*s", (int)var_len, cmd);
-    return expand_var(runner, cmd, var_len, buf);
+    size_t var_len = ascii_type_prefix_length(cmd.data, cmd.length, type_mask);
+    TRACE_CMD("expanding variable: $%.*s", (int)var_len, cmd.data);
+    return expand_var(runner, cmd.data, var_len, buf);
 }
 
 // Parse a single dterc(5) argument from `cmd`, stopping when an unquoted
@@ -146,12 +148,12 @@ static size_t parse_var (
 // been processed without encountering such a character. Escape sequences
 // and $variables are expanded during processing and the fully expanded
 // result is returned as a malloc'd string.
-char *parse_command_arg(const CommandRunner *runner, const char *cmd, size_t len)
+char *parse_command_arg(const CommandRunner *runner, StringView cmd)
 {
     const StringView *home = runner->home_dir;
     bool expand_ts = (runner->flags & CMDRUNNER_EXPAND_TILDE_SLASH);
-    bool tilde_slash = expand_ts && len >= 2 && mem_equal(cmd, "~/", 2);
-    String buf = string_new(len + 1 + (tilde_slash ? home->length : 0));
+    bool tilde_slash = expand_ts && strview_has_prefix(cmd, "~/");
+    String buf = string_new(cmd.length + 1 + (tilde_slash ? home->length : 0));
     size_t pos = 0;
 
     if (tilde_slash) {
@@ -159,8 +161,8 @@ char *parse_command_arg(const CommandRunner *runner, const char *cmd, size_t len
         pos += 1; // Skip past '~' and leave '/' to be handled below
     }
 
-    while (pos < len) {
-        char ch = cmd[pos++];
+    while (pos < cmd.length) {
+        char ch = cmd.data[pos++];
         switch (ch) {
         case '\t':
         case '\n':
@@ -169,19 +171,19 @@ char *parse_command_arg(const CommandRunner *runner, const char *cmd, size_t len
         case ';':
             goto end;
         case '\'':
-            pos += parse_sq(cmd + pos, len - pos, &buf);
+            pos += parse_sq(strview_from_slice(cmd.data, pos, cmd.length), &buf);
             break;
         case '"':
-            pos += parse_dq(cmd + pos, len - pos, &buf);
+            pos += parse_dq(strview_from_slice(cmd.data, pos, cmd.length), &buf);
             break;
         case '$':
-            pos += parse_var(runner, cmd + pos, len - pos, &buf);
+            pos += parse_var(runner, strview_from_slice(cmd.data, pos, cmd.length), &buf);
             break;
         case '\\':
-            if (unlikely(pos == len)) {
+            if (unlikely(pos == cmd.length)) {
                 goto end;
             }
-            ch = cmd[pos++];
+            ch = cmd.data[pos++];
             // Fallthrough
         default:
             string_append_byte(&buf, ch);
@@ -277,7 +279,8 @@ CommandParseError parse_commands (
             return err;
         }
 
-        ptr_array_append(array, parse_command_arg(runner, cmd + pos, end - pos));
+        StringView sv = strview_from_slice(cmd, pos, end);
+        ptr_array_append(array, parse_command_arg(runner, sv));
         pos = end;
     }
 

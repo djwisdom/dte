@@ -37,12 +37,12 @@ static inline size_t ascii_hex_prefix_length(StringView str)
 }
 
 WARN_UNUSED_RESULT
-static inline size_t buf_parse_hex_uint(const char *str, size_t len, unsigned int *valp)
+static inline size_t buf_parse_hex_uint(StringView str, unsigned int *valp)
 {
     unsigned int val = 0;
     size_t i;
-    for (i = 0; i < len; i++) {
-        unsigned int x = hex_decode(str[i]);
+    for (i = 0; i < str.length; i++) {
+        unsigned int x = hex_decode(str.data[i]);
         if (unlikely(x > 0xF)) {
             break;
         }

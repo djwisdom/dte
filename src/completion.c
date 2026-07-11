@@ -875,7 +875,7 @@ static void init_completion(EditorState *e, const CommandLine *cmdline)
             }
         }
 
-        ptr_array_append(&array, parse_command_arg(&runner, arg.data, arg.length));
+        ptr_array_append(&array, parse_command_arg(&runner, arg));
     }
 
     // Text to be completed
@@ -885,7 +885,7 @@ static void init_completion(EditorState *e, const CommandLine *cmdline)
         completion_pos += collect_vars(&cs->completions, text);
     } else {
         cs->escaped = text;
-        cs->parsed = parse_command_arg(&runner, text.data, text.length);
+        cs->parsed = parse_command_arg(&runner, text);
         cs->add_space_after_single_match = true;
         size_t count = array.count;
         char **args = count ? (char**)array.ptrs + 1 + semicolon : NULL;

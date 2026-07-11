@@ -1217,44 +1217,44 @@ static void test_buf_parse_hex_uint(TestContext *ctx)
     char buf[HEX_STR_MAX(val) + 1];
     size_t buf_len = xsnprintf(buf, sizeof buf, "%x", UINT_MAX);
     val = 0x90;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len, &val), buf_len);
+    EXPECT_EQ(buf_parse_hex_uint(strview(buf), &val), buf_len);
     EXPECT_UINT_EQ(val, UINT_MAX);
 
     buf_len = xsnprintf(buf, sizeof buf, "1%x", UINT_MAX);
     val = 0x100;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len, &val), 0);
+    EXPECT_EQ(buf_parse_hex_uint(strview(buf), &val), 0);
     EXPECT_UINT_EQ(val, 0x100);
 
     buf_len = xsnprintf(buf, sizeof buf, "%xg", UINT_MAX);
     val = 0x110;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len, &val), buf_len - 1);
+    EXPECT_EQ(buf_parse_hex_uint(strview(buf), &val), buf_len - 1);
     EXPECT_UINT_EQ(val, UINT_MAX);
 
     buf_len = xsnprintf(buf, sizeof buf, "%xf", UINT_MAX);
     val = 0x120;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len, &val), 0);
+    EXPECT_EQ(buf_parse_hex_uint(strview(buf), &val), 0);
     EXPECT_UINT_EQ(val, 0x120);
 
     buf_len = sizeof(buf);
     memset(buf, '0', buf_len);
     val = 0x130;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len, &val), buf_len);
+    EXPECT_EQ(buf_parse_hex_uint(string_view(buf, buf_len), &val), buf_len);
     EXPECT_UINT_EQ(val, 0);
 
     val = 0x140;
-    EXPECT_EQ(buf_parse_hex_uint(buf, buf_len - 2, &val), buf_len - 2);
+    EXPECT_EQ(buf_parse_hex_uint(string_view(buf, buf_len - 2), &val), buf_len - 2);
     EXPECT_UINT_EQ(val, 0);
 
     val = 0x150;
-    EXPECT_EQ(buf_parse_hex_uint(STRN("12345678"), &val), 8);
+    EXPECT_EQ(buf_parse_hex_uint(strview("12345678"), &val), 8);
     EXPECT_UINT_EQ(val, 0x12345678);
 
     val = 0x160;
-    EXPECT_EQ(buf_parse_hex_uint(STRN("00abcdeF01"), &val), 10);
+    EXPECT_EQ(buf_parse_hex_uint(strview("00abcdeF01"), &val), 10);
     EXPECT_UINT_EQ(val, 0xABCDEF01);
 
     val = 0x170;
-    EXPECT_EQ(buf_parse_hex_uint("0123456789", 4, &val), 4);
+    EXPECT_EQ(buf_parse_hex_uint(string_view("0123456789", 4), &val), 4);
     EXPECT_UINT_EQ(val, 0x123);
 }
 
