@@ -56,7 +56,7 @@ static size_t parse_ex_cmd(Tag *tag, StringView cmd)
     if (strview_has_either_prefix(cmd, "/", "?")) {
         n = regex_from_ex_pattern(cmd, &tag->pattern);
     } else {
-        n = buf_parse_ulong(cmd.data, cmd.length, &tag->lineno);
+        n = buf_parse_ulong(cmd, &tag->lineno);
     }
 
     if (n == 0) {

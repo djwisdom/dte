@@ -90,7 +90,7 @@ static void open_files_from_string(EditorState *e, const String *str)
 {
     PointerArray filenames = PTR_ARRAY_INIT;
     for (size_t pos = 0, size = str->len; pos < size; ) {
-        char *filename = buf_next_line(str->buffer, &pos, size);
+        char *filename = buf_next_line(str->buffer, &pos, size); // Mutates `str->buffer`
         if (filename[0] != '\0') {
             ptr_array_append(&filenames, filename);
         }
@@ -109,9 +109,9 @@ static void open_files_from_string(EditorState *e, const String *str)
     ptr_array_free_array(&filenames);
 }
 
-static void parse_and_activate_message(EditorState *e, const String *str, ExecAction action)
+static void parse_and_activate_message(EditorState *e, StringView str, ExecAction action)
 {
-    if (unlikely(str->len == 0)) {
+    if (unlikely(str.length == 0)) {
         error_msg(&e->err, "child produced no output");
         return;
     }
@@ -122,7 +122,7 @@ static void parse_and_activate_message(EditorState *e, const String *str, ExecAc
     size_t count = msgs->array.count;
     size_t x;
 
-    if (!count || !buf_parse_size(str->buffer, str->len, &x) || !x) {
+    if (!count || !buf_parse_size(str, &x) || !x) {
         return;
     }
 
@@ -130,10 +130,10 @@ static void parse_and_activate_message(EditorState *e, const String *str, ExecAc
     activate_current_message(msgs, e->window, &e->err);
 }
 
-static void parse_and_activate_tags(EditorState *e, const String *str, ExecAction action)
+static void parse_and_activate_tags(EditorState *e, StringView str, ExecAction action)
 {
     ErrorBuffer *ebuf = &e->err;
-    if (unlikely(str->len == 0)) {
+    if (unlikely(str.length == 0)) {
         error_msg(ebuf, "child produced no output");
         return;
     }
@@ -154,9 +154,9 @@ static void parse_and_activate_tags(EditorState *e, const String *str, ExecActio
     MessageList *msgs = &e->messages[msgs_idx];
     clear_messages(msgs);
 
-    for (size_t pos = 0, len = str->len; pos < len; ) {
+    for (size_t pos = 0; pos < str.length; ) {
         Tag tag;
-        StringView line = buf_slice_next_line(str->buffer, &pos, len);
+        StringView line = buf_slice_next_line(str.data, &pos, str.length);
         if (line.length == 0) {
             continue;
         }
@@ -210,7 +210,7 @@ static void insert_to_selection (
     view->sel_eo = SEL_EO_RECALC;
 }
 
-static void show_spawn_error_msg(ErrorBuffer *ebuf, const String *errstr, int err)
+static void show_spawn_error_msg(ErrorBuffer *ebuf, StringView errstr, int err)
 {
     if (err <= 0) {
         // spawn() returned an error code instead of an exit code, which
@@ -222,9 +222,9 @@ static void show_spawn_error_msg(ErrorBuffer *ebuf, const String *errstr, int er
 
     char msg[512];
     msg[0] = '\0';
-    if (errstr->len) {
+    if (errstr.length) {
         size_t pos = 0;
-        StringView line = buf_slice_next_line(errstr->buffer, &pos, errstr->len);
+        StringView line = buf_slice_next_line(errstr.data, &pos, errstr.length);
         BUG_ON(pos == 0);
         size_t len = MIN(line.length, sizeof(msg) - 8);
         xsnprintf(msg, sizeof(msg), ": \"%.*s\"", (int)len, line.data);
@@ -400,7 +400,7 @@ ssize_t handle_exec (
     free(alloc);
 
     if (err != 0) {
-        show_spawn_error_msg(&e->err, &ctx.outputs[1], err);
+        show_spawn_error_msg(&e->err, strview_from_string(&ctx.outputs[1]), err);
         string_free(&ctx.outputs[0]);
         string_free(&ctx.outputs[1]);
         view->cursor = saved_cursor;
@@ -450,7 +450,7 @@ ssize_t handle_exec (
     case EXEC_MSG_A:
     case EXEC_MSG_B:
     case EXEC_MSG_C:
-        parse_and_activate_message(e, output, out_action);
+        parse_and_activate_message(e, strview_from_string(output), out_action);
         break;
     case EXEC_OPEN:
         open_files_from_string(e, output);
@@ -459,7 +459,7 @@ ssize_t handle_exec (
     case EXEC_TAG_A:
     case EXEC_TAG_B:
     case EXEC_TAG_C:
-        parse_and_activate_tags(e, output, out_action);
+        parse_and_activate_tags(e, strview_from_string(output), out_action);
         break;
     case EXEC_EVAL:
         exec_normal_config(e, strview_from_string(output));

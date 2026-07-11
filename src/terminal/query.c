@@ -385,14 +385,19 @@ KeyCode parse_dcs_query_reply(StringView seq, bool truncated)
     }
 
     if (strview_remove_matching_prefix(&seq, "1$r")) {
-        if (strview_has_suffix(seq, " q")) {
-            size_t n = seq.length - 2;
+        if (strview_remove_matching_suffix(&seq, " q")) {
             unsigned int x;
-            if (n >= 1 && n == buf_parse_uint(seq.data, n, &x)) {
+            if (seq.length && buf_parse_uint(seq, &x) == seq.length) {
                 const char *str = (x <= CURSOR_STEADY_BAR) ? cursor_type_to_str(x) : "??";
                 LOG_DEBUG("DECRQSS DECSCUSR (cursor style) reply: %u (%s)", x, str);
                 return KEY_IGNORE;
             }
+
+            LOG_WARNING (
+                "invalid DECRQSS DECSCUSR (cursor style) reply string: %.*s",
+                (int)seq.length, seq.data
+            );
+            return KEY_IGNORE;
         }
 
         if (strview_remove_matching_suffix(&seq, "m")) {

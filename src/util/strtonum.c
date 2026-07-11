@@ -26,20 +26,20 @@ UNITTEST {
     BUG_ON(hex_decode_table[sizeof(hex_decode_table) - 1] != I);
 }
 
-size_t buf_parse_uintmax(const char *str, size_t len, uintmax_t *valp)
+size_t buf_parse_uintmax(StringView str, uintmax_t *valp)
 {
-    if (unlikely(len == 0 || !ascii_isdigit(str[0]))) {
+    if (unlikely(str.length == 0 || !ascii_isdigit(str.data[0]))) {
         return 0;
     }
 
-    uintmax_t val = str[0] - '0';
+    uintmax_t val = str.data[0] - '0';
     size_t i = 1;
 
-    while (i < len && ascii_isdigit(str[i])) {
+    while (i < str.length && ascii_isdigit(str.data[i])) {
         if (unlikely(umax_multiply_overflows(val, 10, &val))) {
             return 0;
         }
-        if (unlikely(umax_add_overflows(val, str[i++] - '0', &val))) {
+        if (unlikely(umax_add_overflows(val, str.data[i++] - '0', &val))) {
             return 0;
         }
     }
@@ -48,10 +48,10 @@ size_t buf_parse_uintmax(const char *str, size_t len, uintmax_t *valp)
     return i;
 }
 
-size_t buf_parse_ulong(const char *str, size_t len, unsigned long *valp)
+size_t buf_parse_ulong(StringView str, unsigned long *valp)
 {
     uintmax_t val;
-    size_t n = buf_parse_uintmax(str, len, &val);
+    size_t n = buf_parse_uintmax(str, &val);
     if (n == 0 || val > ULONG_MAX) {
         return 0;
     }
@@ -59,10 +59,10 @@ size_t buf_parse_ulong(const char *str, size_t len, unsigned long *valp)
     return n;
 }
 
-size_t buf_parse_uint(const char *str, size_t len, unsigned int *valp)
+size_t buf_parse_uint(StringView str, unsigned int *valp)
 {
     uintmax_t val;
-    size_t n = buf_parse_uintmax(str, len, &val);
+    size_t n = buf_parse_uintmax(str, &val);
     if (n == 0 || val > UINT_MAX) {
         return 0;
     }
@@ -70,10 +70,10 @@ size_t buf_parse_uint(const char *str, size_t len, unsigned int *valp)
     return n;
 }
 
-size_t buf_parse_size(const char *str, size_t len, size_t *valp)
+size_t buf_parse_size(StringView str, size_t *valp)
 {
     uintmax_t val;
-    size_t n = buf_parse_uintmax(str, len, &val);
+    size_t n = buf_parse_uintmax(str, &val);
     if (n == 0 || val > SIZE_MAX) {
         return 0;
     }
@@ -81,27 +81,26 @@ size_t buf_parse_size(const char *str, size_t len, size_t *valp)
     return n;
 }
 
-static size_t buf_parse_long(const char *str, size_t len, long *valp)
+static size_t buf_parse_long(StringView str, long *valp)
 {
-    if (unlikely(len == 0)) {
+    if (unlikely(str.length == 0)) {
         return 0;
     }
 
     bool negative = false;
     size_t skipped = 0;
-    switch (str[0]) {
+    switch (str.data[0]) {
     case '-':
         negative = true;
         // Fallthrough
     case '+':
         skipped = 1;
-        str++;
-        len--;
+        strview_remove_prefix(&str, 1);
         break;
     }
 
     uintmax_t val;
-    size_t n = buf_parse_uintmax(str, len, &val);
+    size_t n = buf_parse_uintmax(str, &val);
     if (n == 0 || val > LONG_MAX) {
         return 0;
     }
@@ -117,30 +116,32 @@ static size_t buf_parse_long(const char *str, size_t len, long *valp)
 
 bool str_to_int(const char *str, int *valp)
 {
-    const size_t len = strlen(str);
-    if (unlikely(len == 0)) {
+    StringView sv = strview(str);
+    if (unlikely(sv.length == 0)) {
         return false;
     }
+
     long val;
-    const size_t n = buf_parse_long(str, len, &val);
-    if (n != len || val < INT_MIN || val > INT_MAX) {
+    if (buf_parse_long(sv, &val) != sv.length || val < INT_MIN || val > INT_MAX) {
         return false;
     }
+
     *valp = (int)val;
     return true;
 }
 
 bool str_to_uintmax(const char *str, uintmax_t *valp)
 {
-    const size_t len = strlen(str);
-    if (unlikely(len == 0)) {
+    StringView sv = strview(str);
+    if (unlikely(sv.length == 0)) {
         return false;
     }
+
     uintmax_t val;
-    const size_t n = buf_parse_uintmax(str, len, &val);
-    if (n != len) {
+    if (buf_parse_uintmax(sv, &val) != sv.length) {
         return false;
     }
+
     *valp = val;
     return true;
 }
@@ -151,6 +152,7 @@ bool str_to_uint(const char *str, unsigned int *valp)
     if (!str_to_uintmax(str, &x) || x > UINT_MAX) {
         return false;
     }
+
     *valp = (unsigned int)x;
     return true;
 }
@@ -161,6 +163,7 @@ bool str_to_ulong(const char *str, unsigned long *valp)
     if (!str_to_uintmax(str, &x) || x > ULONG_MAX) {
         return false;
     }
+
     *valp = (unsigned long)x;
     return true;
 }
@@ -171,16 +174,16 @@ bool str_to_size(const char *str, size_t *valp)
     if (!str_to_uintmax(str, &x) || x > SIZE_MAX) {
         return false;
     }
+
     *valp = (size_t)x;
     return true;
 }
 
 // Parse line and column number from line[,col] or line[:col]
-bool str_to_xfilepos(const char *str, size_t *linep, size_t *colp)
+bool str_to_xfilepos(StringView sv, size_t *linep, size_t *colp)
 {
-    size_t len = strlen(str);
     size_t line, col;
-    size_t i = buf_parse_size(str, len, &line);
+    size_t i = buf_parse_size(sv, &line);
     if (i == 0 || line < 1) {
         return false;
     }
@@ -189,13 +192,19 @@ bool str_to_xfilepos(const char *str, size_t *linep, size_t *colp)
     // (which is NOT a valid column number). Callers should be prepared
     // to check this and substitute it for something more appropriate,
     // or otherwise use str_to_filepos() instead.
-    if (i == len) {
+    if (i == sv.length) {
         col = 0;
         goto out;
     }
 
-    char c = str[i];
-    if ((c != ':' && c != ',') || !str_to_size(str + i + 1, &col) || col < 1) {
+    strview_remove_prefix(&sv, i);
+
+    if (
+        !strview_remove_either_matching_prefix(&sv, ":", ",")
+        || sv.length == 0
+        || buf_parse_size(sv, &col) != sv.length
+        || col == 0
+    ) {
         return false;
     }
 
@@ -212,10 +221,11 @@ out:
 bool str_to_filepos(const char *str, size_t *linep, size_t *colp)
 {
     size_t col;
-    bool r = str_to_xfilepos(str, linep, &col);
+    bool r = str_to_xfilepos(strview(str), linep, &col);
     if (r) {
         *colp = col + !col;
     }
+
     return r;
 }
 
@@ -248,7 +258,7 @@ size_t size_str_width(size_t x)
 intmax_t parse_filesize(const char *str)
 {
     uintmax_t x;
-    size_t ndigits = buf_parse_uintmax(str, strlen(str), &x);
+    size_t ndigits = buf_parse_uintmax(strview(str), &x);
     if (unlikely(ndigits == 0 || x > INTMAX_MAX)) {
         return ascii_isdigit(str[0]) ? -EOVERFLOW : -EINVAL;
     }

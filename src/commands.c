@@ -942,7 +942,7 @@ static bool cmd_line(EditorState *e, const CommandArgs *a)
 {
     const char *str = a->args[0];
     size_t line, column;
-    if (unlikely(!str_to_xfilepos(str, &line, &column))) {
+    if (unlikely(!str_to_xfilepos(strview(str), &line, &column))) {
         return error_msg(&e->err, "Invalid line number: %s", str);
     }
 

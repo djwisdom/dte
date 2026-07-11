@@ -115,8 +115,7 @@ static String term_read_bracketed_paste(TermInputBuffer *input)
     if (remainder.length) {
         log_bpaste_remainder(remainder);
         BUG_ON(remainder.length > TERM_INBUF_SIZE);
-        memcpy(input->buf, remainder.data, remainder.length);
-        input->len = remainder.length;
+        input->len = copystrn(input->buf, remainder.data, remainder.length);
     }
 
 out:

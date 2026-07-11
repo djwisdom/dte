@@ -1124,51 +1124,51 @@ static void test_buf_parse_uintmax(TestContext *ctx)
     size_t max_len = xsnprintf(max, sizeof max, "%ju", UINTMAX_MAX);
 
     val = 11;
-    EXPECT_EQ(buf_parse_uintmax(max, max_len, &val), max_len);
+    EXPECT_EQ(buf_parse_uintmax(string_view(max, max_len), &val), max_len);
     EXPECT_UINT_EQ(val, UINTMAX_MAX);
 
     val = 22;
     max[max_len++] = '9';
-    EXPECT_EQ(buf_parse_uintmax(max, max_len, &val), 0);
+    EXPECT_EQ(buf_parse_uintmax(string_view(max, max_len), &val), 0);
     EXPECT_EQ(val, 22);
 
     val = 33;
     max[max_len++] = '7';
-    EXPECT_EQ(buf_parse_uintmax(max, max_len, &val), 0);
+    EXPECT_EQ(buf_parse_uintmax(string_view(max, max_len), &val), 0);
     EXPECT_EQ(val, 33);
 
-    EXPECT_EQ(buf_parse_uintmax("0", 1, &val), 1);
+    EXPECT_EQ(buf_parse_uintmax(strview("0"), &val), 1);
     EXPECT_EQ(val, 0);
 
-    EXPECT_EQ(buf_parse_uintmax("0019817", 8, &val), 7);
+    EXPECT_EQ(buf_parse_uintmax(string_view("0019817", 8), &val), 7);
     EXPECT_EQ(val, 19817);
 
-    EXPECT_EQ(buf_parse_uintmax("0098765", 5, &val), 5);
+    EXPECT_EQ(buf_parse_uintmax(string_view("0098765", 5), &val), 5);
     EXPECT_EQ(val, 987);
 
     char buf[4] = " 90/";
     buf[0] = CHAR_MAX;
-    EXPECT_EQ(buf_parse_uintmax(buf, 4, &val), 0);
+    EXPECT_EQ(buf_parse_uintmax(string_view(buf, 4), &val), 0);
 
     for (char c = CHAR_MIN; c < CHAR_MAX; c++) {
         buf[0] = c;
         if (!ascii_isdigit(c)) {
-            EXPECT_EQ(buf_parse_uintmax(buf, 4, &val), 0);
+            EXPECT_EQ(buf_parse_uintmax(string_view(buf, 4), &val), 0);
             continue;
         }
         val = 337;
-        EXPECT_EQ(buf_parse_uintmax(buf, 0, &val), 0);
+        EXPECT_EQ(buf_parse_uintmax(string_view(buf, 0), &val), 0);
         EXPECT_EQ(val, 337);
-        EXPECT_EQ(buf_parse_uintmax(buf, 1, &val), 1);
+        EXPECT_EQ(buf_parse_uintmax(string_view(buf, 1), &val), 1);
         EXPECT_TRUE(val <= 9);
-        EXPECT_EQ(buf_parse_uintmax(buf, 2, &val), 2);
+        EXPECT_EQ(buf_parse_uintmax(string_view(buf, 2), &val), 2);
         EXPECT_TRUE(val >= 9);
         EXPECT_TRUE(val <= 99);
-        EXPECT_EQ(buf_parse_uintmax(buf, 3, &val), 3);
+        EXPECT_EQ(buf_parse_uintmax(string_view(buf, 3), &val), 3);
         EXPECT_TRUE(val >= 90);
         EXPECT_TRUE(val <= 990);
         const uintmax_t prev = val;
-        EXPECT_EQ(buf_parse_uintmax(buf, 4, &val), 3);
+        EXPECT_EQ(buf_parse_uintmax(string_view(buf, 4), &val), 3);
         EXPECT_EQ(val, prev);
     }
 }
@@ -1180,18 +1180,18 @@ static void test_buf_parse_ulong(TestContext *ctx)
     size_t max_len = xsnprintf(max, sizeof max, "%lu", ULONG_MAX);
 
     val = 88;
-    EXPECT_EQ(buf_parse_ulong(max, max_len, &val), max_len);
+    EXPECT_EQ(buf_parse_ulong(strview(max), &val), max_len);
     EXPECT_UINT_EQ(val, ULONG_MAX);
 
     val = 99;
     max[max_len++] = '1';
-    EXPECT_EQ(buf_parse_ulong(max, max_len, &val), 0);
+    EXPECT_EQ(buf_parse_ulong(string_view(max, max_len), &val), 0);
     EXPECT_EQ(val, 99);
 
-    EXPECT_EQ(buf_parse_ulong("0", 1, &val), 1);
+    EXPECT_EQ(buf_parse_ulong(strview("0"), &val), 1);
     EXPECT_EQ(val, 0);
 
-    EXPECT_EQ(buf_parse_ulong("9876", 4, &val), 4);
+    EXPECT_EQ(buf_parse_ulong(strview("9876"), &val), 4);
     EXPECT_EQ(val, 9876);
 }
 
@@ -1202,12 +1202,12 @@ static void test_buf_parse_size(TestContext *ctx)
     size_t max_len = xsnprintf(max, sizeof max, "%zu", SIZE_MAX);
 
     val = 14;
-    EXPECT_EQ(buf_parse_size(max, max_len, &val), max_len);
+    EXPECT_EQ(buf_parse_size(strview(max), &val), max_len);
     EXPECT_UINT_EQ(val, SIZE_MAX);
 
     val = 88;
     max[max_len++] = '0';
-    EXPECT_EQ(buf_parse_size(max, max_len, &val), 0);
+    EXPECT_EQ(buf_parse_size(strview(max), &val), 0);
     EXPECT_EQ(val, 88);
 }
 
@@ -1316,11 +1316,11 @@ static void test_str_to_filepos(TestContext *ctx)
     EXPECT_EQ(line, 3);
     EXPECT_EQ(col, 1);
 
-    EXPECT_TRUE(str_to_xfilepos("4", &line, &col));
+    EXPECT_TRUE(str_to_xfilepos(strview("4"), &line, &col));
     EXPECT_EQ(line, 4);
     EXPECT_EQ(col, 0);
 
-    EXPECT_TRUE(str_to_xfilepos("5,1", &line, &col));
+    EXPECT_TRUE(str_to_xfilepos(strview("5,1"), &line, &col));
     EXPECT_EQ(line, 5);
     EXPECT_EQ(col, 1);
 
@@ -1332,6 +1332,7 @@ static void test_str_to_filepos(TestContext *ctx)
     EXPECT_FALSE(str_to_filepos("1,2,3", &line, &col));
     EXPECT_FALSE(str_to_filepos("1,2.3", &line, &col));
     EXPECT_FALSE(str_to_filepos("5,", &line, &col));
+    EXPECT_FALSE(str_to_filepos("5:", &line, &col));
     EXPECT_FALSE(str_to_filepos(",5", &line, &col));
     EXPECT_FALSE(str_to_filepos("6.7", &line, &col));
     EXPECT_FALSE(str_to_filepos("2 3", &line, &col));

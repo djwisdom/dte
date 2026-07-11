@@ -165,12 +165,12 @@ static inline bool strview_contains_char_type(StringView sv, AsciiCharType mask)
 
 static inline const char *strview_memchr(StringView sv, int c)
 {
-    return sv.length ? memchr(sv.data, c, sv.length) : NULL;
+    return xmemchr(sv.data, c, sv.length);
 }
 
 static inline const char *strview_memrchr(StringView sv, int c)
 {
-    return sv.length ? xmemrchr(sv.data, c, sv.length) : NULL;
+    return xmemrchr(sv.data, c, sv.length);
 }
 
 static inline ssize_t strview_memrchr_idx(StringView sv, int c)
@@ -220,6 +220,17 @@ static inline bool strview_remove_matching_prefix(StringView *sv, const char *pr
 static inline bool strview_remove_matching_suffix(StringView *sv, const char *suffix)
 {
     return strview_remove_matching_sv_suffix(sv, strview(suffix));
+}
+
+// Remove `prefix1` or `prefix2` from the start of `sv` (if present) and
+// return 1 or 2 accordingly, or 0 if neither is present
+static inline unsigned int strview_remove_either_matching_prefix (
+    StringView *sv,
+    const char *prefix1,
+    const char *prefix2
+) {
+    bool match1 = strview_remove_matching_prefix(sv, prefix1);
+    return match1 ? 1 : (strview_remove_matching_prefix(sv, prefix2) ? 2 : 0);
 }
 
 static inline bool strview_remove_matching_affixes (

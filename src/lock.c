@@ -69,7 +69,7 @@ static pid_t rewrite_lock_file(const FileLocksContext *ctx, char *buf, size_t *s
     for (size_t pos = 0, bol = 0; pos < size; bol = pos) {
         StringView line = buf_slice_next_line(buf, &pos, size);
         uintmax_t num;
-        size_t numlen = buf_parse_uintmax(line.data, line.length, &num);
+        size_t numlen = buf_parse_uintmax(line, &num);
         if (unlikely(numlen == 0 || num != (pid_t)num)) {
             goto remove_line;
         }

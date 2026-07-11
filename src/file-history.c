@@ -69,10 +69,11 @@ void file_history_append(FileHistory *history, unsigned long row, unsigned long 
 
 static bool parse_ulong_field(StringView *sv, unsigned long *valp)
 {
-    size_t n = buf_parse_ulong(sv->data, sv->length, valp);
+    size_t n = buf_parse_ulong(*sv, valp);
     if (n == 0 || *valp == 0 || sv->data[n] != ' ') {
         return false;
     }
+
     strview_remove_prefix(sv, n + 1);
     return true;
 }

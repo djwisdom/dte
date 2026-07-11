@@ -82,7 +82,7 @@ static void parse_indent_size(EditorConfigOptions *options, StringView val)
 static unsigned int parse_max_line_length(StringView val)
 {
     unsigned int maxlen = 0;
-    size_t ndigits = buf_parse_uint(val.data, val.length, &maxlen);
+    size_t ndigits = buf_parse_uint(val, &maxlen);
     return (ndigits == val.length) ? MIN(maxlen, TEXT_WIDTH_MAX) : 0;
 }
 

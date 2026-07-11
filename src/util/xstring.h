@@ -38,6 +38,12 @@ static inline const char *xstrrchr(const char *str, int ch)
     return ptr;
 }
 
+PURE NONNULL_ARG_IF_NONZERO_LENGTH(1, 3)
+static inline void *xmemchr(const void *ptr, int c, size_t n)
+{
+    return likely(n) ? (void*)memchr(ptr, c, n) : NULL;
+}
+
 NONNULL_ARG_IF_NONZERO_LENGTH(1, 3) NONNULL_ARG_IF_NONZERO_LENGTH(2, 3)
 static inline bool mem_equal(const void *s1, const void *s2, size_t n)
 {

@@ -72,9 +72,9 @@ static void handle_error_msg (
             for (size_t j = ERRFMT_LINE; j < ARRAYLEN(ptrs); j++) {
                 int ci = (int)p->capture_index[j];
                 if (ci >= 0 && m[ci].rm_so >= 0) {
-                    size_t len = m[ci].rm_eo - m[ci].rm_so;
+                    StringView substr = strview_from_slice(str, m[ci].rm_so, m[ci].rm_eo);
                     unsigned long val;
-                    if (len == buf_parse_ulong(str + m[ci].rm_so, len, &val)) {
+                    if (substr.length == buf_parse_ulong(substr, &val)) {
                         *ptrs[j] = val;
                     }
                 }
