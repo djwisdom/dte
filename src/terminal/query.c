@@ -379,9 +379,9 @@ KeyCode parse_dcs_query_reply(StringView seq, bool truncated)
         return tflag(TFLAG_QUERY_L3);
     }
 
-    bool one_plus_r = strview_remove_matching_prefix(&seq, "1+r");
-    if (one_plus_r || strview_remove_matching_prefix(&seq, "0+r")) {
-        return parse_xtgettcap_reply(seq, one_plus_r);
+    unsigned int match = strview_remove_either_matching_prefix(&seq, "1+r", "0+r");
+    if (match) {
+        return parse_xtgettcap_reply(seq, match == 1);
     }
 
     if (strview_remove_matching_prefix(&seq, "1$r")) {
@@ -425,9 +425,9 @@ KeyCode parse_osc_query_reply(StringView seq, bool truncated)
     }
 
     const char *note = truncated ? " (truncated)" : "";
-    bool l_prefix = strview_remove_matching_prefix(&seq, "l");
-    if (l_prefix || strview_remove_matching_prefix(&seq, "L")) {
-        const char *type = l_prefix ? "title" : "icon";
+    unsigned int match = strview_remove_either_matching_prefix(&seq, "l", "L");
+    if (match) {
+        const char *type = (match == 1) ? "title" : "icon";
         LOG_DEBUG("window %s%s: %.*s", type, note, (int)seq.length, seq.data);
         return KEY_IGNORE;
     }

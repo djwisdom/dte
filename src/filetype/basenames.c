@@ -141,8 +141,7 @@ static const struct FileBasenameMap {
 
 static FileTypeEnum filetype_from_basename(StringView name)
 {
-    bool dot = strview_remove_matching_prefix(&name, ".");
-    dot = dot || strview_remove_matching_prefix(&name, "dot_");
+    bool dot = strview_remove_either_matching_prefix(&name, ".", "dot_");
     if (name.length < 4) {
         return NONE;
     }
