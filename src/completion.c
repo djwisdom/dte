@@ -124,13 +124,13 @@ static bool do_collect_files (
 static void collect_files(EditorState *e, CompletionState *cs, FileCollectionType type)
 {
     char *dir = path_dirname(cs->parsed);
+    StringView parsed = strview(cs->parsed);
     StringView dirprefix;
     StringView fileprefix;
     char buf[8192];
 
     if (strview_has_prefix(cs->escaped, "~/")) {
         const StringView home = e->home_dir;
-        StringView parsed = strview(cs->parsed);
         BUG_ON(!strview_has_sv_prefix(parsed, home));
         strview_remove_prefix(&parsed, home.length + STRLEN("/"));
         bool sufficient_buf = parsed.length <= sizeof(buf) - sizeof("~/");
@@ -142,17 +142,16 @@ static void collect_files(EditorState *e, CompletionState *cs, FileCollectionTyp
             return;
         }
 
-        // Copy `cs->parsed` into `buf[]`, but with the $HOME/ prefix
-        // replaced with ~/
+        // Copy `parsed` into `buf[]`, but with the $HOME/ prefix replaced
+        // with ~/
         xmempcpy2(buf, STRN("~/"), parsed.data, parsed.length + 1);
 
         dirprefix = path_slice_dirname(buf);
         fileprefix = strview(buf + dirprefix.length + 1);
         cs->tilde_expanded = true;
     } else {
-        size_t len = cs->head_len + cs->escaped.length + cs->tail.length;
-        fileprefix = path_slice_basename(string_view(cs->parsed, len));
-        bool has_slash = (fileprefix.data != cs->parsed);
+        fileprefix = path_slice_basename(parsed);
+        bool has_slash = (fileprefix.data != parsed.data);
         dirprefix = strview(has_slash ? dir : "");
     }
 
