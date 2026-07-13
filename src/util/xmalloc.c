@@ -47,10 +47,8 @@ static char *xvasprintf(const char *format, va_list ap)
     va_copy(ap2, ap);
     int n = vsnprintf(NULL, 0, format, ap2);
     va_end(ap2);
-
-    if (unlikely(n < 0 || n == INT_MAX || n >= SIZE_MAX)) {
-        fatal_error(__func__, n < 0 ? errno : EOVERFLOW);
-    }
+    FATAL_ERROR_ON(n < 0, errno);
+    FATAL_ERROR_ON(n == INT_MAX || n >= SIZE_MAX, EOVERFLOW);
 
     char *str = xmalloc(n + 1);
     size_t m = xvsnprintf(str, n + 1, format, ap);
