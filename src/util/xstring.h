@@ -41,6 +41,7 @@ static inline const char *xstrrchr(const char *str, int ch)
 PURE NONNULL_ARG_IF_NONZERO_LENGTH(1, 3)
 static inline void *xmemchr(const void *ptr, int c, size_t n)
 {
+    // NOLINTNEXTLINE(readability-redundant-casting)
     return likely(n) ? (void*)memchr(ptr, c, n) : NULL;
 }
 
