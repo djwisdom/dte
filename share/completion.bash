@@ -8,12 +8,12 @@ _dte() {
 
     case "$cur" in
     -)
-        COMPREPLY=($(compgen -W "-h -H -K -B -R -V -c -t -r -b -s" -- "$cur"))
+        COMPREPLY=($(compgen -W "-b -c -h -r -s -t -B -H -K -P -R -V" -- "$cur"))
         return;;
     -[bcrstHR])
         COMPREPLY=("$cur")
         return;;
-    -*) # -[hBKV]
+    -*) # -[hBKPV]
         return;;
     esac
 
@@ -25,7 +25,7 @@ _dte() {
         local format="(if (prefix? \$name \"$cur\") (list \$name #t) #f)"
         COMPREPLY=($(readtags -F "$format" -l 2>/dev/null))
         return;;
-    -[cBhKV])
+    -[chBKPV])
         return;;
     esac
 

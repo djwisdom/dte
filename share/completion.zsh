@@ -8,6 +8,7 @@ _arguments -s -S -C \
     -b'[dump built-in config]:rcname:->builtins' \
     -B'[print list of built-in configs]' \
     -H"[don't load or save history files]" \
+    -P"[print terminal color palette]" \
     -R"[don't read the rc file]" \
     -K"[start in a special mode that prints key names as they're pressed]" \
     -V'[show version number]' \

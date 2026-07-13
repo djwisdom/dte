@@ -9,5 +9,6 @@ complete -c dte -s 'r' -r -d 'Read user config from a specific file, instead of 
 complete -c dte -s 's' -r -d 'Validate a dte-syntax(5) file and exit'
 complete -c dte -s 'K' -d 'Start editor in "showkey" mode'
 complete -c dte -s 'B' -d 'Print list of built-in config names and exit'
+complete -c dte -s 'P' -d 'Print terminal color palette and exit'
 complete -c dte -s 'h' -d 'Display help summary and exit'
 complete -c dte -s 'V' -d 'Display version number and exit'
