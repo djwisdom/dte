@@ -36,6 +36,7 @@
 #include "util/xmalloc.h"
 #include "util/xsnprintf.h"
 #include "util/xstring.h"
+#include "vars.h"
 #include "view.h"
 #include "window.h"
 
@@ -391,10 +392,33 @@ static void do_collect_env(EditorState* UNUSED_ARG(e), PointerArray *a, const ch
     collect_env(environ, a, strview(prefix), "");
 }
 
+static void do_collect_normal_vars(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+{
+    collect_normal_vars(a, strview(prefix), "");
+}
+
 static void collect_show_msg_args(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
 {
     static const char args[][2] = {"A", "B", "C"};
     COLLECT_STRINGS(args, a, prefix);
+}
+
+static bool show_normal_var(EditorState *e, const char *name, bool cflag)
+{
+    char *val = expand_normal_var(e, name);
+    if (!val) {
+        return info_msg(&e->err, "variable $%s not defined for current buffer", name);
+    }
+
+    if (cflag) {
+        push_input_mode(e, e->command_mode);
+        cmdline_set_text(&e->cmdline, val);
+    } else {
+        info_msg(&e->err, "$%s expands to: %s", name, val);
+    }
+
+    free(val);
+    return true;
 }
 
 static bool show_wsplit(EditorState *e, const char *name, bool cflag)
@@ -630,6 +654,7 @@ static const ShowHandler show_handlers[] = {
     {"setenv", DTERC, dump_setenv, show_env, do_collect_env},
     {"show", DTERC, dump_show_subcmds, NULL, NULL},
     {"tag", 0, do_dump_tags, NULL, NULL},
+    {"var", DTERC, dump_normal_vars, show_normal_var, do_collect_normal_vars},
     {"wsplit", 0, dump_frames, show_wsplit, NULL},
 };
 

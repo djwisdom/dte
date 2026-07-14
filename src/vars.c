@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "vars.h"
+#include "command/serialize.h"
 #include "editor.h"
 #include "selection.h"
 #include "util/bsearch.h"
@@ -194,4 +195,25 @@ void collect_normal_vars (
             ptr_array_append(a, xmemjoin(var.data, var.length, suffix, suffix_len));
         }
     }
+}
+
+String dump_normal_vars(EditorState *e)
+{
+    String buf = string_new(512);
+    for (size_t i = 0; i < ARRAYLEN(normal_vars); i++) {
+        const char *name = normal_vars[i].name;
+        char *val = expand_normal_var(e, name);
+        string_append_cstring(&buf, name);
+        string_append_byte(&buf, ' ');
+
+        // This isn't a real command argument, but variables like $WORD
+        // can contain newlines, which would make the line-based format
+        // confusing if not escaped somehow
+        string_append_escaped_arg(&buf, val, true);
+
+        string_append_byte(&buf, '\n');
+        free(val);
+    }
+
+    return buf;
 }
