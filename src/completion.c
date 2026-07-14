@@ -142,8 +142,7 @@ static void collect_files(EditorState *e, CompletionState *cs, FileCollectionTyp
             return;
         }
 
-        // Copy `parsed` into `buf[]`, but with the $HOME/ prefix replaced
-        // with ~/
+        // Copy `parsed` into `buf[]`, but with the $HOME/ prefix replaced by ~/
         xmempcpy2(buf, STRN("~/"), parsed.data, parsed.length + 1);
 
         dirprefix = path_slice_dirname(buf);
@@ -159,12 +158,8 @@ static void collect_files(EditorState *e, CompletionState *cs, FileCollectionTyp
     free(dir);
 
     if (cs->completions.count == 1) {
-        // Add space if completed string is not a directory
-        const char *s = cs->completions.ptrs[0];
-        size_t len = strlen(s);
-        if (len > 0) {
-            cs->add_space_after_single_match = s[len - 1] != '/';
-        }
+        bool is_dir = strview_has_suffix(strview(cs->completions.ptrs[0]), "/");
+        cs->add_space_after_single_match = !is_dir;
     }
 }
 
