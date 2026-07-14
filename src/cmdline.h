@@ -12,7 +12,7 @@
 
 typedef struct {
     char *orig; // Full cmdline string (backing buffer for `escaped` and `tail`)
-    char *parsed; // Result of passing `escaped` through parse_command_arg()
+    String parsed; // Result of passing `escaped` through parse_command_arg()
     StringView escaped; // Middle part of `orig` (string to be replaced)
     StringView tail; // Suffix part of `orig` (after `escaped`)
     size_t head_len; // Length of prefix part of `orig` (before `escaped`)

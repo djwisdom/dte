@@ -6,7 +6,6 @@
 #include "util/ascii.h"
 #include "util/debug.h"
 #include "util/str-util.h"
-#include "util/string.h"
 #include "util/strtonum.h"
 #include "util/unicode.h"
 #include "util/xmalloc.h"
@@ -148,7 +147,7 @@ static size_t parse_var (
 // been processed without encountering such a character. Escape sequences
 // and $variables are expanded during processing and the fully expanded
 // result is returned as a malloc'd string.
-char *parse_command_arg(const CommandRunner *runner, StringView cmd)
+String parse_command_arg(const CommandRunner *runner, StringView cmd)
 {
     const StringView *home = runner->home_dir;
     bool expand_ts = (runner->flags & CMDRUNNER_EXPAND_TILDE_SLASH);
@@ -192,7 +191,7 @@ char *parse_command_arg(const CommandRunner *runner, StringView cmd)
     }
 
 end:
-    return string_steal_cstring(&buf);
+    return buf;
 }
 
 size_t find_end(const char *cmd, size_t pos, CommandParseError *err)
@@ -279,8 +278,8 @@ CommandParseError parse_commands (
             return err;
         }
 
-        StringView sv = strview_from_slice(cmd, pos, end);
-        ptr_array_append(array, parse_command_arg(runner, sv));
+        String arg = parse_command_arg(runner, strview_from_slice(cmd, pos, end));
+        ptr_array_append(array, string_steal_cstring(&arg));
         pos = end;
     }
 

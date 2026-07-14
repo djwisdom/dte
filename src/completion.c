@@ -122,8 +122,10 @@ static bool do_collect_files (
 
 static void collect_files(EditorState *e, CompletionState *cs, FileCollectionType type)
 {
-    char *dir = path_dirname(cs->parsed);
-    StringView parsed = strview(cs->parsed);
+    // This must come first; see the comment above string_borrow_cstring()
+    char *dir = path_dirname(string_borrow_cstring(&cs->parsed));
+
+    StringView parsed = strview_from_string(&cs->parsed);
     StringView dirprefix;
     StringView fileprefix;
     char buf[8192];
@@ -243,9 +245,11 @@ void collect_env (
 static void complete_alias(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
-        collect_normal_aliases(e, &cs->completions, strview(cs->parsed));
-    } else if (a->nr_args == 1 && cs->parsed[0] == '\0') {
+        collect_normal_aliases(e, &cs->completions, prefix);
+    } else if (a->nr_args == 1 && prefix.length == 0) {
         const char *cmd = find_alias(&e->aliases, a->args[0]);
         if (cmd) {
             ptr_array_append(&cs->completions, xstrdup(cmd));
@@ -284,11 +288,12 @@ static void complete_bind(EditorState *e, const CommandArgs *a)
     const IntMap *key_bindings = &mode->key_bindings;
     CompletionState *cs = &e->cmdline.completion;
     if (a->nr_args == 0) {
-        collect_bound_keys(key_bindings, &cs->completions, strview(cs->parsed));
+        StringView prefix = strview_from_string(&cs->parsed);
+        collect_bound_keys(key_bindings, &cs->completions, prefix);
         return;
     }
 
-    if (a->nr_args != 1 || cs->parsed[0] != '\0') {
+    if (a->nr_args != 1 || cs->parsed.len > 0) {
         return;
     }
 
@@ -308,8 +313,10 @@ static void complete_bind(EditorState *e, const CommandArgs *a)
 static void complete_cd(EditorState *e, const CommandArgs* UNUSED_ARG(a))
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
     collect_files(e, cs, COLLECT_DIRS_ONLY);
-    if (str_has_prefix("-", cs->parsed) && xgetenv("OLDPWD")) {
+
+    if (str_has_sv_prefix("-", prefix) && xgetenv("OLDPWD")) {
         ptr_array_append(&cs->completions, xstrdup("-"));
     }
 }
@@ -328,7 +335,8 @@ static void complete_compile(EditorState *e, const CommandArgs *a)
     CompletionState *cs = &e->cmdline.completion;
     size_t n = a->nr_args;
     if (n == 0) {
-        collect_compilers(e, &cs->completions, strview(cs->parsed));
+        StringView prefix = strview_from_string(&cs->parsed);
+        collect_compilers(e, &cs->completions, prefix);
     } else {
         collect_files(e, cs, n == 1 ? COLLECT_EXECUTABLES : COLLECT_ALL);
     }
@@ -337,7 +345,7 @@ static void complete_compile(EditorState *e, const CommandArgs *a)
 static void complete_cursor(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
     size_t n = a->nr_args;
     if (n == 0) {
         collect_cursor_modes(&cs->completions, prefix);
@@ -358,7 +366,7 @@ static void complete_def_mode(EditorState *e, const CommandArgs *a)
 
     CompletionState *cs = &e->cmdline.completion;
     PointerArray *completions = &cs->completions;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
 
     for (HashMapIter it = hashmap_iter(&e->modes); hashmap_next(&it); ) {
         const char *name = it.entry->key;
@@ -381,10 +389,12 @@ static void complete_def_mode(EditorState *e, const CommandArgs *a)
 static void complete_errorfmt(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
-        collect_compilers(e, &cs->completions, strview(cs->parsed));
+        collect_compilers(e, &cs->completions, prefix);
     } else if (a->nr_args >= 2 && !cmdargs_has_flag(a, 'i')) {
-        collect_errorfmt_capture_names(&cs->completions, strview(cs->parsed));
+        collect_errorfmt_capture_names(&cs->completions, prefix);
     }
 }
 
@@ -392,19 +402,22 @@ static void complete_ft(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
     if (a->nr_args == 0) {
-        collect_ft(&e->filetypes, &cs->completions, strview(cs->parsed));
+        StringView prefix = strview_from_string(&cs->parsed);
+        collect_ft(&e->filetypes, &cs->completions, prefix);
     }
 }
 
 static void complete_hi(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
-        collect_hl_styles(e, &cs->completions, strview(cs->parsed));
+        collect_hl_styles(e, &cs->completions, prefix);
     } else {
         // TODO: Take into account previous arguments and don't
         // suggest repeat attributes or excess colors
-        collect_colors_and_attributes(&cs->completions, strview(cs->parsed));
+        collect_colors_and_attributes(&cs->completions, prefix);
     }
 }
 
@@ -413,7 +426,8 @@ static void complete_include(EditorState *e, const CommandArgs *a)
     CompletionState *cs = &e->cmdline.completion;
     if (a->nr_args == 0) {
         if (cmdargs_has_flag(a, 'b')) {
-            collect_builtin_includes(&cs->completions, strview(cs->parsed));
+            StringView prefix = strview_from_string(&cs->parsed);
+            collect_builtin_includes(&cs->completions, prefix);
         } else {
             collect_files(e, cs, COLLECT_ALL);
         }
@@ -435,7 +449,8 @@ static void complete_macro(EditorState *e, const CommandArgs *a)
     }
 
     CompletionState *cs = &e->cmdline.completion;
-    COLLECT_STRINGS(verbs, &cs->completions, strview(cs->parsed));
+    StringView prefix = strview_from_string(&cs->parsed);
+    COLLECT_STRINGS(verbs, &cs->completions, prefix);
 }
 
 static void complete_mode(EditorState *e, const CommandArgs *a)
@@ -445,7 +460,8 @@ static void complete_mode(EditorState *e, const CommandArgs *a)
     }
 
     CompletionState *cs = &e->cmdline.completion;
-    collect_hashmap_keys(&e->modes, &cs->completions, strview(cs->parsed));
+    StringView prefix = strview_from_string(&cs->parsed);
+    collect_hashmap_keys(&e->modes, &cs->completions, prefix);
 }
 
 static void complete_move_tab(EditorState *e, const CommandArgs *a)
@@ -456,7 +472,7 @@ static void complete_move_tab(EditorState *e, const CommandArgs *a)
 
     static const char words[][8] = {"left", "right"};
     CompletionState *cs = &e->cmdline.completion;
-    COLLECT_STRINGS(words, &cs->completions, strview(cs->parsed));
+    COLLECT_STRINGS(words, &cs->completions, strview_from_string(&cs->parsed));
 }
 
 static void complete_open(EditorState *e, const CommandArgs *a)
@@ -469,7 +485,7 @@ static void complete_open(EditorState *e, const CommandArgs *a)
 static void complete_option(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
     if (a->nr_args == 0) {
         if (!cmdargs_has_flag(a, 'r')) {
             collect_ft(&e->filetypes, &cs->completions, prefix);
@@ -491,7 +507,8 @@ static void complete_quit(EditorState *e, const CommandArgs* UNUSED_ARG(a))
 {
     static const char exit_codes[][2] = {"0", "1"};
     CompletionState *cs = &e->cmdline.completion;
-    COLLECT_STRINGS(exit_codes, &cs->completions, strview(cs->parsed));
+    StringView prefix = strview_from_string(&cs->parsed);
+    COLLECT_STRINGS(exit_codes, &cs->completions, prefix);
 }
 
 static void complete_redo(EditorState *e, const CommandArgs* UNUSED_ARG(a))
@@ -506,7 +523,8 @@ static void complete_redo(EditorState *e, const CommandArgs* UNUSED_ARG(a))
 static void complete_set(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if ((a->nr_args + 1) & 1) {
         bool local = cmdargs_has_flag(a, 'l');
         bool global = cmdargs_has_flag(a, 'g');
@@ -525,9 +543,11 @@ static void complete_set(EditorState *e, const CommandArgs *a)
 static void complete_setenv(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
-        collect_env(environ, &cs->completions, strview(cs->parsed), "");
-    } else if (a->nr_args == 1 && cs->parsed[0] == '\0') {
+        collect_env(environ, &cs->completions, prefix, "");
+    } else if (a->nr_args == 1 && prefix.length == 0) {
         BUG_ON(!a->args[0]);
         const char *value = getenv(a->args[0]);
         if (value) {
@@ -539,7 +559,8 @@ static void complete_setenv(EditorState *e, const CommandArgs *a)
 static void complete_show(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
         collect_show_subcommands(&cs->completions, prefix);
     } else if (a->nr_args == 1) {
@@ -550,17 +571,20 @@ static void complete_show(EditorState *e, const CommandArgs *a)
 
 static void complete_tag(EditorState *e, const CommandArgs *a)
 {
-    CompletionState *cs = &e->cmdline.completion;
-    if (!cmdargs_has_flag(a, 'r')) {
-        BUG_ON(!cs->parsed);
-        collect_tags(&e->tagfile, &cs->completions, strview(cs->parsed));
+    if (cmdargs_has_flag(a, 'r')) {
+        return;
     }
+
+    CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview_from_string(&cs->parsed);
+    collect_tags(&e->tagfile, &cs->completions, prefix);
 }
 
 static void complete_toggle(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
+
     if (a->nr_args == 0) {
         bool global = cmdargs_has_flag(a, 'g');
         collect_toggleable_options(&cs->completions, prefix, global);
@@ -714,7 +738,7 @@ static void collect_completions(EditorState *e, char **args, size_t argc)
 {
     CompletionState *cs = &e->cmdline.completion;
     PointerArray *arr = &cs->completions;
-    StringView prefix = strview(cs->parsed);
+    StringView prefix = strview_from_string(&cs->parsed);
     if (!argc) {
         collect_normal_commands(arr, prefix);
         collect_normal_aliases(e, arr, prefix);
@@ -878,7 +902,8 @@ static void init_completion(EditorState *e, const CommandLine *cmdline)
             }
         }
 
-        ptr_array_append(&array, parse_command_arg(&runner, arg));
+        String s = parse_command_arg(&runner, arg);
+        ptr_array_append(&array, string_steal_cstring(&s));
     }
 
     // Text to be completed
@@ -968,7 +993,7 @@ void complete_command_prev(EditorState *e)
 void reset_completion(CommandLine *cmdline)
 {
     CompletionState *cs = &cmdline->completion;
-    free(cs->parsed);
+    string_free(&cs->parsed);
     free(cs->orig);
     ptr_array_free(&cs->completions);
     *cs = (CompletionState){.orig = NULL};

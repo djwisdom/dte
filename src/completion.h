@@ -20,7 +20,7 @@ static inline void maybe_reset_completion(CommandLine *cmdline)
 {
     CompletionState *cs = &cmdline->completion;
     if (likely(!cs->orig)) {
-        BUG_ON(cs->parsed);
+        BUG_ON(cs->parsed.alloc);
         BUG_ON(cs->completions.alloc != 0);
         return;
     }

@@ -59,131 +59,131 @@ static void test_parse_command_arg(TestContext *ctx)
     EXPECT_EQ(runner.recursion_count, 0);
 
     // Single, unquoted argument
-    char *arg = parse_command_arg(&runner, strview("arg"));
-    EXPECT_STREQ(arg, "arg");
-    free(arg);
+    String arg = parse_command_arg(&runner, strview("arg"));
+    EXPECT_STRING_EQ_CSTRING(&arg, "arg");
+    string_free(&arg);
 
     // Two unquoted, space-separated arguments
     arg = parse_command_arg(&runner, strview("hello world"));
-    EXPECT_STREQ(arg, "hello");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "hello");
+    string_free(&arg);
 
     // Two unquoted, tab-separated arguments
     arg = parse_command_arg(&runner, strview("hello\tworld"));
-    EXPECT_STREQ(arg, "hello");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "hello");
+    string_free(&arg);
 
     // Unquoted argument preceded by whitespace
     arg = parse_command_arg(&runner, strview(" x"));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // Single-quoted argument, including whitespace
     arg = parse_command_arg(&runner, strview("'  foo ' .."));
-    EXPECT_STREQ(arg, "  foo ");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "  foo ");
+    string_free(&arg);
 
     // Several adjacent, quoted strings forming a single argument
     arg = parse_command_arg(&runner, strview("\"foo\"'bar'' baz '\"etc\"."));
-    EXPECT_STREQ(arg, "foobar baz etc.");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "foobar baz etc.");
+    string_free(&arg);
 
     // Control character escapes in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\a\\b\\t\\n\\v\\f\\r\""));
-    EXPECT_STREQ(arg, "\a\b\t\n\v\f\r");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\a\b\t\n\v\f\r");
+    string_free(&arg);
 
     // Backslash escape sequence in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\\\\""));
-    EXPECT_STREQ(arg, "\\");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\\");
+    string_free(&arg);
 
     // Double-quote escape sequence in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\\"\""));
-    EXPECT_STREQ(arg, "\"");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\"");
+    string_free(&arg);
 
     // Escape character escape sequence in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\e[0m\""));
-    EXPECT_STREQ(arg, "\033[0m");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\033[0m");
+    string_free(&arg);
 
     // Unrecognized escape sequence in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\z\""));
-    EXPECT_STREQ(arg, "\\z");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\\z");
+    string_free(&arg);
 
     // Hexadecimal escape sequences in a double-quoted string
     arg = parse_command_arg(&runner, strview("\"\\x1B[31m\\x7E\\x2f\\x1b[0m\""));
-    EXPECT_STREQ(arg, "\x1B[31m~/\x1B[0m");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\x1B[31m~/\x1B[0m");
+    string_free(&arg);
 
     // Invalid hexadecimal escape sequences
     arg = parse_command_arg(&runner, strview("\"\\x\\x1\\xFG\\xz1\""));
-    EXPECT_STREQ(arg, "Gz1");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "Gz1");
+    string_free(&arg);
 
     // Incomplete hexadecimal escape sequence
     arg = parse_command_arg(&runner, strview("\"\\x"));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // 4-digit Unicode escape sequence
     arg = parse_command_arg(&runner, strview("\"\\u148A\""));
-    EXPECT_STREQ(arg, "\xE1\x92\x8A");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\xE1\x92\x8A");
+    string_free(&arg);
 
     // 8-digit Unicode escape sequence
     arg = parse_command_arg(&runner, strview("\"\\U0001F4A4\""));
-    EXPECT_STREQ(arg, "\xF0\x9F\x92\xA4");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\xF0\x9F\x92\xA4");
+    string_free(&arg);
 
     // "\U" escape sequence terminated by non-hexadecimal character
     arg = parse_command_arg(&runner, strview("\"\\U1F4A4...\""));
-    EXPECT_STREQ(arg, "\xF0\x9F\x92\xA4...");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\xF0\x9F\x92\xA4...");
+    string_free(&arg);
 
     // Incomplete Unicode escape sequence
     arg = parse_command_arg(&runner, strview("\"\\u"));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // Invalid Unicode escape sequence
     arg = parse_command_arg(&runner, strview("\"\\ugef\""));
-    EXPECT_STREQ(arg, "gef");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "gef");
+    string_free(&arg);
 
     // Unsupported, escape-like sequences in a single-quoted string
     arg = parse_command_arg(&runner, strview("'\\t\\n'"));
-    EXPECT_STREQ(arg, "\\t\\n");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\\t\\n");
+    string_free(&arg);
 
     // Trailing backslash
     // Note: `s` is unterminated, to allow ASan to catch OOB reads
     static const char s[4] = "123\\";
     arg = parse_command_arg(&runner, string_view(s, sizeof(s)));
-    EXPECT_STREQ(arg, "123");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "123");
+    string_free(&arg);
 
     // Single-quoted, empty string
     arg = parse_command_arg(&runner, strview("''"));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // Double-quoted, empty string
     arg = parse_command_arg(&runner, strview("\"\""));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // NULL input with zero length
     arg = parse_command_arg(&runner, strview(NULL));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // Empty input
     arg = parse_command_arg(&runner, string_view("", 1));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_MEMEQ(arg.buffer, arg.len, "", 1);
+    string_free(&arg);
 
     // Built-in vars (expand to nothing; buffer isn't initialized yet)
     static const StringView vars = STRING_VIEW (
@@ -197,55 +197,55 @@ static void test_parse_command_arg(TestContext *ctx)
         "' '$WORD"
     );
     arg = parse_command_arg(&runner, vars);
-    EXPECT_STREQ(arg, "        ");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "        ");
+    string_free(&arg);
 
     // Built-in $DTE_HOME var (expands to user config dir)
     arg = parse_command_arg(&runner, strview("$DTE_HOME"));
-    EXPECT_TRUE(path_is_absolute(arg));
-    EXPECT_TRUE(str_has_suffix(arg, "/test/DTE_HOME"));
-    free(arg);
+    EXPECT_TRUE(string_has_prefix(&arg, strview("/")));
+    EXPECT_TRUE(string_has_suffix(&arg, strview("/test/DTE_HOME")));
+    string_free(&arg);
 
     // Built-in ${DTE_HOME} var in ${bracketed} form
     arg = parse_command_arg(&runner, strview("${DTE_HOME}"));
-    EXPECT_TRUE(path_is_absolute(arg));
-    EXPECT_TRUE(str_has_suffix(arg, "/test/DTE_HOME"));
-    free(arg);
+    EXPECT_TRUE(string_has_prefix(&arg, strview("/")));
+    EXPECT_TRUE(string_has_suffix(&arg, strview("/test/DTE_HOME")));
+    string_free(&arg);
 
     // Bracketed var with missing end delimiter
     arg = parse_command_arg(&runner, strview("${DTE_HOME"));
-    EXPECT_STREQ(arg, "");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "");
+    string_free(&arg);
 
     // Empty bracketed var
     arg = parse_command_arg(&runner, strview("aa${}zz"));
-    EXPECT_STREQ(arg, "aazz");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "aazz");
+    string_free(&arg);
 
     // Built-in $MSGPOS var (expands to "1" by default)
     arg = parse_command_arg(&runner, strview("$MSGPOS\\ $MSGPOS_A\\ $MSGPOS_B\\ $MSGPOS_C"));
-    EXPECT_STREQ(arg, "1 1 1 1");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "1 1 1 1");
+    string_free(&arg);
 
     // Environment var (via getenv(3))
     arg = parse_command_arg(&runner, strview("$DTE_VERSION"));
-    EXPECT_STREQ(arg, VERSION);
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, VERSION);
+    string_free(&arg);
 
     // Tilde expansion
     runner.flags |= CMDRUNNER_EXPAND_TILDE_SLASH;
     arg = parse_command_arg(&runner, strview("~/filename"));
-    EXPECT_TRUE(str_has_suffix(arg, "/test/HOME/filename"));
-    free(arg);
+    EXPECT_TRUE(string_has_suffix(&arg, strview("/test/HOME/filename")));
+    string_free(&arg);
 
     runner.flags &= ~CMDRUNNER_EXPAND_TILDE_SLASH;
     arg = parse_command_arg(&runner, strview("'xyz"));
-    EXPECT_STREQ(arg, "xyz");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "xyz");
+    string_free(&arg);
 
     arg = parse_command_arg(&runner, strview("\"\\u148A\"xyz'foo'\"\\x5A\"\\;\t."));
-    EXPECT_STREQ(arg, "\xE1\x92\x8AxyzfooZ;");
-    free(arg);
+    EXPECT_STRING_EQ_CSTRING(&arg, "\xE1\x92\x8AxyzfooZ;");
+    string_free(&arg);
 }
 
 static CommandRunner mock_cmdrunner(const CommandSet *cmds)

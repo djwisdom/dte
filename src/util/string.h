@@ -97,6 +97,16 @@ static inline size_t string_clear(String *s)
     return oldlen;
 }
 
+static inline bool string_has_prefix(const String *s, StringView prefix)
+{
+    return strview_has_sv_prefix(strview_from_string(s), prefix);
+}
+
+static inline bool string_has_suffix(const String *s, StringView suffix)
+{
+    return strview_has_sv_suffix(strview_from_string(s), suffix);
+}
+
 char *string_reserve_space(String *s, size_t more) NONNULL_ARGS_AND_RETURN;
 void string_append_byte(String *s, unsigned char byte) NONNULL_ARGS;
 size_t string_append_codepoint(String *s, CodePoint u) NONNULL_ARGS;

@@ -136,6 +136,10 @@ char *string_clone_cstring(const String *s)
  * rule. If the buffer is realloc'd, the pointer will be dangling and
  * using it will invoke undefined behaviour. If unsure, just use
  * string_clone_cstring() instead.
+ *
+ * This function itself may also invalidate other pointers into the
+ * buffer, since a realloc() may be needed before appending the null
+ * terminator.
  */
 const char *string_borrow_cstring(String *s)
 {
