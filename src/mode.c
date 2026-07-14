@@ -10,7 +10,6 @@
 #include "insert.h"
 #include "terminal/paste.h"
 #include "util/debug.h"
-#include "util/string-view.h"
 #include "util/unicode.h"
 #include "util/xmalloc.h"
 #include "view.h"
@@ -140,7 +139,7 @@ bool handle_input(EditorState *e, KeyCode key)
     return handle_input_recursive(e, e->mode, key, 0);
 }
 
-void collect_modes(const HashMap *modes, PointerArray *a, const char *prefix)
+void collect_modes(const HashMap *modes, PointerArray *a, StringView prefix)
 {
     collect_hashmap_keys(modes, a, prefix);
 }

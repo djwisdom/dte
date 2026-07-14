@@ -8,6 +8,7 @@
 #include "util/intmap.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 #include "util/string.h"
 
 typedef enum {
@@ -32,6 +33,6 @@ struct EditorState;
 bool handle_input(struct EditorState *e, KeyCode key) NONNULL_ARGS;
 ModeHandler *new_mode(HashMap *modes, char *name, const CommandSet *cmds) NONNULL_ARGS_AND_RETURN;
 void string_append_def_mode(String *buf, const ModeHandler *mode) NONNULL_ARGS;
-void collect_modes(const HashMap *modes, PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_modes(const HashMap *modes, PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

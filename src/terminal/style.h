@@ -7,6 +7,7 @@
 #include "color.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 
 enum {
     COLOR_STR_BUFSIZE = 16,
@@ -59,6 +60,6 @@ static inline void mask_style(TermStyle *style, const TermStyle *over)
 ssize_t parse_term_style(TermStyle *style, char **strs, size_t nstrs) NONNULL_ARGS WARN_UNUSED_RESULT;
 size_t color_to_str(char buf[static COLOR_STR_BUFSIZE], int32_t color) NONNULL_ARGS WARN_UNUSED_RESULT;
 const char *term_style_to_string(char buf[static TERM_STYLE_BUFSIZE], const TermStyle *style) NONNULL_ARGS_AND_RETURN;
-void collect_colors_and_attributes(PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_colors_and_attributes(PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

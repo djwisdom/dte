@@ -129,6 +129,6 @@ void update_syntax_styles(Syntax *syn, const StyleMap *styles);
 void update_all_syntax_styles(const HashMap *syntaxes, const StyleMap *styles);
 void find_unused_subsyntaxes(const HashMap *syntaxes, ErrorBuffer *ebuf);
 void free_syntaxes(HashMap *syntaxes);
-void collect_syntax_emit_names(const Syntax *syntax, PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_syntax_emit_names(const Syntax *syntax, PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

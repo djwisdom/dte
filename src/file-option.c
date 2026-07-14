@@ -142,7 +142,7 @@ void dump_file_options(const PointerArray *file_options, String *buf)
         if (opt->type == FOPTS_FILENAME) {
             string_append_literal(buf, "-r ");
         }
-        if (str_has_prefix(tp, "-") || string_array_contains_prefix(strs, "-")) {
+        if (str_has_prefix(tp, "-") || string_array_contains_prefix(strs, strview("-"))) {
             string_append_literal(buf, "-- ");
         }
         string_append_escaped_arg(buf, tp, true);

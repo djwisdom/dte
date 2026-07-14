@@ -127,23 +127,23 @@ static void test_history_search(TestContext *ctx)
 
     const HistoryEntry *e = h.last;
     EXPECT_STREQ(e->text, "three");
-    EXPECT_TRUE(history_search_forward(&h, &e, ""));
+    EXPECT_TRUE(history_search_forward(&h, &e, strview("")));
     EXPECT_STREQ(e->text, "two");
-    EXPECT_TRUE(history_search_forward(&h, &e, ""));
+    EXPECT_TRUE(history_search_forward(&h, &e, strview("")));
     EXPECT_STREQ(e->text, "one");
-    EXPECT_FALSE(history_search_forward(&h, &e, ""));
+    EXPECT_FALSE(history_search_forward(&h, &e, strview("")));
 
     EXPECT_STREQ(e->text, "one");
-    EXPECT_TRUE(history_search_backward(&h, &e, ""));
+    EXPECT_TRUE(history_search_backward(&h, &e, strview("")));
     EXPECT_STREQ(e->text, "two");
-    EXPECT_TRUE(history_search_backward(&h, &e, ""));
+    EXPECT_TRUE(history_search_backward(&h, &e, strview("")));
     EXPECT_STREQ(e->text, "three");
-    EXPECT_FALSE(history_search_backward(&h, &e, ""));
+    EXPECT_FALSE(history_search_backward(&h, &e, strview("")));
 
     EXPECT_STREQ(e->text, "three");
-    EXPECT_TRUE(history_search_forward(&h, &e, "o"));
+    EXPECT_TRUE(history_search_forward(&h, &e, strview("o")));
     EXPECT_STREQ(e->text, "one");
-    EXPECT_TRUE(history_search_backward(&h, &e, "th"));
+    EXPECT_TRUE(history_search_backward(&h, &e, strview("th")));
     EXPECT_STREQ(e->text, "three");
 
     free(h.filename);

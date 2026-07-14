@@ -14,7 +14,6 @@
 #include "util/numtostr.h"
 #include "util/str-array.h"
 #include "util/str-util.h"
-#include "util/string-view.h"
 #include "util/strtonum.h"
 #include "util/xmalloc.h"
 #include "util/xmemrchr.h"
@@ -952,38 +951,35 @@ void sanity_check_local_options(const LocalOptions *lopts)
 }
 #endif
 
-void collect_options(PointerArray *a, const char *prefix, bool local, bool global)
+void collect_options(PointerArray *a, StringView prefix, bool local, bool global)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 0; i < ARRAYLEN(option_desc); i++) {
         const OptionDesc *desc = &option_desc[i];
         if ((local && !desc->local) || (global && !desc->global)) {
             continue;
         }
-        if (str_has_strn_prefix(desc->name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(desc->name, prefix)) {
             ptr_array_append(a, xstrdup(desc->name));
         }
     }
 }
 
 // Collect options that can be set via the "option" command
-void collect_auto_options(PointerArray *a, const char *prefix)
+void collect_auto_options(PointerArray *a, StringView prefix)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 0; i < ARRAYLEN(option_desc); i++) {
         const OptionDesc *desc = &option_desc[i];
         if (!desc->local || desc->on_change == filetype_changed) {
             continue;
         }
-        if (str_has_strn_prefix(desc->name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(desc->name, prefix)) {
             ptr_array_append(a, xstrdup(desc->name));
         }
     }
 }
 
-void collect_toggleable_options(PointerArray *a, const char *prefix, bool global)
+void collect_toggleable_options(PointerArray *a, StringView prefix, bool global)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 0; i < ARRAYLEN(option_desc); i++) {
         const OptionDesc *desc = &option_desc[i];
         if (global && !desc->global) {
@@ -991,7 +987,7 @@ void collect_toggleable_options(PointerArray *a, const char *prefix, bool global
         }
         OptionType type = desc->type;
         bool toggleable = (type == OPT_ENUM || type == OPT_BOOL);
-        if (toggleable && str_has_strn_prefix(desc->name, prefix, prefix_len)) {
+        if (toggleable && str_has_sv_prefix(desc->name, prefix)) {
             ptr_array_append(a, xstrdup(desc->name));
         }
     }
@@ -1000,11 +996,10 @@ void collect_toggleable_options(PointerArray *a, const char *prefix, bool global
 static void collect_enum_option_values (
     const char *const *values,
     PointerArray *a,
-    const char *prefix,
-    size_t prefix_len
+    StringView prefix
 ) {
     for (size_t i = 0; values[i]; i++) {
-        if (str_has_strn_prefix(values[i], prefix, prefix_len)) {
+        if (str_has_sv_prefix(values[i], prefix)) {
             ptr_array_append(a, xstrdup(values[i]));
         }
     }
@@ -1013,18 +1008,16 @@ static void collect_enum_option_values (
 static void collect_flag_option_values (
     const char *const *values,
     PointerArray *a,
-    const char *prefix,
-    size_t prefix_len
+    StringView prefix
 ) {
-    const char *comma = xmemrchr(prefix, ',', prefix_len);
-    const size_t tail_idx = comma ? ++comma - prefix : 0;
-    const char *tail = prefix + tail_idx;
-    const size_t tail_len = prefix_len - tail_idx;
+    ssize_t comma_idx = strview_memrchr_idx(prefix, ',');
+    size_t tail_idx = (comma_idx < 0) ? 0 : comma_idx + 1;
+    StringView tail = strview_from_slice(prefix.data, tail_idx, prefix.length);
 
     for (size_t i = 0; values[i]; i++) {
-        const char *str = values[i];
-        if (str_has_strn_prefix(str, tail, tail_len)) {
-            ptr_array_append(a, xmemjoin(prefix, tail_idx, str, strlen(str) + 1));
+        StringView val = strview(values[i]);
+        if (strview_has_sv_prefix(val, tail)) {
+            ptr_array_append(a, xmemjoin(prefix.data, tail_idx, val.data, val.length + 1));
         }
     }
 }
@@ -1033,15 +1026,14 @@ void collect_option_values (
     EditorState *e,
     PointerArray *a,
     const char *option,
-    const char *prefix
+    StringView prefix
 ) {
     const OptionDesc *desc = find_option(option);
     if (!desc) {
         return;
     }
 
-    size_t prefix_len = strlen(prefix);
-    if (prefix_len == 0) {
+    if (prefix.length == 0) {
         char *ptr = get_option_ptr(e, desc, !desc->local);
         OptionValue value = desc_get(desc, ptr);
         ptr_array_append(a, xstrdup(desc_string(desc, value)));
@@ -1062,10 +1054,10 @@ void collect_option_values (
         return;
     case OPT_ENUM:
     case OPT_BOOL:
-        collect_enum_option_values(desc->u.enum_opt.values, a, prefix, prefix_len);
+        collect_enum_option_values(desc->u.enum_opt.values, a, prefix);
         return;
     case OPT_FLAG:
-        collect_flag_option_values(desc->u.enum_opt.values, a, prefix, prefix_len);
+        collect_flag_option_values(desc->u.enum_opt.values, a, prefix);
         return;
     }
 

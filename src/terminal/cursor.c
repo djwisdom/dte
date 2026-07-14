@@ -72,17 +72,17 @@ int32_t cursor_color_from_str(const char *str)
     return STR_TO_ENUM_WITH_OFFSET(str, cursor_colors, COLOR_INVALID, -2);
 }
 
-void collect_cursor_modes(PointerArray *a, const char *prefix)
+void collect_cursor_modes(PointerArray *a, StringView prefix)
 {
     COLLECT_STRINGS(cursor_modes, a, prefix);
 }
 
-void collect_cursor_types(PointerArray *a, const char *prefix)
+void collect_cursor_types(PointerArray *a, StringView prefix)
 {
     COLLECT_STRINGS(cursor_types, a, prefix);
 }
 
-void collect_cursor_colors(PointerArray *a, const char *prefix)
+void collect_cursor_colors(PointerArray *a, StringView prefix)
 {
     COLLECT_STRINGS(cursor_colors, a, prefix);
 }

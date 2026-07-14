@@ -18,6 +18,6 @@ const char *find_normal_alias(const struct EditorState *e, const char *name) NON
 bool handle_normal_command(struct EditorState *e, const char *cmd, bool allow_recording) NONNULL_ARGS;
 bool exec_normal_config(struct EditorState *e, StringView config) NONNULL_ARGS;
 SystemErrno read_normal_config(struct EditorState *e, const char *filename, ConfigFlags flags) NONNULL_ARGS;
-void collect_normal_commands(PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_normal_commands(PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

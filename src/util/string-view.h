@@ -173,6 +173,12 @@ static inline const char *strview_memrchr(StringView sv, int c)
     return xmemrchr(sv.data, c, sv.length);
 }
 
+static inline ssize_t strview_memchr_idx(StringView sv, int c)
+{
+    const char *ptr = strview_memchr(sv, c);
+    return ptr ? (ssize_t)(ptr - sv.data) : -1;
+}
+
 static inline ssize_t strview_memrchr_idx(StringView sv, int c)
 {
     const char *ptr = strview_memrchr(sv, c);

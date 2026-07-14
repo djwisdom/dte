@@ -2877,7 +2877,7 @@ SystemErrno read_normal_config(EditorState *e, const char *filename, ConfigFlags
     return read_config(&runner, filename, flags);
 }
 
-void collect_normal_commands(PointerArray *a, const char *prefix)
+void collect_normal_commands(PointerArray *a, StringView prefix)
 {
     COLLECT_STRING_FIELDS(cmds, name, a, prefix);
 }

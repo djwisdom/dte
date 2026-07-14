@@ -6,6 +6,7 @@
 #include "command/error.h"
 #include "util/hashmap.h"
 #include "util/macros.h"
+#include "util/string-view.h"
 #include "util/string.h"
 
 typedef struct HistoryEntry {
@@ -28,8 +29,8 @@ typedef struct {
 } History;
 
 void history_append(History *history, const char *text) NONNULL_ARGS;
-bool history_search_forward(const History *history, const HistoryEntry **pos, const char *text) NONNULL_ARG(1, 3) WARN_UNUSED_RESULT;
-bool history_search_backward(const History *history, const HistoryEntry **pos, const char *text) NONNULL_ARG(1, 3) WARN_UNUSED_RESULT;
+bool history_search_forward(const History *history, const HistoryEntry **pos, StringView text) NONNULL_ARG(1) WARN_UNUSED_RESULT;
+bool history_search_backward(const History *history, const HistoryEntry **pos, StringView text) NONNULL_ARG(1) WARN_UNUSED_RESULT;
 void history_load(History *history, ErrorBuffer *ebuf, char *filename, size_t size_limit) NONNULL_ARG(1, 3);
 void history_save(const History *history, ErrorBuffer *ebuf) NONNULL_ARG(1);
 void history_free(History *history) NONNULL_ARGS;

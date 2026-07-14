@@ -28,10 +28,10 @@ static inline void maybe_reset_completion(CommandLine *cmdline)
 }
 
 void collect_env(char **env, PointerArray *a, StringView prefix, const char *suffix) NONNULL_ARGS;
-void collect_normal_aliases(struct EditorState *e, PointerArray *a, const char *prefix) NONNULL_ARGS;
-void collect_bound_normal_keys(struct EditorState *e, PointerArray *a, const char *keystr_prefix) NONNULL_ARGS;
-void collect_hl_styles(struct EditorState *e, PointerArray *a, const char *prefix) NONNULL_ARGS;
-void collect_compilers(struct EditorState *e, PointerArray *a, const char *prefix) NONNULL_ARGS;
-void collect_hashmap_keys(const HashMap *map, PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_normal_aliases(struct EditorState *e, PointerArray *a, StringView prefix) NONNULL_ARGS;
+void collect_bound_normal_keys(struct EditorState *e, PointerArray *a, StringView keystr_prefix) NONNULL_ARGS;
+void collect_hl_styles(struct EditorState *e, PointerArray *a, StringView prefix) NONNULL_ARGS;
+void collect_compilers(struct EditorState *e, PointerArray *a, StringView prefix) NONNULL_ARGS;
+void collect_hashmap_keys(const HashMap *map, PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

@@ -7,6 +7,7 @@
 #include "terminal/terminal.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 
 typedef enum {
     CURSOR_MODE_DEFAULT, // Fallback, for modes left unspecified
@@ -46,8 +47,8 @@ const char *cursor_color_to_str(char buf[static COLOR_STR_BUFSIZE], int32_t colo
 CursorInputMode cursor_mode_from_str(const char *name) NONNULL_ARGS;
 TermCursorType cursor_type_from_str(const char *name) NONNULL_ARGS;
 int32_t cursor_color_from_str(const char *str) NONNULL_ARGS;
-void collect_cursor_modes(PointerArray *a, const char *prefix) NONNULL_ARGS;
-void collect_cursor_types(PointerArray *a, const char *prefix) NONNULL_ARGS;
-void collect_cursor_colors(PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_cursor_modes(PointerArray *a, StringView prefix) NONNULL_ARGS;
+void collect_cursor_types(PointerArray *a, StringView prefix) NONNULL_ARGS;
+void collect_cursor_colors(PointerArray *a, StringView prefix) NONNULL_ARGS;
 
 #endif

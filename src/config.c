@@ -262,12 +262,11 @@ void exec_rc_files (
     log_config_counts(e);
 }
 
-void collect_builtin_configs(PointerArray *a, const char *prefix)
+void collect_builtin_configs(PointerArray *a, StringView prefix)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 0; i < ARRAYLEN(builtin_configs); i++) {
         const char *name = builtin_configs[i].name;
-        if (str_has_strn_prefix(name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(name, prefix)) {
             ptr_array_append(a, xstrdup(name));
         }
     }
@@ -293,14 +292,12 @@ void collect_builtin_config_variables(PointerArray *a, StringView prefix)
     }
 }
 
-void collect_builtin_includes(PointerArray *a, const char *prefix)
+void collect_builtin_includes(PointerArray *a, StringView prefix)
 {
-    StringView prefix_sv = strview(prefix);
-
     for (size_t i = 0; i < ARRAYLEN(builtin_configs); i++) {
         StringView name = strview(builtin_configs[i].name);
         if (
-            strview_has_sv_prefix(name, prefix_sv)
+            strview_has_sv_prefix(name, prefix)
             && !strview_has_either_prefix(name, "syntax/", "script/")
         ) {
             ptr_array_append(a, xmemdup(name.data, name.length + 1));

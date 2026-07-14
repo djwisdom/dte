@@ -6,6 +6,7 @@
 #include "util/hashmap.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 #include "util/string.h"
 
 typedef enum {
@@ -36,7 +37,7 @@ typedef struct {
 bool set_highlight_style(StyleMap *styles, const char *name, const TermStyle *style) NONNULL_ARGS;
 const TermStyle *find_style(const StyleMap *styles, const char *name) NONNULL_ARGS;
 void clear_hl_styles(StyleMap *styles) NONNULL_ARGS;
-void collect_builtin_styles(PointerArray *a, const char *prefix) NONNULL_ARGS;
+void collect_builtin_styles(PointerArray *a, StringView prefix) NONNULL_ARGS;
 void string_append_hl_style(String *s, const char *name, const TermStyle *style) NONNULL_ARGS;
 String dump_hl_styles(const StyleMap *styles) NONNULL_ARGS;
 

@@ -73,7 +73,7 @@ void remove_compiler(HashMap *compilers, const char *name)
     }
 }
 
-void collect_errorfmt_capture_names(PointerArray *a, const char *prefix)
+void collect_errorfmt_capture_names(PointerArray *a, StringView prefix)
 {
     static const char underscore[][2] = {"_"};
     COLLECT_STRINGS(underscore, a, prefix);

@@ -149,18 +149,18 @@ ssize_t parse_term_style(TermStyle *style, char **strs, size_t nstrs)
     return i;
 }
 
-void collect_colors_and_attributes(PointerArray *a, const char *prefix)
+void collect_colors_and_attributes(PointerArray *a, StringView prefix)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 1; i < ARRAYLEN(color_names); i++) {
         const ShortStr *s = &color_names[i];
-        if (str_has_strn_prefix(s->name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(s->name, prefix)) {
             ptr_array_append(a, xmemdup(s->name, s->len + 1));
         }
     }
+
     for (size_t i = 0; i < ARRAYLEN(attr_names); i++) {
         const ShortStr *s = &attr_names[i];
-        if (str_has_strn_prefix(s->name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(s->name, prefix)) {
             ptr_array_append(a, xmemdup(s->name, s->len + 1));
         }
     }

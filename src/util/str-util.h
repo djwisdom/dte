@@ -34,19 +34,15 @@ static inline void xsetenv(const char *name, const char *value)
 }
 
 PURE NONNULL_ARGS
-static inline bool str_has_strn_prefix(const char *str, const char *prefix, size_t plen)
+static inline bool str_has_sv_prefix(const char *str, StringView prefix)
 {
-    // Note that `prefix` must be a null-terminated string and `plen`
-    // should be equal to strlen(prefix). The explicit length parameter
-    // is simply for the sake of efficiency, e.g. to allow strlen() to
-    // be hoisted out of loops when `prefix` is loop-invariant.
-    return plen == 0 || strncmp(str, prefix, plen) == 0;
+    return strview_has_sv_prefix(strview(str), prefix);
 }
 
 PURE NONNULL_ARGS
 static inline bool str_has_prefix(const char *str, const char *prefix)
 {
-    return str_has_strn_prefix(str, prefix, strlen(prefix));
+    return strview_has_sv_prefix(strview(str), strview(prefix));
 }
 
 PURE NONNULL_ARGS

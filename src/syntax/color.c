@@ -73,7 +73,7 @@ void clear_hl_styles(StyleMap *styles)
     hashmap_clear(&styles->other, free);
 }
 
-void collect_builtin_styles(PointerArray *a, const char *prefix)
+void collect_builtin_styles(PointerArray *a, StringView prefix)
 {
     COLLECT_STRINGS(builtin_style_names, a, prefix);
 }

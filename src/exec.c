@@ -19,7 +19,6 @@
 #include "util/bsearch.h"
 #include "util/debug.h"
 #include "util/str-util.h"
-#include "util/string-view.h"
 #include "util/string.h"
 #include "util/strtonum.h"
 #include "util/xsnprintf.h"
@@ -70,17 +69,16 @@ ExecAction lookup_exec_action(const char *name, int fd)
     return (i >= 0 && (exec_map[i].flags & 1u << fd)) ? i : EXEC_INVALID;
 }
 
-void collect_exec_actions(PointerArray *a, const char *prefix, int fd)
+void collect_exec_actions(PointerArray *a, StringView prefix, int fd)
 {
     if (unlikely(fd < 0 || fd > 2)) {
         return;
     }
 
-    size_t prefix_len = strlen(prefix);
     unsigned int flag = 1u << fd;
     for (size_t i = 0; i < ARRAYLEN(exec_map); i++) {
         const char *action = exec_map[i].name;
-        if ((exec_map[i].flags & flag) && str_has_strn_prefix(action, prefix, prefix_len)) {
+        if ((exec_map[i].flags & flag) && str_has_sv_prefix(action, prefix)) {
             ptr_array_append(a, xstrdup(action));
         }
     }

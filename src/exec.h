@@ -6,6 +6,7 @@
 #include "command/error.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 
 // NOLINTNEXTLINE(readability-enum-initial-value,cert-int09-c)
 typedef enum {
@@ -52,6 +53,6 @@ ssize_t handle_exec (
 ExecAction lookup_exec_action(const char *name, int fd) NONNULL_ARGS;
 void yield_terminal(struct EditorState *e, bool quiet) NONNULL_ARGS;
 void resume_terminal(struct EditorState *e, bool quiet, bool prompt) NONNULL_ARGS;
-void collect_exec_actions(PointerArray *a, const char *prefix, int fd) NONNULL_ARGS;
+void collect_exec_actions(PointerArray *a, StringView prefix, int fd) NONNULL_ARGS;
 
 #endif

@@ -23,11 +23,10 @@ static inline size_t string_array_length(char **strings)
     return n;
 }
 
-static inline bool string_array_contains_prefix(char **strs, const char *prefix)
+static inline bool string_array_contains_prefix(char **strs, StringView prefix)
 {
-    size_t prefix_len = strlen(prefix);
     for (size_t i = 0; strs[i]; i++) {
-        if (str_has_strn_prefix(strs[i], prefix, prefix_len)) {
+        if (str_has_sv_prefix(strs[i], prefix)) {
             return true;
         }
     }

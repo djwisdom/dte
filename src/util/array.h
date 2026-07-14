@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "macros.h"
 #include "ptr-array.h"
+#include "string-view.h"
 #include "xstring.h"
 
 #define static_assert_flat_string_array(a) \
@@ -89,7 +90,7 @@ void collect_strings_from_flat_array (
     size_t nr_elements,
     size_t element_len,
     PointerArray *a,
-    const char *prefix
+    StringView prefix
 );
 
 static inline void check_array (

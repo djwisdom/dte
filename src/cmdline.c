@@ -237,8 +237,8 @@ static bool do_history_prev(const History *hist, CommandLine *c, bool prefix_sea
         c->search_text = string_clone_cstring(&c->buf);
     }
 
-    const char *search_text = prefix_search ? c->search_text : "";
-    if (history_search_forward(hist, &c->search_pos, search_text)) {
+    StringView prefix = strview(prefix_search ? c->search_text : "");
+    if (history_search_forward(hist, &c->search_pos, prefix)) {
         BUG_ON(!c->search_pos);
         set_text(c, c->search_pos->text);
     }
@@ -253,8 +253,8 @@ static bool do_history_next(const History *hist, CommandLine *c, bool prefix_sea
         goto out;
     }
 
-    const char *search_text = prefix_search ? c->search_text : "";
-    if (history_search_backward(hist, &c->search_pos, search_text)) {
+    StringView prefix = strview(prefix_search ? c->search_text : "");
+    if (history_search_backward(hist, &c->search_pos, prefix)) {
         BUG_ON(!c->search_pos);
         set_text(c, c->search_pos->text);
     } else {

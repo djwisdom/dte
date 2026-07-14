@@ -9,6 +9,7 @@
 #include "util/debug.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
+#include "util/string-view.h"
 #include "util/string.h"
 
 enum {
@@ -104,10 +105,10 @@ bool set_bool_option(struct EditorState *e, const char *name, bool local, bool g
 bool toggle_option(struct EditorState *e, const char *name, bool global, bool verbose);
 bool toggle_option_values(struct EditorState *e, const char *name, bool global, bool verbose, char **values, size_t count);
 bool validate_local_options(ErrorBuffer *ebuf, char **strs);
-void collect_options(PointerArray *a, const char *prefix, bool local, bool global);
-void collect_auto_options(PointerArray *a, const char *prefix);
-void collect_toggleable_options(PointerArray *a, const char *prefix, bool global);
-void collect_option_values(struct EditorState *e, PointerArray *a, const char *option, const char *prefix);
+void collect_options(PointerArray *a, StringView prefix, bool local, bool global);
+void collect_auto_options(PointerArray *a, StringView prefix);
+void collect_toggleable_options(PointerArray *a, StringView prefix, bool global);
+void collect_option_values(struct EditorState *e, PointerArray *a, const char *option, StringView prefix);
 String dump_options(GlobalOptions *gopts, LocalOptions *lopts);
 const char *get_option_value_string(struct EditorState *e, const char *name);
 

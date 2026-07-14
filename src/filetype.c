@@ -261,18 +261,17 @@ bool is_ft(const PointerArray *filetypes, const char *name)
     return false;
 }
 
-void collect_ft(const PointerArray *filetypes, PointerArray *a, const char *prefix)
+void collect_ft(const PointerArray *filetypes, PointerArray *a, StringView prefix)
 {
     // Insert all filetype names beginning with `prefix` into a HashSet
     // (to avoid duplicates)
     HashSet set;
-    size_t prefix_len = strlen(prefix);
     size_t nr_builtin_ft = ARRAYLEN(builtin_filetype_names);
-    hashset_init(&set, 20 + (prefix[0] == '\0' ? nr_builtin_ft : 0), false);
+    hashset_init(&set, 20 + (prefix.length ? 0 : nr_builtin_ft), false);
 
     for (size_t i = 0; i < nr_builtin_ft; i++) {
         const char *name = builtin_filetype_names[i];
-        if (str_has_strn_prefix(name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(name, prefix)) {
             hashset_insert(&set, name, strlen(name));
         }
     }
@@ -280,7 +279,7 @@ void collect_ft(const PointerArray *filetypes, PointerArray *a, const char *pref
     for (size_t i = 0, n = filetypes->count; i < n; i++) {
         const UserFileTypeEntry *ft = filetypes->ptrs[i];
         const char *name = ft->name;
-        if (str_has_strn_prefix(name, prefix, prefix_len)) {
+        if (str_has_sv_prefix(name, prefix)) {
             hashset_insert(&set, name, strlen(name));
         }
     }

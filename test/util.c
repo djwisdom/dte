@@ -251,17 +251,17 @@ static void test_xmempcpy(TestContext *ctx)
     EXPECT_STREQ(buf, "abcd");
 }
 
-static void test_str_has_strn_prefix(TestContext *ctx)
+static void test_str_has_sv_prefix(TestContext *ctx)
 {
-    EXPECT_TRUE(str_has_strn_prefix("xyz", STRN("xyz")));
-    EXPECT_FALSE(str_has_strn_prefix("xyz", STRN("x.z")));
-    EXPECT_TRUE(str_has_strn_prefix("12345678", "1234..", 4));
-    EXPECT_FALSE(str_has_strn_prefix("12345678", "1234..", 5));
-    EXPECT_TRUE(str_has_strn_prefix("x", STRN("")));
-    EXPECT_TRUE(str_has_strn_prefix("", STRN("")));
-    EXPECT_TRUE(str_has_strn_prefix("foo", "bar", 0));
-    EXPECT_FALSE(str_has_strn_prefix("foo", "bar", 3));
-    EXPECT_TRUE(str_has_strn_prefix("aaa", "aaa", 4));
+    EXPECT_TRUE(str_has_sv_prefix("xyz", strview("xyz")));
+    EXPECT_FALSE(str_has_sv_prefix("xyz", strview("x.z")));
+    EXPECT_TRUE(str_has_sv_prefix("12345678", string_view("1234..", 4)));
+    EXPECT_FALSE(str_has_sv_prefix("12345678", string_view("1234..", 5)));
+    EXPECT_TRUE(str_has_sv_prefix("x", strview("")));
+    EXPECT_TRUE(str_has_sv_prefix("", strview("")));
+    EXPECT_TRUE(str_has_sv_prefix("foo", string_view("bar", 0)));
+    EXPECT_FALSE(str_has_sv_prefix("foo", string_view("bar", 3)));
+    EXPECT_FALSE(str_has_sv_prefix("aaa", string_view("aaa", 4)));
 }
 
 static void test_str_has_prefix(TestContext *ctx)
@@ -3965,7 +3965,7 @@ static const TestEntry tests[] = {
     TEST(test_xstreq),
     TEST(test_xstrrchr),
     TEST(test_xmempcpy),
-    TEST(test_str_has_strn_prefix),
+    TEST(test_str_has_sv_prefix),
     TEST(test_str_has_prefix),
     TEST(test_str_has_suffix),
     TEST(test_hex_decode),

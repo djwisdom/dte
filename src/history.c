@@ -62,12 +62,11 @@ void history_append(History *history, const char *text)
 bool history_search_forward (
     const History *history,
     const HistoryEntry **pos,
-    const char *text
+    StringView search_prefix
 ) {
     const HistoryEntry *start = *pos ? (*pos)->prev : history->last;
-    size_t text_len = strlen(text);
     for (const HistoryEntry *e = start; e; e = e->prev) {
-        if (str_has_strn_prefix(e->text, text, text_len)) {
+        if (str_has_sv_prefix(e->text, search_prefix)) {
             *pos = e;
             return true;
         }
@@ -78,12 +77,11 @@ bool history_search_forward (
 bool history_search_backward (
     const History *history,
     const HistoryEntry **pos,
-    const char *text
+    StringView search_prefix
 ) {
     const HistoryEntry *start = *pos ? (*pos)->next : history->first;
-    size_t text_len = strlen(text);
     for (const HistoryEntry *e = start; e; e = e->next) {
-        if (str_has_strn_prefix(e->text, text, text_len)) {
+        if (str_has_sv_prefix(e->text, search_prefix)) {
             *pos = e;
             return true;
         }

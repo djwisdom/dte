@@ -47,7 +47,7 @@ typedef enum {
 } ShowHandlerFlags;
 
 typedef bool (*ShowHandlerFunc)(EditorState *e, const char *name, bool cmdline);
-typedef void (*CompleteArgFunc)(EditorState *e, PointerArray *a, const char *prefix);
+typedef void (*CompleteArgFunc)(EditorState *e, PointerArray *a, StringView prefix);
 
 typedef struct {
     const char name[10];
@@ -362,42 +362,42 @@ static bool show_option(EditorState *e, const char *name, bool cflag)
     return true;
 }
 
-static void collect_all_options(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void collect_all_options(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
     collect_options(a, prefix, false, false);
 }
 
-static void do_collect_cursor_modes(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void do_collect_cursor_modes(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
     collect_cursor_modes(a, prefix);
 }
 
-static void do_collect_builtin_configs(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void do_collect_builtin_configs(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
     collect_builtin_configs(a, prefix);
 }
 
-static void do_collect_builtin_includes(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void do_collect_builtin_includes(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
     collect_builtin_includes(a, prefix);
 }
 
-static void do_collect_modes(EditorState *e, PointerArray *a, const char *prefix)
+static void do_collect_modes(EditorState *e, PointerArray *a, StringView prefix)
 {
     collect_modes(&e->modes, a, prefix);
 }
 
-static void do_collect_env(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void do_collect_env(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
-    collect_env(environ, a, strview(prefix), "");
+    collect_env(environ, a, prefix, "");
 }
 
-static void do_collect_normal_vars(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void do_collect_normal_vars(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
-    collect_normal_vars(a, strview(prefix), "");
+    collect_normal_vars(a, prefix, "");
 }
 
-static void collect_show_msg_args(EditorState* UNUSED_ARG(e), PointerArray *a, const char *prefix)
+static void collect_show_msg_args(EditorState* UNUSED_ARG(e), PointerArray *a, StringView prefix)
 {
     static const char args[][2] = {"A", "B", "C"};
     COLLECT_STRINGS(args, a, prefix);
@@ -730,12 +730,12 @@ bool show(EditorState *e, const char *type, const char *key, bool cflag)
     return true;
 }
 
-void collect_show_subcommands(PointerArray *a, const char *prefix)
+void collect_show_subcommands(PointerArray *a, StringView prefix)
 {
     COLLECT_STRING_FIELDS(show_handlers, name, a, prefix);
 }
 
-void collect_show_subcommand_args(EditorState *e, PointerArray *a, const char *name, const char *arg_prefix)
+void collect_show_subcommand_args(EditorState *e, PointerArray *a, const char *name, StringView arg_prefix)
 {
     const ShowHandler *handler = lookup_show_handler(name);
     if (handler && handler->complete_arg) {
