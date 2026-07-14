@@ -477,7 +477,8 @@ static void complete_option(EditorState *e, const CommandArgs *a)
     } else if (a->nr_args & 1) {
         collect_auto_options(&cs->completions, prefix);
     } else {
-        collect_option_values(e, &cs->completions, a->args[a->nr_args - 1], prefix);
+        const char *option = a->args[a->nr_args - 1];
+        collect_option_values(e, &cs->completions, option, prefix);
     }
 }
 
@@ -511,7 +512,13 @@ static void complete_set(EditorState *e, const CommandArgs *a)
         bool global = cmdargs_has_flag(a, 'g');
         collect_options(&cs->completions, prefix, local, global);
     } else {
-        collect_option_values(e, &cs->completions, a->args[a->nr_args - 1], prefix);
+        const char *option = a->args[a->nr_args - 1];
+        if (prefix.length) {
+            collect_option_values(e, &cs->completions, option, prefix);
+        } else {
+            char *current_val = xstrdup(get_option_value_string(e, option));
+            ptr_array_append(&cs->completions, current_val);
+        }
     }
 }
 
@@ -553,9 +560,12 @@ static void complete_tag(EditorState *e, const CommandArgs *a)
 static void complete_toggle(EditorState *e, const CommandArgs *a)
 {
     CompletionState *cs = &e->cmdline.completion;
+    StringView prefix = strview(cs->parsed);
     if (a->nr_args == 0) {
         bool global = cmdargs_has_flag(a, 'g');
-        collect_toggleable_options(&cs->completions, strview(cs->parsed), global);
+        collect_toggleable_options(&cs->completions, prefix, global);
+    } else {
+        collect_option_values(e, &cs->completions, a->args[0], prefix);
     }
 }
 

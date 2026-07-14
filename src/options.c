@@ -1033,13 +1033,6 @@ void collect_option_values (
         return;
     }
 
-    if (prefix.length == 0) {
-        char *ptr = get_option_ptr(e, desc, !desc->local);
-        OptionValue value = desc_get(desc, ptr);
-        ptr_array_append(a, xstrdup(desc_string(desc, value)));
-        return;
-    }
-
     switch (desc->type) {
     case OPT_UINT:
     case OPT_UINT8:

@@ -208,6 +208,19 @@ static void test_complete_command(TestContext *ctx)
     EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle auto-indent");
     reset_completion(c);
 
+    cmdline_set_text(c, "toggle case-");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle case-sensitive-search ");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle case-sensitive-search auto");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle case-sensitive-search false");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle case-sensitive-search true");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "toggle case-sensitive-search auto");
+    reset_completion(c);
+
     cmdline_set_text(c, "set expand-tab f");
     complete_command_next(e);
     EXPECT_STRING_EQ_CSTRING(&c->buf, "set expand-tab false ");
@@ -583,7 +596,11 @@ static void test_complete_command_extra(TestContext *ctx)
 
     cmdline_set_text(c, "option c expand-tab ");
     complete_command_next(e);
-    EXPECT_STRING_EQ_CSTRING(&c->buf, "option c expand-tab true ");
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "option c expand-tab false");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "option c expand-tab true");
+    complete_command_next(e);
+    EXPECT_STRING_EQ_CSTRING(&c->buf, "option c expand-tab false");
     reset_completion(c);
 
     static const char create_files[] =
