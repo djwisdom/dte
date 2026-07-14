@@ -45,14 +45,6 @@ static inline bool str_has_prefix(const char *str, const char *prefix)
     return strview_has_sv_prefix(strview(str), strview(prefix));
 }
 
-PURE NONNULL_ARGS
-static inline bool str_has_suffix(const char *str, const char *suffix)
-{
-    size_t l1 = strlen(str);
-    size_t l2 = strlen(suffix);
-    return (l1 >= l2) && mem_equal(str + l1 - l2, suffix, l2);
-}
-
 NONNULL_ARGS
 static inline size_t str_common_prefix_length(const char *a, const char *b)
 {

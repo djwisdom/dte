@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
         if (
             !headless
             && !explicit_term_query_level
-            && str_has_suffix(u.release, "-WSL2")
+            && strview_has_suffix(strview(u.release), "-WSL2")
         ) {
             // There appears to be an issue on WSL2 where the DA1 query
             // response is interpreted as pasted text and then inserted

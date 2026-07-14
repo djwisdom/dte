@@ -277,22 +277,6 @@ static void test_str_has_prefix(TestContext *ctx)
     EXPECT_FALSE(str_has_prefix("123", "xyz"));
 }
 
-static void test_str_has_suffix(TestContext *ctx)
-{
-    EXPECT_TRUE(str_has_suffix("foo", "foo"));
-    EXPECT_TRUE(str_has_suffix("foobar", "bar"));
-    EXPECT_TRUE(str_has_suffix("1234", "234"));
-    EXPECT_TRUE(str_has_suffix("x", "x"));
-    EXPECT_TRUE(str_has_suffix("aa", "a"));
-    EXPECT_FALSE(str_has_suffix("foobar.", "bar"));
-    EXPECT_FALSE(str_has_suffix("foo", "foobar"));
-    EXPECT_FALSE(str_has_suffix("bar", "foobar"));
-    EXPECT_FALSE(str_has_suffix("foo", "bar"));
-    EXPECT_FALSE(str_has_suffix("bar", "foo"));
-    EXPECT_FALSE(str_has_suffix("123", "1234"));
-    EXPECT_FALSE(str_has_suffix("a", "aa"));
-}
-
 static void test_hex_decode(TestContext *ctx)
 {
     EXPECT_EQ(hex_decode('0'), 0);
@@ -936,6 +920,19 @@ static void test_string_view(TestContext *ctx)
 
 static void test_strview_has_suffix(TestContext *ctx)
 {
+    EXPECT_TRUE(strview_has_suffix(strview("foo"), "foo"));
+    EXPECT_TRUE(strview_has_suffix(strview("foobar"), "bar"));
+    EXPECT_TRUE(strview_has_suffix(strview("1234"), "234"));
+    EXPECT_TRUE(strview_has_suffix(strview("x"), "x"));
+    EXPECT_TRUE(strview_has_suffix(strview("aa"), "a"));
+    EXPECT_FALSE(strview_has_suffix(strview("foobar."), "bar"));
+    EXPECT_FALSE(strview_has_suffix(strview("foo"), "foobar"));
+    EXPECT_FALSE(strview_has_suffix(strview("bar"), "foobar"));
+    EXPECT_FALSE(strview_has_suffix(strview("foo"), "bar"));
+    EXPECT_FALSE(strview_has_suffix(strview("bar"), "foo"));
+    EXPECT_FALSE(strview_has_suffix(strview("123"), "1234"));
+    EXPECT_FALSE(strview_has_suffix(strview("a"), "aa"));
+
     StringView sv = strview("foobar");
     EXPECT_TRUE(strview_has_suffix(sv, "foobar"));
     EXPECT_TRUE(strview_has_suffix(sv, "bar"));
@@ -3967,7 +3964,6 @@ static const TestEntry tests[] = {
     TEST(test_xmempcpy),
     TEST(test_str_has_sv_prefix),
     TEST(test_str_has_prefix),
-    TEST(test_str_has_suffix),
     TEST(test_hex_decode),
     TEST(test_hex_encode_byte),
     TEST(test_ascii),
