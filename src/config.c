@@ -300,7 +300,7 @@ void collect_builtin_includes(PointerArray *a, StringView prefix)
             strview_has_sv_prefix(name, prefix)
             && !strview_has_either_prefix(name, "syntax/", "script/")
         ) {
-            ptr_array_append(a, xmemdup(name.data, name.length + 1));
+            ptr_array_append(a, strview_clone_cstring(name));
         }
     }
 }

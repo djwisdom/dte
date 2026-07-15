@@ -337,7 +337,7 @@ void collect_tags(TagFile *tf, PointerArray *a, StringView prefix)
     while (next_tag(src, &pos, prefix, false, &tag)) {
         BUG_ON(tag.name.length == 0);
         if (prev.length == 0 || !strview_equal(tag.name, prev)) {
-            ptr_array_append(a, xstrcut(tag.name.data, tag.name.length));
+            ptr_array_append(a, strview_clone_cstring(tag.name));
             prev = tag.name;
         }
         free_tag(&tag);

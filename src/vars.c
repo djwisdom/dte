@@ -116,7 +116,7 @@ static char *expand_word(const EditorState *e)
     }
 
     StringView word = view_get_word_under_cursor(view);
-    return word.length ? xstrcut(word.data, word.length) : NULL;
+    return word.length ? strview_clone_cstring(word) : NULL;
 }
 
 static const BuiltinVar normal_vars[] = {
@@ -158,7 +158,7 @@ static char *expand_prefixed_var(const char *name, size_t name_len, StringView p
     }
 
     const BuiltinConfig *cfg = get_builtin_config(name);
-    return cfg ? xmemdup(cfg->text.data, cfg->text.length + 1) : NULL;
+    return cfg ? strview_clone_cstring(cfg->text) : NULL;
 }
 
 char *expand_normal_var(const EditorState *e, const char *name)

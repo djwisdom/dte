@@ -46,8 +46,7 @@ static inline StringView path_slice_dirname(const char *path)
 XSTRDUP
 static inline char *path_dirname(const char *path)
 {
-    const StringView dir = path_slice_dirname(path);
-    return xstrcut(dir.data, dir.length);
+    return strview_clone_cstring(path_slice_dirname(path));
 }
 
 static inline char *path_join_sv(StringView s1, StringView s2, bool trailing_slash)

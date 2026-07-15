@@ -386,7 +386,7 @@ static View *open_initial_buffers (
             StringView path = parse_file_line_col(arg, &line, &col);
             if (path.length) {
                 // file:line[:col] argument parsed; extract `file` and use below
-                arg = alloc = xstrcut(path.data, path.length);
+                arg = alloc = strview_clone_cstring(path);
             }
         }
 

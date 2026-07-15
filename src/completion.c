@@ -887,7 +887,7 @@ static void init_completion(EditorState *e, const CommandLine *cmdline)
             // TODO: Make lookup_alias() (and hashmap_find(), etc.) take a
             // name_len parameter, to do away with the need to allocate
             // temporary cstring slices like this
-            char *name = xstrcut(arg.data, arg.length);
+            char *name = strview_clone_cstring(arg);
             const char *value = runner.lookup_alias(runner.e, name);
             free(name);
 
