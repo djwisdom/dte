@@ -98,7 +98,7 @@ void set_file_options(EditorState *e, Buffer *buffer)
         }
 
         const regex_t *re = &opt->u.filename->re;
-        if (regexp_exec(re, filename, strlen(filename), 0, NULL, 0)) {
+        if (regexp_exec(re, strview(filename), 0, NULL, 0)) {
             set_options(e, opt->strs);
         }
     }

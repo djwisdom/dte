@@ -23,25 +23,11 @@ enum {
     ERR = STDERR_FILENO,
 };
 
-static void handle_error_msg (
-    const Compiler *c,
-    MessageList *msgs,
-    char *str,
-    size_t str_len
-) {
-    if (str_len == 0 || str[0] == '\n') {
-        return;
-    }
-
-    strn_replace_byte(str, str_len, '\t', ' ');
-    if (str[str_len - 1] == '\n') {
-        str[--str_len] = '\0';
-    }
-
+static void handle_error_msg(const Compiler *c, MessageList *msgs, StringView line) {
     for (size_t i = 0, n = c->error_formats.count; i < n; i++) {
         const ErrorFormat *p = c->error_formats.ptrs[i];
         regmatch_t m[ERRORFMT_CAPTURE_MAX];
-        if (!regexp_exec(&p->re, str, str_len, ARRAYLEN(m), m, 0)) {
+        if (!regexp_exec(&p->re, line, ARRAYLEN(m), m, 0)) {
             continue;
         }
         if (p->ignore) {
@@ -53,12 +39,12 @@ static void handle_error_msg (
             mi = 0;
         }
 
-        Message *msg = new_message(str + m[mi].rm_so, m[mi].rm_eo - m[mi].rm_so);
+        Message *msg = new_message(strview_from_slice(line.data, m[mi].rm_so, m[mi].rm_eo));
         msg->loc = new_file_location(NULL, 0, 0, 0);
 
         int fi = (int)p->capture_index[ERRFMT_FILE];
         if (fi >= 0 && m[fi].rm_so >= 0) {
-            msg->loc->filename = xstrslice(str, m[fi].rm_so, m[fi].rm_eo);
+            msg->loc->filename = xstrslice(line.data, m[fi].rm_so, m[fi].rm_eo);
 
             unsigned long *const ptrs[] = {
                 [ERRFMT_LINE] = &msg->loc->line,
@@ -72,7 +58,7 @@ static void handle_error_msg (
             for (size_t j = ERRFMT_LINE; j < ARRAYLEN(ptrs); j++) {
                 int ci = (int)p->capture_index[j];
                 if (ci >= 0 && m[ci].rm_so >= 0) {
-                    StringView substr = strview_from_slice(str, m[ci].rm_so, m[ci].rm_eo);
+                    StringView substr = strview_from_slice(line.data, m[ci].rm_so, m[ci].rm_eo);
                     unsigned long val;
                     if (substr.length == buf_parse_ulong(substr, &val)) {
                         *ptrs[j] = val;
@@ -85,7 +71,7 @@ static void handle_error_msg (
         return;
     }
 
-    add_message(msgs, new_message(str, str_len));
+    add_message(msgs, new_message(line));
 }
 
 static void read_errors(const Compiler *c, MessageList *msgs, int fd, bool quiet)
@@ -96,19 +82,26 @@ static void read_errors(const Compiler *c, MessageList *msgs, int fd, bool quiet
     }
 
     // TODO: Use POSIX 2008 getline(3) instead of xfgets()
-    char line[4096];
-    while (xfgets(line, sizeof(line), f)) {
-        size_t line_len = strlen(line);
+    char linebuf[4096];
+    while (xfgets(linebuf, sizeof(linebuf), f)) {
+        StringView line = strview(linebuf);
         if (!quiet) {
-            size_t bytes_written = xfwrite_all(line, line_len, stderr);
-            if (unlikely(bytes_written != line_len)) {
+            size_t bytes_written = xfwrite_all(line.data, line.length, stderr);
+            if (unlikely(bytes_written != line.length)) {
                 // This can happen even when just interrupting the child,
                 // e.g. with `compile gcc make` followed by Ctrl+C
                 LOG_ERRNO("fwrite() failed; setting quiet=true");
                 quiet = true; // Don't try to write any more lines
             }
         }
-        handle_error_msg(c, msgs, line, line_len);
+
+        if (line.length == 0 || line.data[0] == '\n') {
+            continue;
+        }
+
+        strview_remove_matching_suffix(&line, "\n");
+        strn_replace_byte(linebuf, line.length, '\t', ' ');
+        handle_error_msg(c, msgs, line);
     }
 
     fclose(f);

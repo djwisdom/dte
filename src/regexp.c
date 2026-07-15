@@ -31,8 +31,7 @@ const regex_t *regexp_compile_or_fatal_error(const char *pattern)
 
 bool regexp_exec (
     const regex_t *re,
-    const char *text,
-    size_t text_len,
+    StringView text,
     size_t nmatch,
     regmatch_t *pmatch,
     int flags
@@ -47,12 +46,12 @@ bool regexp_exec (
         regmatch_t tmp_startend;
         pmatch = nmatch ? pmatch : &tmp_startend;
         pmatch[0].rm_so = 0;
-        pmatch[0].rm_eo = text_len;
-        return !regexec(re, text, nmatch, pmatch, flags | REGEXP_STARTEND_FLAG);
+        pmatch[0].rm_eo = text.length;
+        return !regexec(re, text.data, nmatch, pmatch, flags | REGEXP_STARTEND_FLAG);
     }
 
     // Buffer must be null-terminated if REG_STARTEND isn't supported
-    char *cstr = xstrcut(text, text_len);
+    char *cstr = strview_clone_cstring(text);
     int ret = !regexec(re, cstr, nmatch, pmatch, flags);
     free(cstr);
     return ret;

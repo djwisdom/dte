@@ -8,6 +8,7 @@
 #include "ascii.h"
 #include "debug.h"
 #include "macros.h"
+#include "xmalloc.h"
 #include "xmemrchr.h"
 #include "xstring.h"
 
@@ -274,6 +275,12 @@ static inline size_t strview_trim(StringView *sv)
 {
     size_t r = strview_trim_right(sv);
     return r + strview_trim_left(sv);
+}
+
+MALLOC RETURNS_NONNULL
+static inline char *strview_clone_cstring(StringView sv)
+{
+    return xmemjoin(sv.data, sv.length, "", 1);
 }
 
 #endif

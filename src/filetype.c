@@ -171,7 +171,7 @@ static bool ft_str_match(const UserFileTypeEntry *ft, StringView sv)
 static bool ft_regex_match(const UserFileTypeEntry *ft, const StringView sv)
 {
     const regex_t *re = &ft->u.regexp->re;
-    return sv.length > 0 && regexp_exec(re, sv.data, sv.length, 0, NULL, 0);
+    return sv.length > 0 && regexp_exec(re, sv, 0, NULL, 0);
 }
 
 static bool ft_match(const UserFileTypeEntry *ft, const StringView sv)

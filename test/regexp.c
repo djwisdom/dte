@@ -13,7 +13,7 @@ static void test_regexp_escape(TestContext *ctx)
     regex_t re;
     ASSERT_TRUE(regexp_compile(NULL, &re, escaped, REG_NEWLINE | REG_NOSUB));
     free(escaped);
-    EXPECT_TRUE(regexp_exec(&re, pat, sizeof(pat) - 1, 0, NULL, 0));
+    EXPECT_TRUE(regexp_exec(&re, strview(pat), 0, NULL, 0));
     regfree(&re);
 }
 

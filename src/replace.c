@@ -78,8 +78,7 @@ static unsigned int replace_on_line (
 
     while (regexp_exec (
         re,
-        buf + pos,
-        line.length - pos,
+        string_view(buf + pos, line.length - pos),
         ARRAYLEN(matches),
         matches,
         eflags

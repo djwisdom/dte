@@ -61,11 +61,10 @@ const InternedRegexp *regexp_intern(ErrorBuffer *ebuf, const char *pattern) NONN
 bool regexp_is_interned(const char *pattern) NONNULL_ARGS;
 void free_interned_regexps(void);
 
-WARN_UNUSED_RESULT NONNULL_ARG(1, 2) NONNULL_ARG_IF_NONZERO_LENGTH(5, 4)
+WARN_UNUSED_RESULT NONNULL_ARG(1) NONNULL_ARG_IF_NONZERO_LENGTH(4, 3)
 bool regexp_exec (
     const regex_t *re,
-    const char *buf,
-    size_t size,
+    StringView text,
     size_t nmatch,
     regmatch_t *pmatch,
     int flags

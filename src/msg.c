@@ -17,11 +17,11 @@ static void free_message(Message *m)
     free(m);
 }
 
-Message *new_message(const char *msg, size_t len)
+Message *new_message(StringView msg)
 {
-    Message *m = xmalloc(xadd3(sizeof(*m), len, 1));
+    Message *m = xmalloc(xadd3(sizeof(*m), msg.length, 1));
     m->loc = NULL;
-    xmempcpy2(m->msg, msg, len, "", 1);
+    xmempcpy2(m->msg, msg.data, msg.length, "", 1);
     return m;
 }
 

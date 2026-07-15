@@ -26,7 +26,7 @@ static bool do_search_fwd(View *view, regex_t *regex, BlockIter *bi, bool skip)
         // a partial line (text starting from the cursor position) and if
         // `match.rm_so` is 0 then the match is at the beginning of the
         // text, which is the same as the cursor position.
-        if (regexp_exec(regex, line.data, line.length, 1, &match, flags)) {
+        if (regexp_exec(regex, line, 1, &match, flags)) {
             if (skip && match.rm_so == 0) {
                 // Ignore match at current cursor position
                 regoff_t count = match.rm_eo;
@@ -60,16 +60,14 @@ static bool do_search_bwd(View *view, regex_t *regex, BlockIter *bi, ssize_t cx,
     }
 
     do {
+        const StringView line = block_iter_get_line(bi);
+        StringView slice = line;
         regmatch_t match;
         int flags = 0;
         regoff_t offset = -1;
         regoff_t pos = 0;
-        StringView line = block_iter_get_line(bi);
 
-        while (
-            pos <= line.length
-            && regexp_exec(regex, line.data + pos, line.length - pos, 1, &match, flags)
-        ) {
+        while (pos <= line.length && regexp_exec(regex, slice, 1, &match, flags)) {
             flags = REG_NOTBOL;
             if (cx >= 0) {
                 if (pos + match.rm_so >= cx) {
@@ -85,6 +83,7 @@ static bool do_search_bwd(View *view, regex_t *regex, BlockIter *bi, ssize_t cx,
             // This might be what we want (last match before cursor)
             offset = pos + match.rm_so;
             pos += match.rm_eo;
+            slice = strview_from_slice(line.data, pos, line.length);
 
             if (match.rm_so == match.rm_eo) {
                 // Zero length match

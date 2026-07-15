@@ -58,10 +58,10 @@ static bool line_contents_increases_indent (
     }
 
     if (options->brace_indent) {
-        if (regexp_exec(re1, line.data, line.length, 0, NULL, 0)) {
+        if (regexp_exec(re1, line, 0, NULL, 0)) {
             return true;
         }
-        if (regexp_exec(re2, line.data, line.length, 0, NULL, 0)) {
+        if (regexp_exec(re2, line, 0, NULL, 0)) {
             return false;
         }
     }
@@ -72,7 +72,7 @@ static bool line_contents_increases_indent (
     }
 
     BUG_ON(ir->str[0] == '\0');
-    return regexp_exec(&ir->re, line.data, line.length, 0, NULL, 0);
+    return regexp_exec(&ir->re, line, 0, NULL, 0);
 }
 
 String get_indent_for_next_line(const LocalOptions *options, StringView line)
