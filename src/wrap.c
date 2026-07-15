@@ -112,9 +112,8 @@ void wrap_paragraph(View *view, size_t text_width)
     }
 
     const LocalOptions *options = &view->buffer->options;
-    char *sel = block_iter_get_bytes(view->cursor, len);
-    StringView sv = string_view(sel, len);
-    size_t indent_width = get_indent_width(sv, options->tab_width);
+    String sel = block_iter_get_bytes(view->cursor, len);
+    size_t indent_width = get_indent_width(strview_from_string(&sel), options->tab_width);
 
     ParagraphFormatter pf = {
         .buf = string_new(len + 64),
@@ -127,7 +126,7 @@ void wrap_paragraph(View *view, size_t text_width)
     for (size_t i = 0; true; ) {
         while (i < len) {
             size_t tmp = i;
-            if (!u_is_breakable_whitespace(u_get_char(sel, len, &tmp))) {
+            if (!u_is_breakable_whitespace(u_get_char(sel.buffer, len, &tmp))) {
                 break;
             }
             i = tmp;
@@ -139,13 +138,13 @@ void wrap_paragraph(View *view, size_t text_width)
         size_t start = i;
         while (i < len) {
             size_t tmp = i;
-            if (u_is_breakable_whitespace(u_get_char(sel, len, &tmp))) {
+            if (u_is_breakable_whitespace(u_get_char(sel.buffer, len, &tmp))) {
                 break;
             }
             i = tmp;
         }
 
-        add_word(&pf, sel + start, i - start);
+        add_word(&pf, sel.buffer + start, i - start);
     }
 
     if (pf.buf.len) {
@@ -160,6 +159,6 @@ void wrap_paragraph(View *view, size_t text_width)
 
     string_free(&pf.buf);
     string_free(&pf.indent);
-    free(sel);
+    string_free(&sel);
     unselect(view);
 }

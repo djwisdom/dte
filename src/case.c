@@ -30,24 +30,24 @@ void change_case(View *view, char mode)
     }
 
     String dst = string_new(text_len);
-    char *src = block_iter_get_bytes(view->cursor, text_len);
+    String src = block_iter_get_bytes(view->cursor, text_len);
     size_t i = 0;
     switch (mode) {
     case 'l':
         while (i < text_len) {
-            CodePoint u = u_to_lower(u_get_char(src, text_len, &i));
+            CodePoint u = u_to_lower(u_get_char(src.buffer, text_len, &i));
             string_append_codepoint(&dst, u);
         }
         break;
     case 'u':
         while (i < text_len) {
-            CodePoint u = u_to_upper(u_get_char(src, text_len, &i));
+            CodePoint u = u_to_upper(u_get_char(src.buffer, text_len, &i));
             string_append_codepoint(&dst, u);
         }
         break;
     case 't':
         while (i < text_len) {
-            CodePoint u = u_get_char(src, text_len, &i);
+            CodePoint u = u_get_char(src.buffer, text_len, &i);
             u = u_is_upper(u) ? u_to_lower(u) : u_to_upper(u);
             string_append_codepoint(&dst, u);
         }
@@ -57,7 +57,7 @@ void change_case(View *view, char mode)
     }
 
     buffer_replace_bytes(view, text_len, strview_from_string(&dst));
-    free(src);
+    string_free(&src);
 
     if (move && dst.len > 0) {
         size_t skip = dst.len;

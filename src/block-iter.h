@@ -7,6 +7,7 @@
 #include "util/list.h"
 #include "util/macros.h"
 #include "util/string-view.h"
+#include "util/string.h"
 #include "util/unicode.h"
 
 // An iterator used to represent the cursor position for each View of a
@@ -118,7 +119,7 @@ void block_iter_goto_offset(BlockIter *bi, size_t offset) NONNULL_ARGS;
 void block_iter_goto_line(BlockIter *bi, size_t line) NONNULL_ARGS;
 size_t block_iter_get_offset(const BlockIter *bi) WARN_UNUSED_RESULT NONNULL_ARGS;
 size_t block_iter_get_char(const BlockIter *bi, CodePoint *up) WARN_UNUSED_RESULT NONNULL_ARGS READONLY(1) WRITEONLY(2);
-char *block_iter_get_bytes(BlockIter bi, size_t len) WARN_UNUSED_RESULT;
+String block_iter_get_bytes(BlockIter bi, size_t len) WARN_UNUSED_RESULT;
 StringView block_iter_get_line_with_nl(BlockIter *bi) NONNULL_ARGS;
 
 // Like block_iter_get_line_with_nl(), but excluding the newline

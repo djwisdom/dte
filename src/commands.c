@@ -429,15 +429,15 @@ static bool cmd_copy(EditorState *e, const CommandArgs *a)
     TermCopyFlags flags = cmdargs_convert_flags(a, map, ARRAYLEN(map));
     bool internal = has_flag(a, 'i') || flags == 0;
     bool osc52 = flags && (term->features & TFLAG_OSC52_COPY);
-    const char *text = a->args[0];
 
-    if (text) {
-        size_t len = strlen(text);
+    if (a->nr_args) {
+        StringView text = strview(a->args[0]);
         if (internal) {
-            record_copy(&e->clipboard, xstrdup(text), len, false);
+            char *copy = strview_clone_cstring(text);
+            record_copy(&e->clipboard, copy, text.length, false);
         }
         if (osc52) {
-            if (!term_osc52_copy(&term->obuf, string_view(text, len), flags)) {
+            if (!term_osc52_copy(&term->obuf, text, flags)) {
                 error_msg_errno(&e->err, "OSC 52 copy failed");
             }
         }
@@ -465,18 +465,18 @@ static bool cmd_copy(EditorState *e, const CommandArgs *a)
         return true;
     }
 
-    char *buf = block_iter_get_bytes(bi, size);
+    String text = block_iter_get_bytes(bi, size);
     if (osc52) {
-        if (!term_osc52_copy(&term->obuf, string_view(buf, size), flags)) {
+        if (!term_osc52_copy(&term->obuf, strview_from_string(&text), flags)) {
             error_msg_errno(&e->err, "OSC 52 copy failed");
         }
     }
 
     if (internal) {
-        // Clipboard takes ownership of `buf`
-        record_copy(&e->clipboard, buf, size, line_copy);
+        char *cstr = string_steal_cstring(&text);
+        record_copy(&e->clipboard, cstr, size, line_copy); // Takes ownership
     } else {
-        free(buf);
+        string_free(&text);
     }
 
     return has_flag(a, 'k') || unselect(e->view);
@@ -541,8 +541,9 @@ static bool cmd_cut(EditorState *e, const CommandArgs *a)
         return true;
     }
 
-    char *buf = block_iter_get_bytes(view->cursor, size);
-    record_copy(&e->clipboard, buf, size, line_copy);
+    String buf = block_iter_get_bytes(view->cursor, size);
+    char *cstr = string_steal_cstring(&buf);
+    record_copy(&e->clipboard, cstr, size, line_copy); // Takes ownership
     buffer_delete_bytes(view, size);
 
     if (line_copy) {

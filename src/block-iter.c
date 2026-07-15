@@ -276,24 +276,33 @@ size_t block_iter_get_offset(const BlockIter *bi)
     return offset + bi->offset;
 }
 
-char *block_iter_get_bytes(BlockIter bi, size_t len)
+static void string_append_from_block_iter(String *buf, BlockIter bi, size_t len)
 {
     if (len == 0) {
-        return NULL;
+        return;
     }
 
+    // Reserve +1 byte, for convenient string_steal_cstring() in callers
+    char *reserved = string_reserve_space(buf, len + 1);
     size_t pos = 0;
-    char *buf = xmalloc(len + 1); // +1 byte; so expand_word() can append '\0'
 
     while (pos < len) {
         const size_t avail = bi.blk->size - bi.offset;
         size_t count = MIN(len - pos, avail);
-        memcpy(buf + pos, bi.blk->data + bi.offset, count);
+        memcpy(reserved + pos, bi.blk->data + bi.offset, count);
         pos += count;
         bool have_next_block = block_iter_next_block(&bi);
         BUG_ON(pos < len && !have_next_block);
     }
 
+    BUG_ON(pos != len);
+    buf->len += pos;
+}
+
+String block_iter_get_bytes(BlockIter bi, size_t len)
+{
+    String buf = STRING_INIT;
+    string_append_from_block_iter(&buf, bi, len);
     return buf;
 }
 

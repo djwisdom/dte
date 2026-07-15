@@ -237,6 +237,12 @@ static void show_spawn_error_msg(ErrorBuffer *ebuf, StringView errstr, int err)
     }
 }
 
+static size_t msgs_idx_from_exec_action(ExecAction action)
+{
+    BUG_ON(action < EXEC_MSG || action > EXEC_MSG_C);
+    return (action == EXEC_MSG) ? 0 : action - EXEC_MSG_A;
+}
+
 static SpawnAction spawn_action_from_exec_action(ExecAction action)
 {
     BUG_ON(action == EXEC_INVALID);
@@ -260,10 +266,10 @@ ssize_t handle_exec (
     const BlockIter saved_cursor = view->cursor;
     const ssize_t saved_sel_so = view->sel_so;
     const ssize_t saved_sel_eo = view->sel_eo;
-    char *alloc = NULL;
-    bool output_to_buffer = (actions[STDOUT_FILENO] == EXEC_BUFFER);
+    String input = STRING_INIT;
+    size_t input_from_buffer_length = 0;
     bool input_from_buffer = false;
-    bool replace_unselected_input = false;
+    bool output_to_buffer = (actions[STDOUT_FILENO] == EXEC_BUFFER);
     bool quiet = (exec_flags & EXECFLAG_QUIET);
 
     SpawnContext ctx = {
@@ -286,9 +292,7 @@ ssize_t handle_exec (
         input_from_buffer = true;
         if (!view->selection) {
             move_bol(view, BOL_SIMPLE);
-            StringView line = block_iter_get_line(&view->cursor);
-            ctx.input.length = line.length;
-            replace_unselected_input = true;
+            input_from_buffer_length = block_iter_get_line(&view->cursor).length;
         }
         break;
     case EXEC_BUFFER:
@@ -296,10 +300,9 @@ ssize_t handle_exec (
         if (!view->selection) {
             const Block *blk;
             block_for_each(blk, &view->buffer->blocks) {
-                ctx.input.length += blk->size;
+                input_from_buffer_length += blk->size;
             }
             move_bof(view);
-            replace_unselected_input = true;
         }
         break;
     case EXEC_WORD:
@@ -316,46 +319,28 @@ ssize_t handle_exec (
             // view->cursor.offset -= (lr.cursor_offset - wb.start) ==
             view->cursor.offset += wb.start - lr.cursor_offset;
 
-            ctx.input.length = wb.end - wb.start;
+            input_from_buffer_length = wb.end - wb.start;
             BUG_ON(view->cursor.offset >= view->cursor.blk->size);
-            replace_unselected_input = true;
         }
         break;
     case EXEC_MSG:
     case EXEC_MSG_A:
     case EXEC_MSG_B:
-    case EXEC_MSG_C: {
-        size_t msgs_idx = (in_action == EXEC_MSG) ? 0 : in_action - EXEC_MSG_A;
-        BUG_ON(msgs_idx >= ARRAYLEN(e->messages));
-        String messages = dump_messages(&e->messages[msgs_idx]);
-        ctx.input = strview_from_string(&messages);
-        alloc = messages.buffer;
+    case EXEC_MSG_C:
+        input = dump_messages(&e->messages[msgs_idx_from_exec_action(in_action)]);
         break;
-    }
-    case EXEC_COMMAND: {
-        String hist = history_dump(&e->command_history);
-        ctx.input = strview_from_string(&hist);
-        alloc = hist.buffer;
+    case EXEC_COMMAND:
+        input = history_dump(&e->command_history);
         break;
-    }
-    case EXEC_SEARCH: {
-        String hist = history_dump(&e->search_history);
-        ctx.input = strview_from_string(&hist);
-        alloc = hist.buffer;
+    case EXEC_SEARCH:
+        input = history_dump(&e->search_history);
         break;
-    }
-    case EXEC_OPEN: {
-        String hist = file_history_dump(&e->file_history);
-        ctx.input = strview_from_string(&hist);
-        alloc = hist.buffer;
+    case EXEC_OPEN:
+        input = file_history_dump(&e->file_history);
         break;
-    }
-    case EXEC_OPEN_REL: {
-        String hist = file_history_dump_relative(&e->file_history);
-        ctx.input = strview_from_string(&hist);
-        alloc = hist.buffer;
+    case EXEC_OPEN_REL:
+        input = file_history_dump_relative(&e->file_history);
         break;
-    }
     case EXEC_NULL:
     case EXEC_TTY:
         break;
@@ -382,20 +367,23 @@ ssize_t handle_exec (
         info = init_selection(view);
         view->cursor = info.si;
         if (input_from_buffer) {
-            ctx.input.length = info.eo - info.so;
+            input_from_buffer_length = info.eo - info.so;
         }
     }
 
     if (input_from_buffer) {
-        alloc = block_iter_get_bytes(view->cursor, ctx.input.length);
-        ctx.input.data = alloc;
+        input = block_iter_get_bytes(view->cursor, input_from_buffer_length);
+    } else {
+        BUG_ON(input_from_buffer_length);
     }
 
+    ctx.input = strview_from_string(&input);
     yield_terminal(e, quiet);
     int err = spawn(&ctx);
     bool prompt = (err >= 0) && (exec_flags & EXECFLAG_PROMPT);
     resume_terminal(e, quiet, prompt);
-    free(alloc);
+    string_free(&input);
+    ctx.input.length = 0;
 
     if (err != 0) {
         show_spawn_error_msg(&e->err, strview_from_string(&ctx.outputs[1]), err);
@@ -433,7 +421,8 @@ ssize_t handle_exec (
         if (view->selection) {
             insert_to_selection(view, strview_from_string(output), &info);
         } else {
-            size_t del_count = replace_unselected_input ? ctx.input.length : 0;
+            // Replace any unselected text used as input, e.g. for `-i line`
+            size_t del_count = input_from_buffer_length;
             buffer_replace_bytes(view, del_count, strview_from_string(output));
         }
         break;

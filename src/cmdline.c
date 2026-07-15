@@ -108,8 +108,7 @@ static bool cmd_copy(EditorState *e, const CommandArgs *a)
     size_t len = buf->len;
 
     if (internal) {
-        char *str = string_clone_cstring(buf);
-        record_copy(&e->clipboard, str, len, false);
+        record_copy(&e->clipboard, string_clone_cstring(buf), len, false);
     }
 
     if (osc52) {

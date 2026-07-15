@@ -109,10 +109,8 @@ static char *expand_word(const EditorState *e)
         if (unlikely(len == 0)) {
             return NULL;
         }
-        char *selection = block_iter_get_bytes(info.si, len);
-        BUG_ON(!selection);
-        selection[len] = '\0'; // See comment in block_iter_get_bytes()
-        return selection;
+        String selection = block_iter_get_bytes(info.si, len);
+        return string_steal_cstring(&selection);
     }
 
     StringView word = view_get_word_under_cursor(view);
