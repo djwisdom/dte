@@ -2,7 +2,7 @@
 NOTE: See https://craigbarnes.gitlab.io/dte/dte.html for a fully rendered version of this document
 title: dte
 section: 1
-date: May 2025
+date: July 2026
 description: A small, configurable text editor
 author: [Craig Barnes, Timo Hirvonen]
 seealso: ["`dterc`", "`dte-syntax`"]
@@ -368,7 +368,7 @@ Signal actions configured at startup:
 
 All other signals for which the [default action] is `T` (terminate)
 or `A` (terminate with core dump) are caught and handled explicitly.
-This is to allow the state of the terminal be cleaned up (as if
+This is to allow the state of the terminal to be cleaned up (as if
 exiting normally), prior to the process being terminated.
 
 Signals marked as "ignored" (above) are restored to their default

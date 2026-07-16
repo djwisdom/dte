@@ -1,4 +1,4 @@
-.TH DTE\-SYNTAX 5 "May 2025"
+.TH DTE\-SYNTAX 5 "July 2026"
 .nh
 .ad l
 .
@@ -9,7 +9,7 @@ dte\-syntax \- Format of syntax highlighting files used by \fBdte\fR(1)
 Commands:
 .br
 .P
-Main commands:
+Main Commands:
 .br
    \fBsyntax\fR \fIname\fR
 .br
@@ -20,7 +20,7 @@ Main commands:
    \fBlist\fR [\fB\-i\fR] \fIname\fR \fIstring\fR...
 .br
 .P
-Conditionals:
+Conditional Actions:
 .br
    \fBbufis\fR [\fB\-i\fR] \fIstring\fR \fIdestination\fR [\fIemit\-name\fR]
 .br
@@ -33,18 +33,18 @@ Conditionals:
    \fBstr\fR [\fB\-i\fR] \fIstring\fR \fIdestination\fR [\fIemit\-name\fR]
 .br
 .P
-Default actions:
+Unconditional Actions:
+.br
+   \fBrecolor\fR \fIcolor\fR [\fIcount\fR]
+.br
+.P
+Default Actions:
 .br
    \fBeat\fR \fIdestination\fR [\fIemit\-name\fR]
 .br
    \fBheredocbegin\fR \fIsubsyntax\fR \fIreturn\-state\fR
 .br
    \fBnoeat\fR [\fB\-b\fR] \fIdestination\fR
-.br
-.P
-Other commands:
-.br
-   \fBrecolor\fR \fIcolor\fR [\fIcount\fR]
 .br
 .SH DESCRIPTION
 A dte syntax file consists of multiple states. A \fBstate\fR consists of
@@ -63,7 +63,7 @@ The basic syntax used is the same as in \fBdterc\fR(5) files, but the available
 commands are different.
 .P
 .SH COMMANDS
-.SS Main commands
+.SS Main Commands
 \fBsyntax\fR \fIname\fR
 .RS
 Begin a new syntax. One syntax file can contain multiple syntax
@@ -116,7 +116,7 @@ list\ keyword\ if\ else\ for\ while\ do\ continue\ switch\ case
 Make list case\-insensitive
 .PP
 .RE
-.SS Conditionals
+.SS Conditional Actions
 Any number of conditionals can appear between a \fBstate\fR command
 and its final default action.
 .P
@@ -185,7 +185,23 @@ NOTE: This conditional can be slow, especially if \fIstring\fR is
 longer than two bytes.
 .P
 .RE
-.SS Default actions
+.SS Unconditional Actions
+Unconditional actions may be used anywhere conditional actions are
+allowed, but have no associated condition or destination. They are simply
+executed when reached and continue to the next action in sequence.
+.P
+\fBrecolor\fR \fIcolor\fR [\fIcount\fR]
+.RS
+If \fIcount\fR is given, recolor \fIcount\fR previous bytes. Otherwise,
+recolor buffered bytes.
+.P
+This command should be used sparingly, since it recolors text that was
+already consumed and colored by the other commands above. In most cases
+it makes sense to assign the correct color on the first pass, unless
+doing so is not possible or is considerably more verbose.
+.P
+.RE
+.SS Default Actions
 The last command of every \fBstate\fR must be a default action. It
 represents an unconditional jump to a \fIdestination\fR state.
 .P
@@ -214,18 +230,6 @@ byte.
 \fB\-b\fR
 Don't stop buffering
 .PP
-.RE
-.SS Other commands
-\fBrecolor\fR \fIcolor\fR [\fIcount\fR]
-.RS
-If \fIcount\fR is given, recolor \fIcount\fR previous bytes. Otherwise,
-recolor buffered bytes.
-.P
-This command should be used sparingly, since it recolors text that was
-already consumed and colored by the other commands above. In most cases
-it makes sense to assign the correct color on the first pass, unless
-doing so is not possible or is considerably more verbose.
-.P
 .RE
 .SH SUB\-SYNTAXES
 Sub\-syntaxes are useful when the same states are needed in many contexts.

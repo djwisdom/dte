@@ -2,7 +2,7 @@
 NOTE: See https://craigbarnes.gitlab.io/dte/dte-syntax.html for a fully rendered version of this document
 title: dte-syntax
 section: 5
-date: May 2025
+date: July 2026
 description: Format of syntax highlighting files used by dte
 author: [Craig Barnes, Timo Hirvonen]
 seealso: ["`dte`", "`dterc`"]
@@ -22,7 +22,7 @@ commands are different.
 
 # Commands
 
-## Main commands
+## Main Commands
 
 ### **syntax** _name_
 
@@ -61,7 +61,7 @@ Example:
 `-i`
 :   Make list case-insensitive
 
-## Conditionals
+## Conditional Actions
 
 Any number of conditionals can appear between a [`state`] command
 and its final [default action].
@@ -122,7 +122,23 @@ _emit-name_ and jump to the _destination_ state.
 NOTE: This conditional can be slow, especially if _string_ is
 longer than two bytes.
 
-## Default actions
+## Unconditional Actions
+
+Unconditional actions may be used anywhere [conditional actions] are
+allowed, but have no associated condition or destination. They are simply
+executed when reached and continue to the next action in sequence.
+
+### **recolor** _color_ [_count_]
+
+If _count_ is given, recolor _count_ previous bytes. Otherwise,
+recolor buffered bytes.
+
+This command should be used sparingly, since it recolors text that was
+already consumed and colored by the other commands above. In most cases
+it makes sense to assign the correct color on the first pass, unless
+doing so is not possible or is considerably more verbose.
+
+## Default Actions
 
 The last command of every [`state`] must be a default action. It
 represents an unconditional jump to a _destination_ state.
@@ -148,18 +164,6 @@ byte.
 
 `-b`
 :   Don't stop buffering
-
-## Other commands
-
-### **recolor** _color_ [_count_]
-
-If _count_ is given, recolor _count_ previous bytes. Otherwise,
-recolor buffered bytes.
-
-This command should be used sparingly, since it recolors text that was
-already consumed and colored by the other commands above. In most cases
-it makes sense to assign the correct color on the first pass, unless
-doing so is not possible or is considerably more verbose.
 
 # Sub-syntaxes
 
@@ -222,8 +226,9 @@ sub-syntax whose name is `END` are replaced with `c`.
 [`state`]: #state
 [`syntax`]: #syntax
 
-[Conditionals]: #conditionals
-[conditionals]: #conditionals
+[conditional actions]: #conditional-actions
+[Conditionals]: #conditional-actions
+[conditionals]: #conditionals-actions
 [default action]: #default-actions
 [default actions]: #default-actions
 [sub-syntaxes]: #sub-syntaxes
