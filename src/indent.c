@@ -133,7 +133,7 @@ size_t get_indent_width(StringView line, unsigned int tab_width)
 }
 
 static ssize_t get_current_indent_bytes (
-    const char *buf,
+    const char *line,
     size_t cursor_offset,
     unsigned int iw,
     unsigned int tw
@@ -146,7 +146,7 @@ static ssize_t get_current_indent_bytes (
             bytes = 0;
             width = 0;
         }
-        switch (buf[i]) {
+        switch (line[i]) {
         case '\t':
             width = next_indent_width(width, tw);
             break;

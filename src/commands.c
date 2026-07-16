@@ -1736,18 +1736,19 @@ static bool cmd_replace(EditorState *e, const CommandArgs *a)
         return error_msg(&e->err, "-c flag unavailable in headless mode");
     }
 
-    char *alloc = NULL;
+    String escaped = STRING_INIT;
     if (has_flag(a, 'e')) {
         StringView pat = strview(pattern);
         if (strview_contains_char_type(pat, ASCII_REGEX)) {
-            pattern = alloc = regexp_escape(pattern, pat.length);
+            escaped = regexp_escape(pat);
+            pattern = string_borrow_cstring(&escaped);
         }
         flags &= ~REPLACE_BASIC;
     }
 
     const char *replacement = a->args[1] ? a->args[1] : "";
     bool r = reg_replace(e, pattern, replacement, flags);
-    free(alloc);
+    string_free(&escaped);
     return r;
 }
 
@@ -2156,12 +2157,13 @@ static bool cmd_search(EditorState *e, const CommandArgs *a)
     }
 
     BUG_ON(!pattern);
-    char *alloc = NULL;
+    String escaped = STRING_INIT;
 
     if (!use_word_under_cursor && has_flag(a, 'e')) {
         StringView pat = strview(pattern);
         if (strview_contains_char_type(pat, ASCII_REGEX)) {
-            pattern = alloc = regexp_escape(pattern, pat.length);
+            escaped = regexp_escape(pat);
+            pattern = string_borrow_cstring(&escaped);
         }
     }
 
@@ -2170,7 +2172,7 @@ static bool cmd_search(EditorState *e, const CommandArgs *a)
     }
 
     search_set_regexp(search, pattern);
-    free(alloc);
+    string_free(&escaped);
     return has_flag(a, 'x') || do_search_next(view, search, ebuf, cs, use_word_under_cursor);
 }
 
