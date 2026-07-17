@@ -48,9 +48,8 @@ void cmdline_free(CommandLine *c)
 
 static void set_text(CommandLine *c, StringView text)
 {
-    c->pos = text.length;
     string_clear(&c->buf);
-    string_append_strview(&c->buf, text);
+    c->pos = string_append_strview(&c->buf, text);
 }
 
 void cmdline_set_text(CommandLine *c, const char *text)

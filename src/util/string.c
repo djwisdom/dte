@@ -57,32 +57,30 @@ size_t string_insert_codepoint(String *s, size_t pos, CodePoint u)
     return u_set_char_raw(string_make_space(s, pos, len), u);
 }
 
-void string_insert_buf(String *s, size_t pos, const char *buf, size_t len)
+size_t string_insert_buf(String *s, size_t pos, const char *buf, size_t len)
 {
-    if (len == 0) {
-        return;
+    if (len) {
+        memcpy(string_make_space(s, pos, len), buf, len);
     }
-    memcpy(string_make_space(s, pos, len), buf, len);
+    return len;
 }
 
-void string_append_buf(String *s, const char *ptr, size_t len)
+size_t string_append_buf(String *s, const char *ptr, size_t len)
 {
-    if (len == 0) {
-        return;
+    if (len) {
+        memcpy(string_reserve_space(s, len), ptr, len);
+        s->len += len;
     }
-    char *reserved = string_reserve_space(s, len);
-    s->len += len;
-    memcpy(reserved, ptr, len);
+    return len;
 }
 
-void string_append_memset(String *s, unsigned char byte, size_t len)
+size_t string_append_memset(String *s, unsigned char byte, size_t len)
 {
-    if (len == 0) {
-        return;
+    if (len) {
+        memset(string_reserve_space(s, len), byte, len);
+        s->len += len;
     }
-    char *reserved = string_reserve_space(s, len);
-    s->len += len;
-    memset(reserved, byte, len);
+    return len;
 }
 
 VPRINTF(2)

@@ -34,8 +34,7 @@ static bool insert_paste(EditorState *e, const ModeHandler *handler, bool bracke
     } else {
         CommandLine *c = &e->cmdline;
         string_replace_byte(&str, '\n', ' ');
-        string_insert_buf(&c->buf, c->pos, str.buffer, str.len);
-        c->pos += str.len;
+        c->pos += string_insert_buf(&c->buf, c->pos, str.buffer, str.len);
         c->search_pos = NULL;
     }
     string_free(&str);

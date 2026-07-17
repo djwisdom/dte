@@ -725,7 +725,7 @@ static void test_string(TestContext *ctx)
     EXPECT_STRING_EQ_CSTRING(&s, "\xF0\x9F\x92\xAF");
     EXPECT_STREQ(string_borrow_cstring(&s), "\xF0\x9F\x92\xAF");
 
-    string_append_cstring(&s, "test");
+    EXPECT_EQ(string_append_cstring(&s, "test"), 4);
     EXPECT_STRING_EQ_CSTRING(&s, "\xF0\x9F\x92\xAFtest");
 
     string_remove(&s, 0, 5);
@@ -766,13 +766,13 @@ static void test_string(TestContext *ctx)
     EXPECT_EQ3(s.alloc, 16, STRING_ALLOC_MULTIPLE);
     ASSERT_NONNULL(s.buffer);
 
-    string_append_cstring(&s, "123");
+    EXPECT_EQ(string_append_cstring(&s, "123"), 3);
     EXPECT_STRING_EQ_CSTRING(&s, "123");
 
-    string_append_string(&s, &s);
+    EXPECT_EQ(string_append_string(&s, &s), 3);
     EXPECT_STRING_EQ_CSTRING(&s, "123123");
 
-    string_insert_buf(&s, 2, STRN("foo"));
+    EXPECT_EQ(string_insert_buf(&s, 2, STRN("foo")), 3);
     EXPECT_STRING_EQ_CSTRING(&s, "12foo3123");
 
     cstr = string_clone_cstring(&s);
@@ -807,9 +807,9 @@ static void test_string(TestContext *ctx)
     EXPECT_NULL(s.buffer);
     EXPECT_EQ(s.len, 0);
     EXPECT_EQ(s.alloc, 0);
-    string_append_buf(&s, NULL, 0);
-    string_insert_buf(&s, 0, NULL, 0);
-    string_append_memset(&s, 'q', 0);
+    EXPECT_EQ(string_append_buf(&s, NULL, 0), 0);
+    EXPECT_EQ(string_insert_buf(&s, 0, NULL, 0), 0);
+    EXPECT_EQ(string_append_memset(&s, 'q', 0), 0);
     string_replace_byte(&s, 'q', 'z');
     string_remove(&s, 0, 0);
     EXPECT_NULL(s.buffer);
