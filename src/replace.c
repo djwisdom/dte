@@ -8,6 +8,7 @@
 #include "selection.h"
 #include "ui.h"
 #include "util/debug.h"
+#include "util/string-view.h"
 #include "util/string.h"
 #include "util/xmalloc.h"
 #include "view.h"

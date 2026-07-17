@@ -46,18 +46,17 @@ void cmdline_free(CommandLine *c)
     reset_completion(c);
 }
 
-static void set_text(CommandLine *c, const char *text)
+static void set_text(CommandLine *c, StringView text)
 {
-    size_t text_len = strlen(text);
-    c->pos = text_len;
+    c->pos = text.length;
     string_clear(&c->buf);
-    string_append_buf(&c->buf, text, text_len);
+    string_append_strview(&c->buf, text);
 }
 
 void cmdline_set_text(CommandLine *c, const char *text)
 {
     c->search_pos = NULL;
-    set_text(c, text);
+    set_text(c, strview(text));
 }
 
 // Reset command completion and history search state (after cursor
@@ -239,7 +238,7 @@ static bool do_history_prev(const History *hist, CommandLine *c, bool prefix_sea
     StringView prefix = strview(prefix_search ? c->search_text : "");
     if (history_search_forward(hist, &c->search_pos, prefix)) {
         BUG_ON(!c->search_pos);
-        set_text(c, c->search_pos->text);
+        set_text(c, strview(c->search_pos->text));
     }
 
     maybe_reset_completion(c);
@@ -255,9 +254,9 @@ static bool do_history_next(const History *hist, CommandLine *c, bool prefix_sea
     StringView prefix = strview(prefix_search ? c->search_text : "");
     if (history_search_backward(hist, &c->search_pos, prefix)) {
         BUG_ON(!c->search_pos);
-        set_text(c, c->search_pos->text);
+        set_text(c, strview(c->search_pos->text));
     } else {
-        set_text(c, c->search_text);
+        set_text(c, strview(c->search_text));
         c->search_pos = NULL;
     }
 

@@ -18,12 +18,12 @@ typedef struct {
     size_t text_width;
 } ParagraphFormatter;
 
-static void add_word(ParagraphFormatter *pf, const char *word, size_t len)
+static void add_word(ParagraphFormatter *pf, StringView word)
 {
     size_t i = 0;
     size_t word_width = 0;
-    while (i < len) {
-        word_width += u_char_width(u_get_char(word, len, &i));
+    while (i < word.length) {
+        word_width += u_char_width(u_get_char(word.data, word.length, &i));
     }
 
     if (pf->cur_width && pf->cur_width + 1 + word_width > pf->text_width) {
@@ -39,7 +39,7 @@ static void add_word(ParagraphFormatter *pf, const char *word, size_t len)
         pf->cur_width++;
     }
 
-    string_append_buf(&pf->buf, word, len);
+    string_append_strview(&pf->buf, word);
     pf->cur_width += word_width;
 }
 
@@ -144,7 +144,7 @@ void wrap_paragraph(View *view, size_t text_width)
             i = tmp;
         }
 
-        add_word(&pf, sel.buffer + start, i - start);
+        add_word(&pf, strview_from_slice(sel.buffer, start, i));
     }
 
     if (pf.buf.len) {

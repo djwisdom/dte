@@ -376,9 +376,9 @@ String dump_tags(TagFile *tf, ErrorBuffer *ebuf)
     string_append_literal(&buf, "\n\nTag entries\n-----------\n\n");
 
     while (next_tag(src, &pos, prefix, false, &tag)) {
-        string_append_buf(&buf, tag.name.data, tag.name.length);
+        string_append_strview(&buf, tag.name);
         string_append_literal(&buf, "   ");
-        string_append_buf(&buf, tag.filename.data, tag.filename.length);
+        string_append_strview(&buf, tag.filename);
         if (tag.kind) {
             string_sprintf(&buf, "   kind:%c", tag.kind);
         }
