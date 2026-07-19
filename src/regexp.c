@@ -6,6 +6,7 @@
 #include "util/debug.h"
 #include "util/hashmap.h"
 #include "util/intern.h"
+#include "util/log.h"
 #include "util/xmalloc.h"
 #include "util/xstring.h"
 
@@ -57,38 +58,53 @@ bool regexp_exec (
     return ret;
 }
 
+static bool regexp_wb_tokens_supported(const RegexpWordBoundaryTokens *p)
+{
+    static const char text[] = "SSfooEE SSfoo fooEE foo SSfooEE";
+    const regoff_t match_start = 20, match_end = 23;
+    BUG_ON(ARRAYLEN(text) <= match_end);
+    BUG_ON(!mem_equal(text + match_start - 1, STRN(" foo ")));
+
+    char patt[32];
+    xmempcpy4(patt, p->start, p->len, STRN("(foo)"), p->end, p->len, "", 1);
+    regex_t re;
+    int err = regcomp(&re, patt, DEFAULT_REGEX_FLAGS);
+
+    if (err) {
+        if (DEBUG_LOGGING_ENABLED) {
+            char msg[1024];
+            regerror(err, &re, msg, sizeof(msg));
+            LOG_DEBUG("regcomp() failed for pattern \"%s\": %s", patt, msg);
+        }
+        return false;
+    }
+
+    regmatch_t m[2];
+    bool match = !regexec(&re, text, ARRAYLEN(m), m, 0);
+    regfree(&re);
+    return match && (m[0].rm_so == match_start) && (m[0].rm_eo == match_end);
+}
+
 // Check which word boundary tokens are supported by regcomp(3)
 // (if any) and initialize `rwbt` with them for later use
 RegexpWordBoundaryTokens regexp_get_word_boundary_tokens(void)
 {
-    static const char text[] = "SSfooEE SSfoo fooEE foo SSfooEE";
-    const regoff_t match_start = 20, match_end = 23;
     static const RegexpWordBoundaryTokens pairs[] = {
         {"\\<", "\\>", 2},
         {"[[:<:]]", "[[:>:]]", 7},
         {"\\b", "\\b", 2},
     };
 
-    BUG_ON(ARRAYLEN(text) <= match_end);
-    BUG_ON(!mem_equal(text + match_start - 1, " foo ", 5));
-
     UNROLL_LOOP(ARRAYLEN(pairs))
     for (size_t i = 0; i < ARRAYLEN(pairs); i++) {
         const RegexpWordBoundaryTokens *p = &pairs[i];
-        char patt[32];
-        xmempcpy4(patt, p->start, p->len, STRN("(foo)"), p->end, p->len, "", 1);
-        regex_t re;
-        if (regcomp(&re, patt, DEFAULT_REGEX_FLAGS) != 0) {
-            continue;
-        }
-        regmatch_t m[2];
-        bool match = !regexec(&re, text, ARRAYLEN(m), m, 0);
-        regfree(&re);
-        if (match && m[0].rm_so == match_start && m[0].rm_eo == match_end) {
+        if (regexp_wb_tokens_supported(p)) {
+            LOG_INFO("regex word boundary tokens detected: %s %s", p->start, p->end);
             return pairs[i];
         }
     }
 
+    LOG_WARNING("no regex word boundary tokens detected");
     return (RegexpWordBoundaryTokens){.len = 0};
 }
 

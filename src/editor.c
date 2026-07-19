@@ -169,13 +169,6 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
     // Allow child processes to detect that they're running under dte
     xsetenv("DTE_VERSION", VERSION);
 
-    const RegexpWordBoundaryTokens *wb = &e->regexp_word_tokens;
-    if (wb->len) {
-        LOG_INFO("regex word boundary tokens detected: %s %s", wb->start, wb->end);
-    } else {
-        LOG_WARNING("no regex word boundary tokens detected");
-    }
-
     HashMap *modes = &e->modes;
     e->normal_mode = new_mode(modes, xstrdup("normal"), &normal_commands);
     e->command_mode = new_mode(modes, xstrdup("command"), &cmd_mode_commands);
