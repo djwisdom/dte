@@ -140,6 +140,7 @@
     #define UNUSED
 #endif
 
+// https://gcc.gnu.org/onlinedocs/gcc/Common-Attributes.html#index-malloc
 #if GNUC_AT_LEAST(3, 0) || HAS_ATTRIBUTE(malloc)
     #define MALLOC WARN_UNUSED_RESULT __attribute__((__malloc__))
 #else

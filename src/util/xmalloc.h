@@ -72,14 +72,14 @@ static inline void *xmemjoin4 ( // NOLINT(readability-function-size)
 }
 
 // Return a null-terminated copy of the first `size` bytes of `str`
-XSTRDUP
+XMALLOC NONNULL_ARG_IF_NONZERO_LENGTH(1, 2)
 static inline char *xstrcut(const char *str, size_t size)
 {
     return xmemjoin(str, size, "", 1);
 }
 
 // Return a null-terminated copy of the substring between `pos` and `end`
-XSTRDUP
+XMALLOC NONNULL_ARG_IF_NONZERO_LENGTH(1, 3)
 static inline char *xstrslice(const char *str, size_t pos, size_t end)
 {
     BUG_ON(pos > end);
