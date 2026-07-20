@@ -190,10 +190,6 @@ static void test_xmalloc(TestContext *ctx)
     EXPECT_STRVIEW_EQ_CSTRING(strview_from_slice("one two three", 4, 7), str);
     free(str);
 
-    str = xstrjoin("foo", "-bar");
-    EXPECT_STREQ(str, "foo-bar");
-    free(str);
-
     str = xmemjoin3(STRN("123"), STRN("::"), STRN("456") + 1);
     EXPECT_STREQ(str, "123::456");
     free(str);

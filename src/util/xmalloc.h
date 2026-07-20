@@ -71,12 +71,6 @@ static inline void *xmemjoin4 ( // NOLINT(readability-function-size)
     return joined;
 }
 
-XSTRDUP
-static inline char *xstrjoin(const char *s1, const char *s2)
-{
-    return xmemjoin(s1, strlen(s1), s2, strlen(s2) + 1);
-}
-
 // Return a null-terminated copy of the first `size` bytes of `str`
 XSTRDUP
 static inline char *xstrcut(const char *str, size_t size)
