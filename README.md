@@ -50,6 +50,7 @@ Installing
 | [OpenBSD]                 | `pkg_add dte`                 |
 | NetBSD ([pkgsrc])         | `pkg_add dte`                 |
 | Android ([Termux])        | `pkg install dte`             |
+| [Alpine]                  | `apk add dte`                 |
 
 Building
 --------
@@ -186,6 +187,7 @@ Public License version 2 for more details.
 [OpenBSD]: https://cvsweb.openbsd.org/ports/editors/dte
 [pkgsrc]: https://cdn.netbsd.org/pub/pkgsrc/current/pkgsrc/editors/dte/index.html
 [Termux]: https://github.com/termux/termux-packages/tree/master/packages/dte
+[Alpine]: https://pkgs.alpinelinux.org/package/edge/testing/x86_64/dte
 
 [GCC]: https://gcc.gnu.org/
 [Clang]: https://clang.llvm.org/
