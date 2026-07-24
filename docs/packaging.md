@@ -1,6 +1,11 @@
 Packaging
 =========
 
+> [!note]
+> This documentation corresponds to the in-development version of the build
+> system. See [here][v1.11.1-packaging] for the one that corresponds to the
+> latest release ([v1.11.1]).
+
 Installation targets
 --------------------
 
@@ -78,7 +83,7 @@ to a `Config.mk` file, for example:
     V = 1
 
 The `Config.mk` file should be in the project base directory alongside
-[`GNUmakefile`] and *must* be valid GNU make syntax. This can be considered
+[`GNUmakefile`] and *must* be valid [GNU Make] syntax. This can be considered
 a stable aspect of the build system and will *not* be renamed or removed
 unless the major version number is bumped.
 
@@ -107,6 +112,9 @@ page, unless you're prepared to deal with future checksum failures.
 [staged installs]: https://www.gnu.org/prep/standards/html_node/DESTDIR.html
 [section 7.2.5]: https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 [GNU Coding Standards]: https://www.gnu.org/prep/standards/html_node/index.html
+[GNU Make]: https://www.gnu.org/software/make/manual/html_node/index.html
 [iconv]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/iconv.h.html
 [releases]: https://craigbarnes.gitlab.io/dte/releases.html
+[v1.11.1]: https://craigbarnes.gitlab.io/dte/releases.html#v1.11.1
+[v1.11.1-packaging]: https://gitlab.com/craigbarnes/dte/-/blob/v1.11.1/docs/packaging.md
 [libgit issue #4343]: https://github.com/libgit2/libgit2/issues/4343

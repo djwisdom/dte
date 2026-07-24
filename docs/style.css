@@ -188,3 +188,22 @@ kbd {
 .sourceCode span.dt {color: purple}
 .sourceCode span.al {color: green; font-weight: bold}
 .sourceCode span.er {color: red; font-weight: bold}
+
+/*
+For Pandoc's "alerts" extension.
+See also:
+ • https://pandoc.org/MANUAL.html#extension-alerts
+ • https://docs.gitlab.com/user/markdown/#alerts
+ • https://gitlab.com/gitlab-org/gitlab/-/merge_requests/178775
+ • https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts
+*/
+div.note {border-left: 0.35em solid #63a6e9; padding-left: 0.5em}
+div.tip {border-left: 0.35em solid #52b87a; padding-left: 0.5em}
+div.important {border-left: 0.35em solid #9475db; padding-left: 0.5em}
+div.caution {border-left: 0.35em solid #d99530; padding-left: 0.5em}
+div.warning {border-left: 0.35em solid #f6806d; padding-left: 0.5em}
+div.note > .title {color: #63a6e9; font-weight: bold}
+div.tip > .title {color: #52b87a; font-weight: bold}
+div.important > .title {color: #9475db; font-weight: bold}
+div.caution > .title {color: #d99530; font-weight: bold}
+div.warning > .title {color: #f6806d; font-weight: bold}
