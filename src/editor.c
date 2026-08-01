@@ -266,12 +266,14 @@ void any_key(Terminal *term, unsigned int esc_timeout)
 {
     KeyCode key;
     xfputs("Press any key to continue\r\n", stderr);
-    while ((key = term_read_input(term, esc_timeout)) == KEY_NONE) {
-        ;
-    }
-    bool bracketed_paste = key == KEYCODE_BRACKETED_PASTE;
-    if (bracketed_paste || key == KEYCODE_DETECTED_PASTE) {
-        term_discard_paste(&term->ibuf, bracketed_paste);
+
+    do {
+        key = term_read_input(term, esc_timeout);
+    } while (key == KEY_NONE || key == KEYCODE_REDRAW);
+
+    bool bpaste = key == KEYCODE_BRACKETED_PASTE;
+    if (bpaste || key == KEYCODE_DETECTED_PASTE) {
+        term_discard_paste(&term->ibuf, bpaste);
     }
 }
 
@@ -381,13 +383,17 @@ void main_loop(EditorState *e, unsigned int terminal_query_level, bool timing)
 
         struct timespec start;
         timing = unlikely(timing) && xgettime(&start);
-
         const ScreenState s = get_screen_state(e);
-        clear_error(&e->err);
-        handle_input(e, key);
-        sanity_check(e->view);
-        update_screen(e, &s);
 
+        if (unlikely(key == KEYCODE_REDRAW)) {
+            e->screen_update |= UPDATE_ALL_WINDOWS;
+        } else {
+            clear_error(&e->err);
+            handle_input(e, key);
+            sanity_check(e->view);
+        }
+
+        update_screen(e, &s);
         log_timing_info(&start, timing);
     }
 

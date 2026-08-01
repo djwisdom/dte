@@ -27,6 +27,7 @@ static char get_choice(Terminal *term, const char *choices, unsigned int esc_tim
 
     switch (key) {
     case KEY_NONE:
+    case KEYCODE_REDRAW:
         return 0;
     case KEYCODE_BRACKETED_PASTE:
     case KEYCODE_DETECTED_PASTE:
@@ -47,6 +48,7 @@ static char get_choice(Terminal *term, const char *choices, unsigned int esc_tim
             return ch;
         }
     }
+
     return 0;
 }
 

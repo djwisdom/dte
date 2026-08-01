@@ -773,11 +773,14 @@ KeyCode term_handle_query_reply(Terminal *term, TermFeatureFlags detected)
     const TermFeatureFlags newly_detected = ~existing & detected;
 
     TermOutputBuffer *obuf = &term->obuf;
+    KeyCode ret = KEY_NONE;
     if (newly_detected & TFLAG_QUERY_L2) {
         term_put_level_2_queries(term, false);
+        ret = KEYCODE_REDRAW;
     }
     if (newly_detected & TFLAG_QUERY_L3) {
         term_put_level_3_queries(term, false);
+        ret = KEYCODE_REDRAW;
     }
 
     if (newly_detected & TFLAG_KITTY_KEYBOARD) {
@@ -822,5 +825,5 @@ KeyCode term_handle_query_reply(Terminal *term, TermFeatureFlags detected)
         term_output_flush(obuf);
     }
 
-    return KEY_NONE;
+    return ret;
 }

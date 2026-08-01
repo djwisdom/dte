@@ -89,6 +89,7 @@ enum {
     // In-band signalling for non-key events
     KEYCODE_DETECTED_PASTE = KEY_SPECIAL_MAX + 1,
     KEYCODE_BRACKETED_PASTE,
+    KEYCODE_REDRAW, // Like KEY_NONE, but triggering a redraw
     KEY_IGNORE,
 
     // Modifier bit flags (as described above)

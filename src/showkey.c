@@ -11,13 +11,20 @@
 #include "util/str-util.h"
 #include "util/xreadwrite.h"
 
-static bool is_ignored_key(KeyCode key, TermInputBuffer *ibuf)
+static bool is_ignored_key(KeyCode key, Terminal *term)
 {
     bool bpaste = (key == KEYCODE_BRACKETED_PASTE);
     if (bpaste || key == KEYCODE_DETECTED_PASTE) {
-        term_discard_paste(ibuf, bpaste);
+        term_discard_paste(&term->ibuf, bpaste);
         return true;
     }
+
+    if (key == KEYCODE_REDRAW) {
+        // Move cursor to column 1 (CR) and erase current line (EL)
+        term_put_literal(&term->obuf, "\r\033[K");
+        return true;
+    }
+
     return key == KEY_NONE;
 }
 
@@ -32,11 +39,10 @@ ExitCode showkey_loop(unsigned int terminal_query_level)
 
     Terminal term = {.obuf = TERM_OUTPUT_INIT};
     TermOutputBuffer *obuf = &term.obuf;
-    TermInputBuffer *ibuf = &term.ibuf;
     term_init(&term, getenv("TERM"), getenv("COLORTERM"));
     term_enable_private_modes(&term);
     term_put_initial_queries(&term, terminal_query_level);
-    term_put_literal(obuf, "Press any key combination, or use Ctrl+D to exit\r\n");
+    term_put_literal(obuf, "\rPress any key combination, or use Ctrl+D to exit\r\n");
     term_output_flush(obuf);
 
     char buf[KEYCODE_STR_BUFSIZE + STRLEN("  \r\n")];
@@ -44,7 +50,7 @@ ExitCode showkey_loop(unsigned int terminal_query_level)
 
     for (KeyCode key = KEY_NONE; key != (MOD_CTRL | 'd'); ) {
         key = term_read_input(&term, 100);
-        if (is_ignored_key(key, ibuf)) {
+        if (is_ignored_key(key, &term)) {
             continue;
         }
 

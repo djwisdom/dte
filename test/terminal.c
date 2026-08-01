@@ -1270,8 +1270,10 @@ static void test_keycode_to_string(TestContext *ctx)
     EXPECT_STREQ(buf, "INVALID; 0x00110034");
     EXPECT_EQ(keycode_to_str(KEYCODE_BRACKETED_PASTE, buf), 19);
     EXPECT_STREQ(buf, "INVALID; 0x00110035");
-    EXPECT_EQ(keycode_to_str(KEY_IGNORE, buf), 19);
+    EXPECT_EQ(keycode_to_str(KEYCODE_REDRAW, buf), 19);
     EXPECT_STREQ(buf, "INVALID; 0x00110036");
+    EXPECT_EQ(keycode_to_str(KEY_IGNORE, buf), 19);
+    EXPECT_STREQ(buf, "INVALID; 0x00110037");
     EXPECT_EQ(keycode_to_str(UINT32_MAX, buf), 23);
     EXPECT_STREQ(buf, "QUERY REPLY; 0xFFFFFFFF");
 
