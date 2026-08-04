@@ -1,3 +1,7 @@
+#include <stdint.h>
+#include "filetype/types.h"
+#include "util/bsearch.h"
+
 static const struct FileExtensionMap {
     const char ext[11];
     const uint8_t filetype; // FileTypeEnum
@@ -264,7 +268,11 @@ static const struct FileExtensionMap {
     {"zsh", SH},
 };
 
-static FileTypeEnum filetype_from_extension(const StringView ext)
+UNITTEST {
+    CHECK_BSEARCH_ARRAY(extensions, ext);
+}
+
+FileTypeEnum filetype_from_extension(StringView ext)
 {
     if (ext.length == 0 || ext.length >= sizeof(extensions[0].ext)) {
         return NONE;

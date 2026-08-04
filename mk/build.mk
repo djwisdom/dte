@@ -45,6 +45,10 @@ command_objects := $(call prefix-obj, build/command/, \
 editorconfig_objects := $(call prefix-obj, build/editorconfig/, \
     editorconfig ini match )
 
+filetype_objects := $(call prefix-obj, build/filetype/, \
+    basenames directories extensions ignored-exts interpreters \
+    signatures types )
+
 syntax_objects := $(call prefix-obj, build/syntax/, \
     color highlight merge state syntax )
 
@@ -62,6 +66,7 @@ editor_objects := $(call prefix-obj, build/, \
     $(addprefix ui-, cmdline prompt status tabbar view window) ui ) \
     $(command_objects) \
     $(editorconfig_objects) \
+    $(filetype_objects) \
     $(syntax_objects) \
     $(terminal_objects) \
     $(util_objects)
@@ -146,6 +151,7 @@ $(bench): $(filter-out build/main.o, $(editor_objects)) $(bench_objects)
 $(util_objects): | build/util/
 $(command_objects): | build/command/
 $(editorconfig_objects): | build/editorconfig/
+$(filetype_objects): | build/filetype/
 $(syntax_objects): | build/syntax/
 $(terminal_objects): | build/terminal/
 $(build_subdirs): | build/

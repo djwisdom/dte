@@ -1,3 +1,7 @@
+#include <stddef.h>
+#include "filetype/types.h"
+#include "util/debug.h"
+
 static const struct DirPrefixMap {
     StringView prefix;
     StringView suffix;
@@ -25,7 +29,7 @@ UNITTEST {
     }
 }
 
-static FileTypeEnum filetype_from_path(StringView path)
+FileTypeEnum filetype_from_path(StringView path)
 {
     if (path.length < STRLEN("/etc/_")) {
         return NONE;

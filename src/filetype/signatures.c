@@ -1,3 +1,13 @@
+#include <stddef.h>
+#include <stdint.h>
+#include "filetype.h"
+#include "filetype/types.h"
+#include "util/ascii.h"
+#include "util/bsearch.h"
+#include "util/log.h"
+#include "util/strtonum.h"
+#include "util/xmemmem.h"
+
 static const struct EmacsModeEntry {
     char name[15];
     uint8_t type; // FileTypeEnum
@@ -13,6 +23,10 @@ static const struct EmacsModeEntry {
     {"nxml", XML},
     {"shell-script", SH},
 };
+
+UNITTEST {
+    CHECK_BSEARCH_ARRAY(emacs_modes, name);
+}
 
 static ssize_t find_var_delim(StringView sv)
 {
@@ -80,7 +94,7 @@ static bool is_gitlog_commit_line(StringView line)
     return line.length == 0 || strview_has_prefix_and_suffix(line, " (", ")");
 }
 
-static FileTypeEnum filetype_from_signature(const StringView line)
+FileTypeEnum filetype_from_signature(StringView line)
 {
     if (line.length < 5) {
         return NONE;
@@ -126,7 +140,7 @@ static FileTypeEnum filetype_from_signature(const StringView line)
     return filetype_from_emacs_var(line);
 }
 
-static FileTypeEnum filetype_from_signature_late(StringView line)
+FileTypeEnum filetype_from_signature_late(StringView line)
 {
     strview_trim_right(&line);
 

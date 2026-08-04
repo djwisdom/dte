@@ -1,3 +1,6 @@
+#include "filetype/types.h"
+#include "util/bsearch.h"
+
 static const struct FileInterpreterMap {
     const char key[8];
     const FileTypeEnum filetype;
@@ -73,7 +76,11 @@ static const struct FileInterpreterMap {
     {"zsh", SH},
 };
 
-static FileTypeEnum filetype_from_interpreter(const StringView name)
+UNITTEST {
+    CHECK_BSEARCH_ARRAY(interpreters, key);
+}
+
+FileTypeEnum filetype_from_interpreter(StringView name)
 {
     if (name.length < 2) {
         return NONE;

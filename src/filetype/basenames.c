@@ -1,3 +1,8 @@
+#include <stdint.h>
+#include "filetype/types.h"
+#include "util/bsearch.h"
+#include "util/debug.h"
+
 static const struct FileBasenameMap {
     const char name[16];
     uint8_t filetype; // FileTypeEnum
@@ -139,7 +144,11 @@ static const struct FileBasenameMap {
     {"zshrc", SH, true},
 };
 
-static FileTypeEnum filetype_from_basename(StringView name)
+UNITTEST {
+    CHECK_BSEARCH_ARRAY(basenames, name);
+}
+
+FileTypeEnum filetype_from_basename(StringView name)
 {
     bool dot = strview_remove_either_matching_prefix(&name, ".", "dot_");
     if (name.length < 4) {

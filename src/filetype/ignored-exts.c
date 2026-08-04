@@ -1,3 +1,6 @@
+#include "filetype/types.h"
+#include "util/bsearch.h"
+
 static const char ignored_extensions[][12] = {
     "bak",
     "dpkg-backup",
@@ -21,7 +24,11 @@ static const char ignored_extensions[][12] = {
     "ucf-old",
 };
 
-static bool is_ignored_extension(StringView sv)
+UNITTEST {
+    CHECK_BSEARCH_STR_ARRAY(ignored_extensions);
+}
+
+bool is_ignored_extension(StringView sv)
 {
     strview_remove_matching_suffix(&sv, "~");
     if (sv.length < 3 || sv.length >= sizeof(ignored_extensions[0])) {

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "filetype.h"
+#include "filetype/types.h"
 #include "command/serialize.h"
 #include "regexp.h"
 #include "util/ascii.h"
@@ -13,45 +14,6 @@
 #include "util/strtonum.h"
 #include "util/xmalloc.h"
 #include "util/xmemmem.h"
-
-static int ft_compare(const void *key, const void *elem)
-{
-    const StringView *sv = key;
-    const char *ext = elem; // Cast to first member of struct
-    int res = memcmp(sv->data, ext, sv->length);
-    if (unlikely(res == 0 && ext[sv->length] != '\0')) {
-        res = -1;
-    }
-    return res;
-}
-
-// Built-in filetypes
-// NOLINTBEGIN(bugprone-suspicious-include)
-#include "filetype/names.c"
-#include "filetype/basenames.c"
-#include "filetype/directories.c"
-#include "filetype/extensions.c"
-#include "filetype/interpreters.c"
-#include "filetype/ignored-exts.c"
-#include "filetype/signatures.c"
-// NOLINTEND(bugprone-suspicious-include)
-
-UNITTEST {
-    static_assert(NR_BUILTIN_FILETYPES < 256);
-    CHECK_BSEARCH_ARRAY(basenames, name);
-    CHECK_BSEARCH_ARRAY(extensions, ext);
-    CHECK_BSEARCH_ARRAY(interpreters, key);
-    CHECK_BSEARCH_ARRAY(emacs_modes, name);
-    CHECK_BSEARCH_STR_ARRAY(ignored_extensions);
-    CHECK_BSEARCH_STR_ARRAY(builtin_filetype_names);
-
-    for (size_t i = 0; i < ARRAYLEN(builtin_filetype_names); i++) {
-        const char *name = builtin_filetype_names[i];
-        if (unlikely(!is_valid_filetype_name(name))) {
-            BUG("invalid name at builtin_filetype_names[%zu]: \"%s\"", i, name);
-        }
-    }
-}
 
 typedef struct {
     unsigned int str_len;
