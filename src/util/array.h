@@ -116,11 +116,9 @@ static inline void check_array (
     const char *first_name = base;
     for (size_t i = 0; i < array_len; i++) {
         const char *curr_name = first_name + (i * elem_size);
-        // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
         if (curr_name[0] == '\0') {
             BUG("Empty string at %s[%zu]%s", array_name, i, name_field_name);
         }
-        // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
         if (curr_name[name_size - 1] != '\0') {
             BUG("String sentinel missing from %s[%zu]%s", array_name, i, name_field_name);
         }

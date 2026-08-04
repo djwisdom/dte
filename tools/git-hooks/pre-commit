@@ -96,7 +96,7 @@ if test "$changed_c_files"; then
     tools/hdrcheck.awk $changed_c_files
 
     echo '    TIDY ' $changed_c_files
-    tools/clang-tidy.sh -quiet --checks='-clang-analyzer-*' $changed_c_files
+    tools/clang-tidy.sh -quiet $changed_c_files
 fi
 
 # Check for lint in changed makefiles
