@@ -34,7 +34,7 @@ static String make_simple_indent(const LocalOptions *options, size_t level)
 {
     bool use_spaces = use_spaces_for_indent(options);
     size_t nbytes = use_spaces ? level * options->indent_width : level;
-    String indent = STRING_INIT;
+    String indent = string_new(nbytes);
     string_append_memset(&indent, use_spaces ? ' ' : '\t', nbytes);
     return indent;
 }

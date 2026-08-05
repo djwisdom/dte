@@ -136,7 +136,7 @@ size_t string_append_escaped_regex(String *s, StringView pattern)
 
 String regexp_escape(StringView pattern)
 {
-    String escaped = STRING_INIT;
+    String escaped = string_new(0);
     string_append_escaped_regex(&escaped, pattern);
     return escaped;
 }

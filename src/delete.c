@@ -51,7 +51,7 @@ void erase(View *view)
 
 void clear_lines(View *view, bool auto_indent)
 {
-    String indent = STRING_INIT;
+    String indent = string_new(0);
     if (auto_indent) {
         BlockIter bi = view->cursor;
         if (block_iter_prev_line(&bi) && block_iter_find_non_empty_line_bwd(&bi)) {

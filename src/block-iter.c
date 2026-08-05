@@ -299,7 +299,7 @@ static void string_append_from_block_iter(String *buf, BlockIter bi, size_t len)
 
 String block_iter_get_bytes(BlockIter bi, size_t len)
 {
-    String buf = STRING_INIT;
+    String buf = string_new(len + 1);
     string_append_from_block_iter(&buf, bi, len);
     return buf;
 }

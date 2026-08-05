@@ -23,7 +23,7 @@ char *string_reserve_space(String *s, size_t more)
 void string_free(String *s)
 {
     free(s->buffer);
-    *s = (String) STRING_INIT;
+    *s = (String){.buffer = NULL};
 }
 
 void string_append_byte(String *s, unsigned char byte)
@@ -116,7 +116,7 @@ static char *null_terminate(String *s)
 char *string_steal_cstring(String *s)
 {
     char *buf = null_terminate(s);
-    *s = (String) STRING_INIT;
+    *s = (String){.buffer = NULL};
     return buf;
 }
 

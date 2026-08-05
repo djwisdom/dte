@@ -21,12 +21,6 @@ typedef struct {
     size_t len;
 } String;
 
-#define STRING_INIT { \
-    .buffer = NULL, \
-    .alloc = 0, \
-    .len = 0 \
-}
-
 #define string_append_literal(s, x) string_append_buf(s, x, STRLEN(x))
 
 size_t string_append_buf(String *s, const char *ptr, size_t len) NONNULL_ARG(1) NONNULL_ARG_IF_NONZERO_LENGTH(2, 3);

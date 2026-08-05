@@ -1735,7 +1735,7 @@ static bool cmd_replace(EditorState *e, const CommandArgs *a)
         return error_msg(&e->err, "-c flag unavailable in headless mode");
     }
 
-    String escaped = STRING_INIT;
+    String escaped = string_new(0);
     if (has_flag(a, 'e')) {
         StringView pat = strview(pattern);
         if (strview_contains_char_type(pat, ASCII_REGEX)) {
@@ -2156,7 +2156,7 @@ static bool cmd_search(EditorState *e, const CommandArgs *a)
     }
 
     BUG_ON(!pattern);
-    String escaped = STRING_INIT;
+    String escaped = string_new(0);
 
     if (!use_word_under_cursor && has_flag(a, 'e')) {
         StringView pat = strview(pattern);

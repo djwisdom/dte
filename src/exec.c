@@ -265,7 +265,7 @@ ssize_t handle_exec (
     const BlockIter saved_cursor = view->cursor;
     const ssize_t saved_sel_so = view->sel_so;
     const ssize_t saved_sel_eo = view->sel_eo;
-    String input = STRING_INIT;
+    String input = string_new(0);
     size_t input_from_buffer_length = 0;
     bool input_from_buffer = false;
     bool output_to_buffer = (actions[STDOUT_FILENO] == EXEC_BUFFER);
@@ -273,7 +273,7 @@ ssize_t handle_exec (
 
     SpawnContext ctx = {
         .argv = argv,
-        .outputs = {STRING_INIT, STRING_INIT},
+        .outputs = {string_new(0), string_new(0)},
         .quiet = quiet,
         .ebuf = &e->err,
         .lines = output_to_buffer ? view->window->edit_h : 0,

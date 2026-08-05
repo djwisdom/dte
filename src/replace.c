@@ -116,7 +116,7 @@ static unsigned int replace_on_line (
             // Move cursor after the matched text
             block_iter_skip_bytes(&view->cursor, match_len);
         } else {
-            String b = STRING_INIT;
+            String b = string_new(strlen(format) + 64);
             build_replacement(&b, buf + pos, format, matches);
 
             // line ref is invalidated by modification

@@ -705,10 +705,11 @@ static void test_base64_encode_final(TestContext *ctx)
 
 static void test_string(TestContext *ctx)
 {
-    String s = STRING_INIT;
+    String s = string_new(0);
     EXPECT_EQ(s.len, 0);
     EXPECT_EQ(s.alloc, 0);
     EXPECT_NULL(s.buffer);
+    EXPECT_STRING_EQ_CSTRING(&s, "");
 
     char *cstr = string_clone_cstring(&s);
     EXPECT_STREQ(cstr, "");
@@ -803,6 +804,7 @@ static void test_string(TestContext *ctx)
     EXPECT_NULL(s.buffer);
     EXPECT_EQ(s.len, 0);
     EXPECT_EQ(s.alloc, 0);
+    EXPECT_STRING_EQ_CSTRING(&s, "");
     EXPECT_EQ(string_append_buf(&s, NULL, 0), 0);
     EXPECT_EQ(string_insert_buf(&s, 0, NULL, 0), 0);
     EXPECT_EQ(string_append_memset(&s, 'q', 0), 0);
