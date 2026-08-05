@@ -1,0 +1,7 @@
+InheritParentConfig: true
+Checks: >
+    -bugprone-unsafe-functions,
+    -clang-diagnostic-c23-extensions,
+    -modernize-macro-to-enum,
+    -portability-restrict-system-includes,
+    -readability-redundant-parentheses,

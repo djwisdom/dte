@@ -1,3 +1,5 @@
+#include <assert.h>
+
 /*
  Testing for: #embed cpp(1) directive
  Supported by: GCC 15+, Clang 19+

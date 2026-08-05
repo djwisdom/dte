@@ -1,6 +1,7 @@
 #ifndef TEST_SIZES_H
 #define TEST_SIZES_H
 
+#include <stdio.h>
 #include "command/cache.h"
 #include "command/run.h"
 #include "compiler.h"
@@ -17,6 +18,7 @@
 #include "terminal/terminal.h"
 #include "ui.h"
 #include "util/exitcode.h"
+#include "util/macros.h"
 
 #define entry(type, level) { \
     .name = #type, \
