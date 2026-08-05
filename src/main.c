@@ -29,7 +29,6 @@
 #include "syntax/syntax.h"
 #include "tag.h"
 #include "terminal/mode.h"
-#include "terminal/output.h"
 #include "terminal/terminal.h"
 #include "trace.h"
 #include "ui.h"

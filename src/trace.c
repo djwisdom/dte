@@ -1,6 +1,5 @@
 #include "trace.h"
 #include "util/array.h"
-#include "util/str-util.h"
 #include "util/xstring.h"
 
 #if TRACE_LOGGING_ENABLED

@@ -11,12 +11,12 @@
 #include "options.h"
 #include "search.h"
 #include "syntax/color.h"
-#include "terminal/output.h"
+#include "terminal/output.h" // NOLINT(misc-include-cleaner)
 #include "terminal/terminal.h"
 #include "util/debug.h"
 #include "util/macros.h"
 #include "util/string-view.h"
-#include "util/utf8.h"
+#include "util/utf8.h" // NOLINT(misc-include-cleaner)
 #include "view.h"
 #include "window.h"
 

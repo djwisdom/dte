@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "ascii.h"
-#include "bit.h"
 #include "macros.h"
 
 static inline size_t fnv_1a_init(void)

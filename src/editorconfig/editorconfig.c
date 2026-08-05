@@ -8,7 +8,6 @@
 #include "util/debug.h"
 #include "util/path.h"
 #include "util/readfile.h"
-#include "util/string.h"
 #include "util/string-view.h"
 #include "util/strtonum.h"
 #include "util/xstring.h"

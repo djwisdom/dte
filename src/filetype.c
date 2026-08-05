@@ -8,12 +8,9 @@
 #include "util/bsearch.h"
 #include "util/debug.h"
 #include "util/hashset.h"
-#include "util/log.h"
 #include "util/path.h"
 #include "util/str-util.h"
-#include "util/strtonum.h"
 #include "util/xmalloc.h"
-#include "util/xmemmem.h"
 
 typedef struct {
     unsigned int str_len;

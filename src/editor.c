@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <langinfo.h>
 #include <locale.h>
 #include <stdio.h>

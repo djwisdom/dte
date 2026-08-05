@@ -10,8 +10,6 @@
 #include "editor.h"
 #include "replace.h"
 #include "util/ascii.h"
-#include "util/path.h"
-#include "util/str-util.h"
 #include "version.h"
 
 static void test_error_msg(TestContext *ctx)

@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include <sys/types.h>
-#include "command/error.h"
 #include "util/macros.h"
 #include "util/ptr-array.h"
 #include "util/string-view.h"

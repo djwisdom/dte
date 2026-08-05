@@ -4,10 +4,8 @@
 #include "buffer.h"
 #include "command/error.h"
 #include "edit.h"
-#include "editor.h"
 #include "util/debug.h"
 #include "util/xmalloc.h"
-#include "window.h"
 
 static struct {
     ChangeMergeEnum merge;

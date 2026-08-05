@@ -6,7 +6,6 @@
 #include "block-iter.h"
 #include "buffer.h"
 #include "change.h"
-#include "command/macro.h"
 #include "commands.h"
 #include "ctags.h"
 #include "editor.h"

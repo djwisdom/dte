@@ -1,7 +1,6 @@
 #include "terminal.h"
 #include "color.h"
 #include "output.h"
-#include "parse.h"
 
 void term_init(Terminal *term, const char *name, const char *colorterm)
 {

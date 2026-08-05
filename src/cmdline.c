@@ -13,7 +13,6 @@
 #include "search.h"
 #include "selection.h"
 #include "terminal/osc52.h"
-#include "util/arith.h"
 #include "util/ascii.h"
 #include "util/bsearch.h"
 #include "util/debug.h"

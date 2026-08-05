@@ -44,7 +44,6 @@
 #include "show.h"
 #include "spawn.h"
 #include "syntax/color.h"
-#include "syntax/syntax.h"
 #include "tag.h"
 #include "terminal/cursor.h"
 #include "terminal/mode.h"

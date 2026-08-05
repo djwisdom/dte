@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include "feature.h"
-#include "key.h"
 #include "style.h"
 #include "util/macros.h"
 

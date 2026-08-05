@@ -1,5 +1,7 @@
 #include "build-defs.h"
-#include <sys/mman.h>
+#if HAVE_POSIX_MADVISE
+    #include <sys/mman.h>
+#endif
 #include "xadvise.h"
 #include "debug.h"
 

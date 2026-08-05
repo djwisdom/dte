@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "color.h"
+#include "color.h" // NOLINT(misc-include-cleaner)
 #include "feature.h"
 #include "key.h"
 #include "style.h"

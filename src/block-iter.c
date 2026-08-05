@@ -1,10 +1,8 @@
 #include <string.h>
 #include "block-iter.h"
-#include "util/ascii.h"
 #include "util/debug.h"
 #include "util/str-util.h"
 #include "util/utf8.h"
-#include "util/xmalloc.h"
 #include "util/xmemrchr.h"
 
 // Move to end of previous line (if any) and return number of bytes moved

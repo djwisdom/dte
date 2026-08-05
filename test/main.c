@@ -4,10 +4,8 @@
 #include "test.h"
 #include "sizes.h"
 #include "util/exitcode.h"
-#include "util/path.h"
 #include "util/progname.h"
 #include "util/str-util.h"
-#include "util/string-view.h"
 #include "util/time-util.h"
 
 static void get_time(TestContext *ctx, struct timespec *ts)

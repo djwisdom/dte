@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include "test.h"
 #include "editor.h"
-#include "exec.h"
 #include "terminal/color.h"
 #include "terminal/terminal.h"
 #include "trace.h"

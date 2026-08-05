@@ -8,7 +8,7 @@
 #include "debug.h"
 #include "macros.h"
 #include "string-view.h"
-#include "xstring.h"
+#include "xstring.h" // NOLINT(misc-include-cleaner)
 
 #define copyliteral(dest, lit) copystrn(dest, lit, STRLEN(lit))
 

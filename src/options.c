@@ -17,7 +17,6 @@
 #include "util/str-util.h"
 #include "util/strtonum.h"
 #include "util/xmalloc.h"
-#include "util/xmemrchr.h"
 #include "util/xstring.h"
 
 typedef enum {

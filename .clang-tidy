@@ -39,7 +39,6 @@ Checks: >
     -readability-uppercase-literal-suffix,
     -readability-use-concise-preprocessor-directives,
     -performance-no-int-to-ptr,
-    -misc-include-cleaner,
 
 CheckOptions:
     readability-implicit-bool-conversion.AllowIntegerConditions: true
@@ -73,6 +72,16 @@ CheckOptions:
     readability-identifier-naming.TypedefCase: CamelCase
     readability-identifier-naming.UnionCase: CamelCase
     readability-identifier-naming.VariableCase: lower_case
+
+    misc-include-cleaner.MissingIncludes: false
+    misc-include-cleaner.IgnoreHeaders: >
+        errno.h;
+        fcntl.h;
+        sys/stat.h;
+        sys/time.h;
+        sys/types.h;
+        src/util/debug.h;
+        src/util/macros.h;
 
     # Note that this configuration produces warnings like "side effect in
     # BUG_ON() condition discarded in release builds", but that message isn't

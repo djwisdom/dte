@@ -1,6 +1,7 @@
 #include "build-defs.h"
-#include <termios.h>
-#include <unistd.h>
+#include <errno.h>
+#include <termios.h> // NOLINT(misc-include-cleaner)
+#include <unistd.h> // NOLINT(misc-include-cleaner)
 #include "ioctl.h"
 
 #if HAVE_TIOCGWINSZ || HAVE_TIOCNOTTY

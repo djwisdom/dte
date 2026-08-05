@@ -2,11 +2,9 @@
 #include "search.h"
 #include "block-iter.h"
 #include "buffer.h"
-#include "editor.h"
 #include "regexp.h"
 #include "util/ascii.h"
 #include "util/xmalloc.h"
-#include "window.h"
 
 // Recurses at most once
 // NOLINTNEXTLINE(misc-no-recursion)

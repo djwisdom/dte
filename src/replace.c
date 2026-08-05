@@ -12,7 +12,6 @@
 #include "util/string.h"
 #include "util/xmalloc.h"
 #include "view.h"
-#include "window.h"
 
 static void build_replacement (
     String *buf,

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "bookmark.h"
 #include "buffer.h"
-#include "editor.h"
 #include "move.h"
 #include "search.h"
 #include "selection.h"

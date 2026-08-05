@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "xstdio.h"
 
 char *xfgets(char *restrict buf, int bufsize, FILE *restrict stream)

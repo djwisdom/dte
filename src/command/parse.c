@@ -9,7 +9,6 @@
 #include "util/strtonum.h"
 #include "util/unicode.h"
 #include "util/xmalloc.h"
-#include "util/xstring.h"
 
 static size_t parse_sq(StringView cmd, String *buf)
 {

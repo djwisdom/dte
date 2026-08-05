@@ -1,7 +1,6 @@
 #ifndef UTIL_XSTDIO_H
 #define UTIL_XSTDIO_H
 
-#include <errno.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>

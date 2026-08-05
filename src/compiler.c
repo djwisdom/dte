@@ -5,8 +5,8 @@
 #include "util/array.h"
 #include "util/debug.h"
 #include "util/intern.h"
-#include "util/str-util.h"
 #include "util/xmalloc.h"
+#include "util/xstring.h"
 
 static const char capture_names[NR_ERRFMT_INDICES][8] = {
     [ERRFMT_FILE] = "file",

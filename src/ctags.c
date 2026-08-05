@@ -6,7 +6,6 @@
 #include "util/str-util.h"
 #include "util/strtonum.h"
 #include "util/xmalloc.h"
-#include "util/xstring.h"
 
 // Convert an ex(1) style pattern from a tags(5) file to a basic POSIX
 // regex ("BRE"), so that it can be compiled with regcomp(3)

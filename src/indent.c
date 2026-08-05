@@ -9,7 +9,6 @@
 #include "regexp.h"
 #include "selection.h"
 #include "util/log.h"
-#include "util/xmalloc.h"
 
 String make_indent(const LocalOptions *options, size_t width)
 {
