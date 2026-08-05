@@ -1,4 +1,9 @@
-typedef struct {CodePoint first, last;} CodepointRange;
+#include "unicode.h"
+
+typedef struct {
+    CodePoint first;
+    CodePoint last;
+} CodepointRange;
 
 static const CodepointRange special_whitespace[] = {
     {0x00a0, 0x00a0},

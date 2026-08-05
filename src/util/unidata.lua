@@ -113,10 +113,10 @@ for u = 0x00, 0x7F do
     mappings[u] = exclude
 end
 
-for min, max, property in dcp:gmatch "\n(%x+)%.*(%x*) *; *([%w_]+)" do
+for minstr, maxstr, property in dcp:gmatch "\n(%x+)%.*(%x*) *; *([%w_]+)" do
     if property == "Default_Ignorable_Code_Point" then
-        min = assert(tonumber(min, 16))
-        max = tonumber(max, 16)
+        local min = assert(tonumber(minstr, 16))
+        local max = tonumber(maxstr, 16)
         if not mappings[min] then
             default_ignorable:insert(min, max or min)
         end
@@ -125,8 +125,8 @@ end
 
 local prev_codepoint = -1
 local range = false
-for codepoint, name, category in unidata:gmatch "(%x+);([^;]*);(%u%a);[^\n]*\n" do
-    codepoint = assert(tonumber(codepoint, 16))
+for codepoint_str, name, category in unidata:gmatch "(%x+);([^;]*);(%u%a);[^\n]*\n" do
+    local codepoint = assert(tonumber(codepoint_str, 16))
     assert(codepoint > prev_codepoint)
     assert(name)
     assert(category)
@@ -161,14 +161,24 @@ assert(prev_codepoint == 0x10FFFD)
 assert(exclude.n == 127 + 3)
 unprintable:insert(prev_codepoint + 1, 0x10FFFF)
 
-for min, max in eaw:gmatch "\n(%x+)%.*(%x*) *; *[WF]" do
-    min = assert(tonumber(min, 16))
-    max = tonumber(max, 16)
+for minstr, maxstr in eaw:gmatch "\n(%x+)%.*(%x*) *; *[WF]" do
+    local min = assert(tonumber(minstr, 16))
+    local max = tonumber(maxstr, 16)
     double_width:insert(min, max or min)
 end
 
-local stdout = io.stdout
-stdout:write("typedef struct {CodePoint first, last;} CodepointRange;\n\n")
+local prelude = [[
+#include "unicode.h"
+
+typedef struct {
+    CodePoint first;
+    CodePoint last;
+} CodepointRange;
+
+]]
+
+local stdout = assert(io.stdout)
+stdout:write(prelude)
 special_whitespace:merge_adjacent():print_ranges("special_whitespace", stdout)
 default_ignorable:merge_adjacent():print_ranges("default_ignorable", stdout)
 nonspacing_mark:merge_adjacent():print_ranges("nonspacing_mark", stdout)
