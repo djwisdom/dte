@@ -21,11 +21,6 @@ typedef struct {
     size_t length;
 } StringView;
 
-#define STRING_VIEW_INIT { \
-    .data = NULL, \
-    .length = 0 \
-}
-
 #define STRING_VIEW(s) { \
     .data = s, \
     .length = STRLEN(s) \

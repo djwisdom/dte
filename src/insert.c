@@ -103,7 +103,7 @@ static void insert_nl(View *view)
     }
 
     // Get reference line, for calculating auto-indent size (if applicable)
-    StringView line = STRING_VIEW_INIT;
+    StringView line = strview(NULL);
     if (view->buffer->options.auto_indent) {
         BlockIter bi = view->cursor;
         size_t len = block_iter_bol(&bi);

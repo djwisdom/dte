@@ -167,7 +167,7 @@ EditorConfigOptions get_editorconfig_options(const char *pathname)
     BUG_ON(!path_is_absolute(pathname));
     EditorConfigContext ctx = {
         .pathname = pathname,
-        .config_file_dir = STRING_VIEW_INIT,
+        .config_file_dir = strview(NULL),
         .options = editorconfig_options_init(),
         .match = false,
     };

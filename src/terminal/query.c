@@ -189,7 +189,7 @@ ignore:
 
 static StringView hex_decode_str(StringView input, char *outbuf, size_t bufsize)
 {
-    StringView empty = STRING_VIEW_INIT;
+    StringView empty = strview(NULL);
     size_t n = input.length;
     if (n == 0 || n & 1 || n / 2 > bufsize) {
         return empty;
@@ -212,7 +212,7 @@ static KeyCode parse_xtgettcap_reply(StringView seq, bool valid_request)
 {
     size_t pos = 0;
     size_t len = seq.length;
-    StringView empty = STRING_VIEW_INIT;
+    StringView empty = strview(NULL);
     StringView cap_hex = (pos < len) ? get_delim(seq.data, &pos, len, '=') : empty;
     StringView val_hex = (pos < len) ? strview_from_slice(seq.data, pos, len) : empty;
 

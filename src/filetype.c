@@ -90,7 +90,7 @@ static StringView get_filename_extension(StringView filename)
 // For example, if line is "#!/usr/bin/env python2", "python" is returned.
 static StringView get_interpreter(StringView line)
 {
-    StringView sv = STRING_VIEW_INIT;
+    StringView sv = strview(NULL);
     if (!strview_remove_matching_prefix(&line, "#!")) {
         return sv;
     }

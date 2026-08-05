@@ -23,7 +23,7 @@ static void test_detect_encoding_from_bom(TestContext *ctx)
         {UNKNOWN_ENCODING, SV("\x00\x00\xfe")},
         {UNKNOWN_ENCODING, SV("\x00")},
         {UNKNOWN_ENCODING, SV("")},
-        {UNKNOWN_ENCODING, STRING_VIEW_INIT},
+        {UNKNOWN_ENCODING, {.data = NULL, .length = 0}},
     };
 
     FOR_EACH_I(i, tests) {

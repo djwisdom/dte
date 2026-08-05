@@ -332,7 +332,7 @@ void collect_tags(TagFile *tf, PointerArray *a, StringView prefix)
     Tag tag;
     size_t pos = 0;
     StringView src = string_view(tf->buf, tf->size);
-    StringView prev = STRING_VIEW_INIT;
+    StringView prev = strview(NULL);
 
     while (next_tag(src, &pos, prefix, false, &tag)) {
         BUG_ON(tag.name.length == 0);
@@ -369,7 +369,7 @@ String dump_tags(TagFile *tf, ErrorBuffer *ebuf)
         return buf;
     }
 
-    const StringView prefix = STRING_VIEW_INIT;
+    const StringView prefix = strview(NULL);
     const StringView src = string_view(tf->buf, tf->size);
     size_t pos = 0;
     Tag tag;

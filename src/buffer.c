@@ -196,7 +196,7 @@ Buffer *find_buffer_by_id(const PointerArray *buffers, unsigned long id)
 
 bool buffer_detect_filetype(Buffer *buffer, const PointerArray *filetypes)
 {
-    StringView line = STRING_VIEW_INIT;
+    StringView line = strview(NULL);
     if (buffer_get_first_block(buffer)->size) {
         BlockIter bi = block_iter(buffer);
         line = block_iter_get_line(&bi);

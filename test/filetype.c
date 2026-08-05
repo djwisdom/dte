@@ -171,7 +171,7 @@ static void test_find_ft_filename(TestContext *ctx)
     };
 
     const PointerArray arr = PTR_ARRAY_INIT;
-    const StringView empty_line = STRING_VIEW_INIT;
+    const StringView empty_line = strview(NULL);
 
     FOR_EACH_I(i, tests) {
         const char *ft = find_ft(&arr, tests[i].filename, empty_line);
@@ -332,7 +332,7 @@ static void test_find_ft_dynamic(TestContext *ctx)
 {
     PointerArray a = PTR_ARRAY_INIT;
     const char *ft = "test1";
-    StringView line = STRING_VIEW_INIT;
+    StringView line = strview(NULL);
     EXPECT_FALSE(is_ft(&a, ft));
     EXPECT_TRUE(add_filetype(&a, ft, "ext-test", FT_EXTENSION, NULL));
     EXPECT_TRUE(is_ft(&a, ft));
