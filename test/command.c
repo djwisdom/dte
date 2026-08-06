@@ -255,7 +255,7 @@ static CommandRunner mock_cmdrunner(const CommandSet *cmds)
 static void test_parse_commands(TestContext *ctx)
 {
     CommandRunner runner = mock_cmdrunner(&normal_commands);
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     EXPECT_EQ(parse_commands(&runner, &array, " left  -c;;"), CMDERR_NONE);
     ASSERT_EQ(array.count, 5);
     EXPECT_STREQ(array.ptrs[0], "left");
@@ -334,7 +334,7 @@ static void test_parse_args(TestContext *ctx)
     const CommandSet *cmds = &normal_commands;
     const CommandRunner runner = mock_cmdrunner(cmds);
     const char *cmd_str = "open -g file.c file.h *.mk -e UTF-8";
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     ASSERT_NONNULL(cmds);
     ASSERT_EQ(parse_commands(&runner, &array, cmd_str), CMDERR_NONE);
     ASSERT_EQ(array.count, 8);

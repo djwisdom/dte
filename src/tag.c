@@ -300,7 +300,7 @@ size_t tag_lookup (
     BUG_ON(!tf->filename);
 
     // Filename helps to find correct tags
-    PointerArray tags = PTR_ARRAY_INIT;
+    PointerArray tags = ptr_array_new(0);
     tag_file_find_tags(tf, filename, name, &tags);
 
     size_t ntags = tags.count;

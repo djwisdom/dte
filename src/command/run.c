@@ -35,7 +35,7 @@ static bool run_command(CommandRunner *runner, char **av)
             return error_msg_for_cmd(ebuf, NULL, "No such command or alias: %s", name);
         }
 
-        PointerArray array = PTR_ARRAY_INIT;
+        PointerArray array = ptr_array_new(0);
         CommandParseError err = parse_commands(runner, &array, alias_value);
         if (unlikely(err != CMDERR_NONE)) {
             const char *err_msg = command_parse_error_to_string(err);
@@ -123,7 +123,7 @@ out:
 bool handle_command(CommandRunner *runner, const char *cmd)
 {
     BUG_ON(runner->recursion_count != 0);
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     CommandParseError err = parse_commands(runner, &array, cmd);
     bool r;
     if (likely(err == CMDERR_NONE)) {

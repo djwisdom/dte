@@ -85,7 +85,7 @@ void collect_exec_actions(PointerArray *a, StringView prefix, int fd)
 
 static void open_files_from_string(EditorState *e, const String *str)
 {
-    PointerArray filenames = PTR_ARRAY_INIT;
+    PointerArray filenames = ptr_array_new(0);
     for (size_t pos = 0, size = str->len; pos < size; ) {
         char *filename = buf_next_line(str->buffer, &pos, size); // Mutates `str->buffer`
         if (filename[0] != '\0') {

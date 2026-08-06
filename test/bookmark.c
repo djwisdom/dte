@@ -4,8 +4,7 @@
 
 static void test_bookmark_push(TestContext *ctx)
 {
-    PointerArray bookmarks;
-    ptr_array_init(&bookmarks, 80);
+    PointerArray bookmarks = ptr_array_new(80);
     ASSERT_NONNULL(bookmarks.ptrs);
     ASSERT_TRUE(bookmarks.alloc >= 80);
     ASSERT_EQ(bookmarks.count, 0);

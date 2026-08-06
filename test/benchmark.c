@@ -93,7 +93,7 @@ static void do_bench_find_ft(const char *expected_ft, const char *filename)
     BUG_ON(expected_ft[0] == '/');
     BUG_ON(filename[0] != '/');
 
-    PointerArray filetypes = PTR_ARRAY_INIT;
+    PointerArray filetypes = ptr_array_new(0);
     StringView line = strview(NULL);
     if (!xstreq(find_ft(&filetypes, filename, line), expected_ft)) {
         error_exit("Unexpected return value for find_ft() in %s()", __func__);

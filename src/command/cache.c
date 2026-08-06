@@ -20,7 +20,7 @@ CachedCommand *cached_command_new(const CommandRunner *runner, const char *cmd_s
     memcpy(cached->cmd_str, cmd_str, cmd_str_len + 1);
 
     const char *reason;
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     if (parse_commands(runner, &array, cmd_str) != CMDERR_NONE) {
         reason = "parsing failed";
         goto nocache;

@@ -28,7 +28,7 @@ bool macro_record(MacroRecorder *m)
     }
     ptr_array_free(&m->prev_macro);
     m->prev_macro = m->macro;
-    m->macro = (PointerArray) PTR_ARRAY_INIT;
+    m->macro = ptr_array_new(0);
     m->recording = true;
     return true;
 }
@@ -50,7 +50,7 @@ bool macro_cancel(MacroRecorder *m)
     }
     ptr_array_free(&m->macro);
     m->macro = m->prev_macro;
-    m->prev_macro = (PointerArray) PTR_ARRAY_INIT;
+    m->prev_macro = ptr_array_new(0);
     m->recording = false;
     return true;
 }

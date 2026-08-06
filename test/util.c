@@ -2516,8 +2516,15 @@ static void test_u_skip_chars(TestContext *ctx)
 
 static void test_ptr_array(TestContext *ctx)
 {
-    PointerArray a = PTR_ARRAY_INIT;
+    PointerArray a = ptr_array_new(0);
+    EXPECT_EQ(a.count, 0);
+    EXPECT_EQ(a.alloc, 0);
+    EXPECT_NULL(a.ptrs);
     ptr_array_append(&a, NULL);
+    EXPECT_EQ(a.count, 1);
+    EXPECT_EQ(a.alloc, 8);
+    EXPECT_NONNULL(a.ptrs);
+
     ptr_array_append(&a, NULL);
     ptr_array_append(&a, xstrdup("foo"));
     ptr_array_append(&a, NULL);
@@ -2525,6 +2532,7 @@ static void test_ptr_array(TestContext *ctx)
     ptr_array_append(&a, NULL);
     ptr_array_append(&a, NULL);
     EXPECT_EQ(a.count, 7);
+    EXPECT_EQ(a.alloc, 8);
 
     ptr_array_trim_nulls(&a);
     EXPECT_EQ(a.count, 4);
@@ -2540,18 +2548,18 @@ static void test_ptr_array(TestContext *ctx)
     ptr_array_trim_nulls(&a);
     EXPECT_EQ(a.count, 0);
 
-    ptr_array_init(&a, 0);
+    a = ptr_array_new(0);
     EXPECT_EQ(a.alloc, 0);
     EXPECT_NULL(a.ptrs);
     ptr_array_free(&a);
-    ptr_array_init(&a, 1);
+    a = ptr_array_new(1);
     EXPECT_EQ(a.alloc, 8);
     EXPECT_NONNULL(a.ptrs);
     ptr_array_free(&a);
 
     // ptr_array_trim_nulls() should remove everything (i.e. not leave 1
     // trailing NULL) when all elements are NULL
-    ptr_array_init(&a, 0);
+    a = ptr_array_new(0);
     ptr_array_append(&a, NULL);
     ptr_array_append(&a, NULL);
     ptr_array_append(&a, NULL);
@@ -2563,7 +2571,7 @@ static void test_ptr_array(TestContext *ctx)
 
 static void test_ptr_array_move(TestContext *ctx)
 {
-    PointerArray a = PTR_ARRAY_INIT;
+    PointerArray a = ptr_array_new(0);
     ptr_array_append(&a, xstrdup("A"));
     ptr_array_append(&a, xstrdup("B"));
     ptr_array_append(&a, xstrdup("C"));
@@ -2641,7 +2649,7 @@ static void test_ptr_array_move(TestContext *ctx)
 
 static void test_ptr_array_insert(TestContext *ctx)
 {
-    PointerArray a = PTR_ARRAY_INIT;
+    PointerArray a = ptr_array_new(0);
     ptr_array_insert(&a, xstrdup("D"), 0);
     ptr_array_insert(&a, xstrdup("C"), 0);
     ptr_array_insert(&a, xstrdup("B"), 0);

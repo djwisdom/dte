@@ -848,7 +848,7 @@ static void init_completion(EditorState *e, const CommandLine *cmdline)
 
     const size_t cmdline_pos = cmdline->pos;
     char *const cmd = string_clone_cstring(&cmdline->buf);
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     ssize_t semicolon = -1;
     ssize_t completion_pos = -1;
 

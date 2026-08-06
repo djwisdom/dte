@@ -249,7 +249,7 @@ void buffer_update_syntax(EditorState *e, Buffer *buffer)
         // Start state of first line is constant
         PointerArray *s = &buffer->line_start_states;
         if (!s->alloc) {
-            ptr_array_init(s, 64);
+            *s = ptr_array_new(64);
         }
         s->ptrs[0] = syn->start_state;
         s->count = 1;

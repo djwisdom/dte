@@ -565,7 +565,7 @@ static bool cmd_def_mode(EditorState *e, const CommandArgs *a)
         return error_msg(ebuf, "mode '%s' already exists", name);
     }
 
-    PointerArray ftmodes = PTR_ARRAY_INIT;
+    PointerArray ftmodes = ptr_array_new(0);
     for (size_t i = 1, n = a->nr_args; i < n; i++) {
         const char *ftname = a->args[i];
         ModeHandler *mode = get_mode_handler(modes, ftname);

@@ -100,7 +100,7 @@ static void test_dump_handlers(TestContext *ctx)
                 continue;
             }
 
-            PointerArray arr = PTR_ARRAY_INIT;
+            PointerArray arr = ptr_array_new(0);
             CommandParseError parse_err = parse_commands(&runner, &arr, line);
             EXPECT_EQ(parse_err, CMDERR_NONE);
             EXPECT_TRUE(arr.count >= 2);

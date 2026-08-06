@@ -14,12 +14,6 @@ typedef struct {
     size_t count;
 } PointerArray;
 
-#define PTR_ARRAY_INIT { \
-    .ptrs = NULL, \
-    .alloc = 0, \
-    .count = 0 \
-}
-
 typedef int (*CompareFunction)(const void *, const void *);
 
 void ptr_array_grow_and_append(PointerArray *array, void *ptr) NONNULL_ARG(1) NOINLINE;
@@ -33,13 +27,15 @@ void *ptr_array_remove_index(PointerArray *array, size_t idx) NONNULL_ARGS WARN_
 size_t ptr_array_index(const PointerArray *array, const void *ptr) NONNULL_ARG(1) WARN_UNUSED_RESULT;
 void ptr_array_trim_nulls(PointerArray *array) NONNULL_ARGS;
 
-NONNULL_ARGS
-static inline void ptr_array_init(PointerArray *array, size_t capacity)
+WARN_UNUSED_RESULT
+static inline PointerArray ptr_array_new(size_t capacity)
 {
     capacity = next_multiple(capacity, 8);
-    array->count = 0;
-    array->ptrs = capacity ? xmallocarray(capacity, sizeof(array->ptrs[0])) : NULL;
-    array->alloc = capacity;
+    return (PointerArray) {
+        .ptrs = capacity ? xmallocarray(capacity, sizeof(void*)) : NULL,
+        .alloc = capacity,
+        .count = 0,
+    };
 }
 
 NONNULL_ARG(1)
@@ -86,7 +82,7 @@ NONNULL_ARGS
 static inline void ptr_array_free_array(PointerArray *array)
 {
     free(array->ptrs);
-    *array = (PointerArray) PTR_ARRAY_INIT;
+    *array = (PointerArray){.ptrs = NULL};
 }
 
 static inline void ptr_array_sort (

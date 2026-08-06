@@ -13,7 +13,7 @@ static void test_find_buffer_by_id(TestContext *ctx)
         {.id = 9},
     };
 
-    PointerArray array = PTR_ARRAY_INIT;
+    PointerArray array = ptr_array_new(0);
     ptr_array_append(&array, &buffers[0]);
     ptr_array_append(&array, &buffers[1]);
     ptr_array_append(&array, &buffers[2]);

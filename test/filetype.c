@@ -170,7 +170,7 @@ static void test_find_ft_filename(TestContext *ctx)
         {NULL, NULL},
     };
 
-    const PointerArray arr = PTR_ARRAY_INIT;
+    const PointerArray arr = ptr_array_new(0);
     const StringView empty_line = strview(NULL);
 
     FOR_EACH_I(i, tests) {
@@ -320,7 +320,7 @@ static void test_find_ft_firstline(TestContext *ctx)
         {"#!/lua/", NULL},
     };
 
-    const PointerArray arr = PTR_ARRAY_INIT;
+    const PointerArray arr = ptr_array_new(0);
 
     FOR_EACH_I(i, tests) {
         const char *ft = find_ft(&arr, NULL, strview(tests[i].line));
@@ -330,7 +330,7 @@ static void test_find_ft_firstline(TestContext *ctx)
 
 static void test_find_ft_dynamic(TestContext *ctx)
 {
-    PointerArray a = PTR_ARRAY_INIT;
+    PointerArray a = ptr_array_new(0);
     const char *ft = "test1";
     StringView line = strview(NULL);
     EXPECT_FALSE(is_ft(&a, ft));
@@ -371,7 +371,7 @@ static void test_find_ft_dynamic(TestContext *ctx)
 
 static void test_is_ft(TestContext *ctx)
 {
-    const PointerArray a = PTR_ARRAY_INIT;
+    const PointerArray a = ptr_array_new(0);
     EXPECT_TRUE(is_ft(&a, "ada"));
     EXPECT_TRUE(is_ft(&a, "asm"));
     EXPECT_TRUE(is_ft(&a, "awk"));
