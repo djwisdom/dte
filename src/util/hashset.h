@@ -58,9 +58,9 @@ static inline bool hashset_next(HashSetIter *iter)
     return false;
 }
 
-void hashset_init(HashSet *set, size_t initial_size, bool icase);
-void hashset_free(HashSet *set);
-HashSetEntry *hashset_get(const HashSet *set, const char *str, size_t str_len);
-HashSetEntry *hashset_insert(HashSet *set, const char *str, size_t str_len);
+HashSet hashset_new(size_t size, bool icase) WARN_UNUSED_RESULT;
+void hashset_free(HashSet *set) NONNULL_ARGS;
+HashSetEntry *hashset_get(const HashSet *set, const char *str, size_t str_len) NONNULL_ARG(1) NONNULL_ARG_IF_NONZERO_LENGTH(2, 3);
+HashSetEntry *hashset_insert(HashSet *set, const char *str, size_t str_len) NONNULL_ARG(1) NONNULL_ARG_IF_NONZERO_LENGTH(2, 3);
 
 #endif

@@ -93,7 +93,7 @@ void history_load(History *history, ErrorBuffer *ebuf, char *filename, size_t si
 {
     BUG_ON(history->filename);
     BUG_ON(history->max_entries < 2);
-    hashmap_init(&history->entries, history->max_entries, HMAP_NO_FLAGS);
+    history->entries = hashmap_new(history->max_entries, HMAP_NO_FLAGS);
     history->filename = filename;
 
     char *buf;

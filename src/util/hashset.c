@@ -17,7 +17,7 @@ static void alloc_table(HashSet *set, size_t size)
     set->grow_at = size - (size / 4); // 75% load factor (size * 0.75)
 }
 
-void hashset_init(HashSet *set, size_t size, bool icase)
+HashSet hashset_new(size_t size, bool icase)
 {
     size = MAX(size, 8);
 
@@ -30,16 +30,19 @@ void hashset_init(HashSet *set, size_t size, bool icase)
     size = next_pow2(size);
     FATAL_ERROR_ON(size == 0, EOVERFLOW);
 
-    alloc_table(set, size);
-    set->nr_entries = 0;
+    HashSet set;
+    alloc_table(&set, size);
+    set.nr_entries = 0;
 
     if (icase) {
-        set->hash = fnv_1a_hash_icase;
-        set->equal = mem_equal_icase;
+        set.hash = fnv_1a_hash_icase;
+        set.equal = mem_equal_icase;
     } else {
-        set->hash = fnv_1a_hash;
-        set->equal = mem_equal;
+        set.hash = fnv_1a_hash;
+        set.equal = mem_equal;
     }
+
+    return set;
 }
 
 void hashset_free(HashSet *set)

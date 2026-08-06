@@ -403,11 +403,10 @@ static bool cmd_list(EditorState *e, const CommandArgs *a)
     list->defined = true;
 
     bool icase = a->flags[0] == 'i';
-    HashSet *set = &list->strings;
-    hashset_init(set, a->nr_args - 1, icase);
+    list->strings = hashset_new(a->nr_args - 1, icase);
     for (size_t i = 1, n = a->nr_args; i < n; i++) {
         const char *str = args[i];
-        hashset_insert(set, str, strlen(str));
+        hashset_insert(&list->strings, str, strlen(str));
     }
     return true;
 }

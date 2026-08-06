@@ -221,8 +221,7 @@ void collect_syntax_emit_names (
     PointerArray *a,
     StringView prefix
 ) {
-    HashSet set;
-    hashset_init(&set, 16, false);
+    HashSet set = hashset_new(16, false);
 
     // Insert all `Action::emit_name` strings beginning with `prefix` into
     // a HashSet (to avoid duplicates)

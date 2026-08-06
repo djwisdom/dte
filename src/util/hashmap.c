@@ -82,11 +82,12 @@ static SystemErrno hashmap_do_init(HashMap *map, size_t capacity)
     return hashmap_resize(map, capacity);
 }
 
-void hashmap_init(HashMap *map, size_t capacity, HashMapFlags flags)
+HashMap hashmap_new(size_t capacity, HashMapFlags flags)
 {
-    *map = (HashMap){.flags = flags};
-    SystemErrno err = hashmap_do_init(map, capacity);
+    HashMap map = {.flags = flags};
+    SystemErrno err = hashmap_do_init(&map, capacity);
     FATAL_ERROR_ON(err, err);
+    return map;
 }
 
 HashMapEntry *hashmap_find(const HashMap *map, const char *key)

@@ -629,7 +629,7 @@ static void test_add_alias(TestContext *ctx)
 {
     const char name[] = "insert-foo";
     const char cmd[] = "insert -m foo";
-    HashMap m = HASHMAP_INIT(HMAP_NO_FLAGS);
+    HashMap m = {.flags = HMAP_NO_FLAGS};
     add_alias(&m, name, cmd);
     EXPECT_STREQ(find_alias(&m, name), cmd);
     EXPECT_EQ(m.count, 1);

@@ -224,9 +224,8 @@ void collect_ft(const PointerArray *filetypes, PointerArray *a, StringView prefi
 {
     // Insert all filetype names beginning with `prefix` into a HashSet
     // (to avoid duplicates)
-    HashSet set;
     size_t nr_builtin_ft = ARRAYLEN(builtin_filetype_names);
-    hashset_init(&set, 20 + (prefix.length ? 0 : nr_builtin_ft), false);
+    HashSet set = hashset_new(20 + (prefix.length ? 0 : nr_builtin_ft), false);
 
     for (size_t i = 0; i < nr_builtin_ft; i++) {
         const char *name = builtin_filetype_names[i];

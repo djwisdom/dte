@@ -2720,8 +2720,7 @@ static void test_hashmap(TestContext *ctx)
         "\x01\x02\x03 \t\xfe\xff",
     };
 
-    HashMap map;
-    hashmap_init(&map, ARRAYLEN(strings), HMAP_NO_FLAGS);
+    HashMap map = hashmap_new(ARRAYLEN(strings), HMAP_NO_FLAGS);
     ASSERT_NONNULL(map.entries);
     EXPECT_EQ(map.mask, 31);
     EXPECT_EQ(map.count, 0);
@@ -2809,14 +2808,14 @@ static void test_hashmap(TestContext *ctx)
     EXPECT_EQ(map.count, 0);
     EXPECT_EQ(map.mask, 0);
 
-    hashmap_init(&map, 0, HMAP_NO_FLAGS);
+    map = hashmap_new(0, HMAP_NO_FLAGS);
     ASSERT_NONNULL(map.entries);
     EXPECT_EQ(map.mask, 7);
     EXPECT_EQ(map.count, 0);
     hashmap_free(&map, NULL);
     EXPECT_NULL(map.entries);
 
-    hashmap_init(&map, 13, HMAP_NO_FLAGS);
+    map = hashmap_new(13, HMAP_NO_FLAGS);
     ASSERT_NONNULL(map.entries);
     EXPECT_EQ(map.mask, 31);
     EXPECT_EQ(map.count, 0);
@@ -2861,8 +2860,7 @@ static void test_hashset(TestContext *ctx)
 #endif
     };
 
-    HashSet set;
-    hashset_init(&set, ARRAYLEN(strings), false);
+    HashSet set = hashset_new(ARRAYLEN(strings), false);
     EXPECT_EQ(set.nr_entries, 0);
     EXPECT_EQ(set.table_size, 16);
     EXPECT_EQ(set.grow_at, 12);
@@ -2912,7 +2910,7 @@ static void test_hashset(TestContext *ctx)
     }
 
     hashset_free(&set);
-    hashset_init(&set, 0, true);
+    set = hashset_new(0, true);
     EXPECT_EQ(set.nr_entries, 0);
     hashset_insert(&set, STRN("foo"));
     hashset_insert(&set, STRN("Foo"));
@@ -2924,7 +2922,7 @@ static void test_hashset(TestContext *ctx)
 
     // Check that hashset_insert() returns existing entries instead of
     // inserting duplicates
-    hashset_init(&set, 0, false);
+    set = hashset_new(0, false);
     EXPECT_EQ(set.nr_entries, 0);
     HashSetEntry *e1 = hashset_insert(&set, STRN("foo"));
     EXPECT_EQ(e1->str_len, 3);
@@ -2935,7 +2933,7 @@ static void test_hashset(TestContext *ctx)
     EXPECT_EQ(set.nr_entries, 1);
     hashset_free(&set);
 
-    hashset_init(&set, 0, false);
+    set = hashset_new(0, false);
     // Initial table size should be 16 (minimum + load factor + rounding)
     EXPECT_EQ(set.table_size, 16);
     for (unsigned int i = 1; i <= 80; i++) {

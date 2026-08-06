@@ -168,19 +168,15 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
     xsetenv("DTE_VERSION", VERSION);
 
     // Initial capacities here should accommodate at least the number
-    // of bindings created by exec_rc_files()
+    // of bindings and aliases created by exec_rc_files()
     HashMap *modes = &e->modes;
     e->normal_mode = new_mode(modes, xstrdup("normal"), &normal_commands, 150);
     e->command_mode = new_mode(modes, xstrdup("command"), &cmd_mode_commands, 40);
     e->search_mode = new_mode(modes, xstrdup("search"), &search_mode_commands, 40);
     e->mode = e->normal_mode;
-
-    // Pre-allocate space for key bindings and aliases, so that no
-    // predictable (and thus unnecessary) reallocs are needed when
-    // loading built-in configs
-    hashmap_init(&e->aliases, 32, HMAP_NO_FLAGS);
-    hashset_init(&e->required_syntax_files, 0, false);
-    hashset_init(&e->required_syntax_builtins, 0, false);
+    e->aliases = hashmap_new(32, HMAP_NO_FLAGS);
+    e->required_syntax_files = hashset_new(0, false);
+    e->required_syntax_builtins = hashset_new(0, false);
 
     return e;
 }
