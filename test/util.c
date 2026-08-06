@@ -2957,7 +2957,7 @@ static void test_hashset(TestContext *ctx)
 
 static void test_intmap(TestContext *ctx)
 {
-    IntMap map = INTMAP_INIT;
+    IntMap map = {.entries = NULL};
     EXPECT_NULL(intmap_find(&map, 0));
     EXPECT_NULL(intmap_get(&map, 0));
     intmap_free(&map, free);

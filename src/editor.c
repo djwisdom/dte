@@ -22,7 +22,6 @@
 #include "ui.h"
 #include "util/exitcode.h"
 #include "util/intern.h"
-#include "util/intmap.h"
 #include "util/log.h"
 #include "util/str-util.h"
 #include "util/time-util.h"
@@ -168,19 +167,18 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
     // Allow child processes to detect that they're running under dte
     xsetenv("DTE_VERSION", VERSION);
 
+    // Initial capacities here should accommodate at least the number
+    // of bindings created by exec_rc_files()
     HashMap *modes = &e->modes;
-    e->normal_mode = new_mode(modes, xstrdup("normal"), &normal_commands);
-    e->command_mode = new_mode(modes, xstrdup("command"), &cmd_mode_commands);
-    e->search_mode = new_mode(modes, xstrdup("search"), &search_mode_commands);
+    e->normal_mode = new_mode(modes, xstrdup("normal"), &normal_commands, 150);
+    e->command_mode = new_mode(modes, xstrdup("command"), &cmd_mode_commands, 40);
+    e->search_mode = new_mode(modes, xstrdup("search"), &search_mode_commands, 40);
     e->mode = e->normal_mode;
 
     // Pre-allocate space for key bindings and aliases, so that no
     // predictable (and thus unnecessary) reallocs are needed when
     // loading built-in configs
     hashmap_init(&e->aliases, 32, HMAP_NO_FLAGS);
-    intmap_init(&e->normal_mode->key_bindings, 150);
-    intmap_init(&e->command_mode->key_bindings, 40);
-    intmap_init(&e->search_mode->key_bindings, 40);
     hashset_init(&e->required_syntax_files, 0, false);
     hashset_init(&e->required_syntax_builtins, 0, false);
 

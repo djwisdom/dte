@@ -588,7 +588,7 @@ static bool cmd_def_mode(EditorState *e, const CommandArgs *a)
         {'U', MHF_NO_TEXT_INSERTION | MHF_NO_TEXT_INSERTION_RECURSIVE},
     };
 
-    ModeHandler *mode = new_mode(modes, xstrdup(name), &normal_commands);
+    ModeHandler *mode = new_mode(modes, xstrdup(name), &normal_commands, 0);
     mode->flags = cmdargs_convert_flags(a, map, ARRAYLEN(map));
     mode->fallthrough_modes = ftmodes;
     return true;

@@ -31,13 +31,6 @@ typedef struct {
     size_t idx;
 } IntMapIter;
 
-#define INTMAP_INIT { \
-    .entries = NULL, \
-    .mask = 0, \
-    .count = 0, \
-    .tombstones = 0 \
-}
-
 static inline IntMapIter intmap_iter(const IntMap *map)
 {
     return (IntMapIter){.map = map};
@@ -61,7 +54,7 @@ static inline bool intmap_next(IntMapIter *iter)
     return false;
 }
 
-void intmap_init(IntMap *map, size_t capacity) NONNULL_ARGS;
+IntMap intmap_new(size_t capacity) WARN_UNUSED_RESULT;
 void *intmap_insert_or_replace(IntMap *map, uint32_t key, void *value) NONNULL_ARGS;
 void *intmap_remove(IntMap *map, uint32_t key) NONNULL_ARGS;
 void intmap_free(IntMap *map, FreeFunction free_value) NONNULL_ARG(1);

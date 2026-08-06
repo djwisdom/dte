@@ -14,11 +14,12 @@
 #include "util/xmalloc.h"
 #include "view.h"
 
-ModeHandler *new_mode(HashMap *modes, char *name, const CommandSet *cmds)
+ModeHandler *new_mode(HashMap *modes, char *name, const CommandSet *cmds, size_t capacity)
 {
     ModeHandler *mode = xcalloc1(sizeof(*mode));
     mode->name = name;
     mode->cmds = cmds;
+    mode->key_bindings = intmap_new(capacity);
     return hashmap_insert(modes, name, mode);
 }
 

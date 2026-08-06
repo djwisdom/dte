@@ -83,14 +83,16 @@ static SystemErrno intmap_do_init(IntMap *map, size_t capacity)
         return EOVERFLOW;
     }
 
-    *map = (IntMap)INTMAP_INIT;
+    *map = (IntMap){.entries = NULL};
     return intmap_resize(map, capacity);
 }
 
-void intmap_init(IntMap *map, size_t capacity)
+IntMap intmap_new(size_t capacity)
 {
-    SystemErrno err = intmap_do_init(map, capacity);
+    IntMap map;
+    SystemErrno err = intmap_do_init(&map, capacity);
     FATAL_ERROR_ON(err, err);
+    return map;
 }
 
 IntMapEntry *intmap_find(const IntMap *map, uint32_t key)
@@ -230,5 +232,5 @@ void intmap_free(IntMap *map, FreeFunction free_value)
 {
     intmap_clear(map, free_value);
     free(map->entries);
-    *map = (IntMap)INTMAP_INIT;
+    *map = (IntMap){.entries = NULL};
 }
