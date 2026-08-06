@@ -10,17 +10,19 @@
 #include "insert.h"
 #include "terminal/paste.h"
 #include "util/debug.h"
+#include "util/intern.h"
 #include "util/unicode.h"
 #include "util/xmalloc.h"
 #include "view.h"
 
-ModeHandler *new_mode(HashMap *modes, char *name, const CommandSet *cmds, size_t capacity)
+ModeHandler *new_mode(HashMap *modes, const char *name, const CommandSet *cmds, size_t capacity)
 {
+    BUG_ON(!(modes->flags & HMAP_BORROWED_KEYS));
     ModeHandler *mode = xcalloc1(sizeof(*mode));
-    mode->name = name;
+    mode->name = str_intern(name);
     mode->cmds = cmds;
     mode->key_bindings = intmap_new(capacity);
-    return hashmap_insert(modes, name, mode);
+    return hashmap_insert(modes, (char*)mode->name, mode);
 }
 
 static bool insert_paste(EditorState *e, const ModeHandler *handler, bool bracketed)
