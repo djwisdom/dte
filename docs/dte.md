@@ -2,7 +2,7 @@
 NOTE: See https://craigbarnes.gitlab.io/dte/dte.html for a fully rendered version of this document
 title: dte
 section: 1
-date: July 2026
+date: August 2026
 description: A small, configurable text editor
 author: [Craig Barnes, Timo Hirvonen]
 seealso: ["`dterc`", "`dte-syntax`"]
@@ -151,7 +151,7 @@ similar to Unix shell and can be accessed by pressing `M-x` (Alt+x)
 in [normal mode]. The [`next`] and [`prev`] commands switch to the
 next/previous file. The [`open`], [`save`] and [`quit`] commands
 should be somewhat self-explanatory. For a full list of available
-commands, see [`dterc`].
+commands, see [`dterc`][command-mode-cmds].
 
 The key bindings for command mode are:
 
@@ -179,7 +179,7 @@ The key bindings for command mode are:
 `C-f`, `right`
 :   Move right
 
-`C-k`, `M-delete`
+`C-k`
 :   Delete to end of command line
 
 `C-u`
@@ -187,6 +187,9 @@ The key bindings for command mode are:
 
 `C-w`, `C-backspace`, `M-backspace`
 :   Erase word
+
+`M-d`, `C-delete`, `M-delete`
+:   Delete word
 
 ## Search Mode
 
@@ -434,6 +437,7 @@ input/output of both.
 [Search]: dterc.html#search
 [Undo]: dterc.html#undo
 [View]: dterc.html#view
+[command-mode-cmds]: dterc.html#bind:~:text=commands%20available%20in%20command/search%20mode
 [`bind`]: dterc.html#bind
 [`case`]: dterc.html#case
 [`cd`]: dterc.html#cd
