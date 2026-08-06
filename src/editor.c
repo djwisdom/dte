@@ -93,6 +93,9 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
         .flags = EFLAG_HEADLESS,
         .regexp_word_tokens = regexp_get_word_boundary_tokens(),
         .modes = hashmap_new(3, HMAP_BORROWED_KEYS),
+        .aliases = hashmap_new(32, HMAP_NO_FLAGS),
+        .required_syntax_files = hashset_new(0, false),
+        .required_syntax_builtins = hashset_new(0, false),
         .command_history = {
             .max_entries = 512,
         },
@@ -169,14 +172,11 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
     xsetenv("DTE_VERSION", VERSION);
 
     // Initial capacities here should accommodate at least the number
-    // of bindings and aliases created by exec_rc_files()
+    // of bindings created by exec_rc_files()
     e->normal_mode = new_mode(&e->modes, "normal", &normal_commands, 150);
     e->command_mode = new_mode(&e->modes, "command", &cmd_mode_commands, 40);
     e->search_mode = new_mode(&e->modes, "search", &search_mode_commands, 40);
     e->mode = e->normal_mode;
-    e->aliases = hashmap_new(32, HMAP_NO_FLAGS);
-    e->required_syntax_files = hashset_new(0, false);
-    e->required_syntax_builtins = hashset_new(0, false);
 
     return e;
 }
