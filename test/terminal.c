@@ -1409,7 +1409,7 @@ static void test_term_init(TestContext *ctx)
         TFLAG_OSC52_COPY
     ;
 
-    Terminal term = {.obuf = TERM_OUTPUT_INIT};
+    Terminal term = {.obuf = term_outbuf()};
     term_init(&term, "xterm-256color", NULL);
     EXPECT_EQ(term.width, 80);
     EXPECT_EQ(term.height, 24);
@@ -1434,7 +1434,7 @@ static void test_term_put_str(TestContext *ctx)
     Terminal term = {
         .width = 80,
         .height = 24,
-        .obuf = TERM_OUTPUT_INIT,
+        .obuf = term_outbuf(),
     };
 
     // Fill start of buffer with zeroes, to allow using EXPECT_STREQ() below
@@ -1473,7 +1473,7 @@ static void test_term_clear_eol(TestContext *ctx)
     Terminal term = {
         .width = 80,
         .height = 24,
-        .obuf = TERM_OUTPUT_INIT,
+        .obuf = term_outbuf(),
     };
 
     // BCE with non-default bg
@@ -1537,7 +1537,7 @@ static void test_term_clear_eol(TestContext *ctx)
 
 static void test_term_move_cursor(TestContext *ctx)
 {
-    TermOutputBuffer obuf = TERM_OUTPUT_INIT;
+    TermOutputBuffer obuf = term_outbuf();
     term_move_cursor(&obuf, 12, 5);
     EXPECT_MEMEQ(obuf.buf, obuf.count, "\033[6;13H", 7);
     EXPECT_EQ(obuf.x, 0);
@@ -1554,7 +1554,7 @@ static void test_term_set_bytes(TestContext *ctx)
     Terminal term = {
         .width = 80,
         .height = 24,
-        .obuf = TERM_OUTPUT_INIT,
+        .obuf = term_outbuf(),
         .features = TFLAG_ECMA48_REPEAT,
     };
 
@@ -1582,7 +1582,7 @@ static void test_term_set_bytes(TestContext *ctx)
 
 static void test_term_set_style(TestContext *ctx)
 {
-    Terminal term = {.obuf = TERM_OUTPUT_INIT};
+    Terminal term = {.obuf = term_outbuf()};
     term_init(&term, "tmux", "truecolor");
     EXPECT_TRUE(term.features & TFLAG_TRUE_COLOR);
     EXPECT_EQ(term.ncv_attributes, 0);
@@ -1670,7 +1670,7 @@ static void test_term_set_style(TestContext *ctx)
 
 static void test_term_osc52_copy(TestContext *ctx)
 {
-    TermOutputBuffer obuf = TERM_OUTPUT_INIT;
+    TermOutputBuffer obuf = term_outbuf();
     StringView text = strview("foobar");
     EXPECT_TRUE(term_osc52_copy(&obuf, text, TCOPY_CLIPBOARD | TCOPY_PRIMARY));
     EXPECT_MEMEQ(obuf.buf, obuf.count, "\033]52;pc;Zm9vYmFy\033\\", 18);
@@ -1695,7 +1695,7 @@ static void test_term_set_cursor_style(TestContext *ctx)
     Terminal term = {
         .width = 80,
         .height = 24,
-        .obuf = TERM_OUTPUT_INIT,
+        .obuf = term_outbuf(),
     };
 
     TermCursorStyle style = {
@@ -1723,7 +1723,7 @@ static void test_term_restore_cursor_style(TestContext *ctx)
     Terminal term = {
         .width = 80,
         .height = 24,
-        .obuf = TERM_OUTPUT_INIT,
+        .obuf = term_outbuf(),
     };
 
     static const char expected[] = "\033[0 q\033]112\033\\";
@@ -1741,7 +1741,7 @@ static void test_term_restore_cursor_style(TestContext *ctx)
 
 static void test_term_begin_sync_update(TestContext *ctx)
 {
-    Terminal term = {.obuf = TERM_OUTPUT_INIT};
+    Terminal term = {.obuf = term_outbuf()};
     term_init(&term, "xterm-kitty", NULL);
     EXPECT_TRUE(term.features & TFLAG_SYNC);
 
@@ -1780,7 +1780,7 @@ static void test_term_put_level_1_queries(TestContext *ctx)
         C256 = TFLAG_256_COLOR | C16,
     };
 
-    Terminal term = {.obuf = TERM_OUTPUT_INIT};
+    Terminal term = {.obuf = term_outbuf()};
     TermOutputBuffer *obuf = &term.obuf;
     term_init(&term, "xterm-256color", NULL);
     EXPECT_UINT_EQ(term.features, (C256 | BCE | TITLE | OSC52));
@@ -1838,7 +1838,7 @@ static void test_update_term_title(TestContext *ctx)
     static const char suffix[] = " - dte\033\\";
     size_t plen = sizeof(prefix) - 1;
     size_t slen = sizeof(suffix) - 1;
-    TermOutputBuffer obuf = TERM_OUTPUT_INIT;
+    TermOutputBuffer obuf = term_outbuf();
 
     static const char expected1[] = "\033]2;example filename - dte\033\\";
     update_term_title(&obuf, strview("example filename"), false);

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "color.h" // NOLINT(misc-include-cleaner)
+#include "color.h"
 #include "feature.h"
 #include "key.h"
 #include "style.h"
@@ -44,14 +44,17 @@ enum {
 
 #define term_put_literal(buf, s) term_put_bytes(buf, s, STRLEN(s))
 
-#define TERM_OUTPUT_INIT { \
-    .tab_mode = TAB_CONTROL, \
-    .tab_width = 8, \
-    .style = {.fg = COLOR_DEFAULT, .bg = COLOR_DEFAULT}, \
-    .cursor_style = {.type = CURSOR_DEFAULT, .color = COLOR_DEFAULT}, \
+static inline TermOutputBuffer term_outbuf(void)
+{
+    return (TermOutputBuffer) {
+        .tab_mode = TAB_CONTROL,
+        .tab_width = 8,
+        .style = {.fg = COLOR_DEFAULT, .bg = COLOR_DEFAULT},
+        .cursor_style = {.type = CURSOR_DEFAULT, .color = COLOR_DEFAULT},
+    };
 }
 
-static inline size_t obuf_avail(TermOutputBuffer *obuf)
+static inline size_t obuf_avail(const TermOutputBuffer *obuf)
 {
     return TERM_OUTBUF_SIZE - obuf->count;
 }

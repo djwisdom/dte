@@ -31,7 +31,7 @@ ExitCode showkey_loop(unsigned int terminal_query_level)
         return ec_error("tcsetattr", EC_IO_ERROR);
     }
 
-    Terminal term = {.obuf = TERM_OUTPUT_INIT};
+    Terminal term = {.obuf = term_outbuf()};
     TermOutputBuffer *obuf = &term.obuf;
     term_init(&term, getenv("TERM"), getenv("COLORTERM"));
     term_enable_private_modes(&term);

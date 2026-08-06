@@ -99,7 +99,7 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
             .max_entries = 128,
         },
         .terminal = {
-            .obuf = TERM_OUTPUT_INIT,
+            .obuf = term_outbuf(),
         },
         .cursor_styles = {
             [CURSOR_MODE_DEFAULT] = {.type = CURSOR_DEFAULT, .color = COLOR_DEFAULT},
