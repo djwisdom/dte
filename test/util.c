@@ -959,6 +959,26 @@ static void test_strview_has_suffix(TestContext *ctx)
     EXPECT_TRUE(strview_has_sv_suffix(sv, suffix));
 }
 
+static void test_strview_suffix_length(TestContext *ctx)
+{
+    EXPECT_EQ(strview_blank_suffix_length(strview(NULL)), 0);
+    EXPECT_EQ(strview_blank_suffix_length(strview("")), 0);
+    EXPECT_EQ(strview_blank_suffix_length(strview("...")), 0);
+    EXPECT_EQ(strview_blank_suffix_length(strview(" ")), 1);
+    EXPECT_EQ(strview_blank_suffix_length(strview("...\t")), 1);
+    EXPECT_EQ(strview_blank_suffix_length(strview("... \t")), 2);
+    EXPECT_EQ(strview_blank_suffix_length(strview("\t... \t\t ")), 4);
+    EXPECT_EQ(strview_blank_suffix_length(strview(" \t ... \t\t\t\t")), 5);
+
+    EXPECT_EQ(strview_char_suffix_length(strview(NULL), 'a'), 0);
+    EXPECT_EQ(strview_char_suffix_length(strview(""), 'a'), 0);
+    EXPECT_EQ(strview_char_suffix_length(strview("b"), 'a'), 0);
+    EXPECT_EQ(strview_char_suffix_length(strview("1 a"), 'a'), 1);
+    EXPECT_EQ(strview_char_suffix_length(strview("2 aa"), 'a'), 2);
+    EXPECT_EQ(strview_char_suffix_length(strview("3 abaaa"), 'a'), 3);
+    EXPECT_EQ(strview_char_suffix_length(strview("4 abcaaaa"), 'a'), 4);
+}
+
 static void test_strview_remove_matching(TestContext *ctx)
 {
     StringView sv = strview("ABCDEFGHIJKLMN");
@@ -3980,6 +4000,7 @@ static const TestEntry tests[] = {
     TEST(test_string_next_alloc_size),
     TEST(test_string_view),
     TEST(test_strview_has_suffix),
+    TEST(test_strview_suffix_length),
     TEST(test_strview_remove_matching),
     TEST(test_strview_from_slice),
     TEST(test_get_delim),

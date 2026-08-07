@@ -25,27 +25,6 @@
     #include "builtin-config.h"
 #endif
 
-// Odd number of backslashes at end of line?
-static bool has_line_continuation(StringView line)
-{
-    ssize_t pos = line.length - 1;
-    while (pos >= 0 && line.data[pos] == '\\') {
-        pos--;
-    }
-    return (line.length - 1 - pos) & 1;
-}
-
-UNITTEST {
-    // NOLINTBEGIN(bugprone-assert-side-effect)
-    BUG_ON(has_line_continuation(strview(NULL)));
-    BUG_ON(has_line_continuation(strview("0")));
-    BUG_ON(!has_line_continuation(strview("1 \\")));
-    BUG_ON(has_line_continuation(strview("2 \\\\")));
-    BUG_ON(!has_line_continuation(strview("3 \\\\\\")));
-    BUG_ON(has_line_continuation(strview("4 \\\\\\\\")));
-    // NOLINTEND(bugprone-assert-side-effect)
-}
-
 bool exec_config(CommandRunner *runner, StringView config)
 {
     EditorState *e = runner->e;
@@ -70,9 +49,10 @@ bool exec_config(CommandRunner *runner, StringView config)
             continue;
         }
 
-        if (has_line_continuation(line)) {
-            // Line with backslash-escaped newline; append to buffer
-            // but don't execute yet
+        bool line_continuation = strview_char_suffix_length(line, '\\') & 1;
+        if (line_continuation) {
+            // Line with escaped newline (odd number of backslashes at EOL);
+            // append to buffer but don't execute yet
             line.length--;
             string_append_strview(&buf, line);
             continue;

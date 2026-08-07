@@ -144,6 +144,15 @@ static inline size_t strview_blank_suffix_length(StringView sv)
     return sv.length - n;
 }
 
+static inline size_t strview_char_suffix_length(StringView sv, char ch)
+{
+    size_t n = sv.length;
+    while (n && sv.data[n - 1] == ch) {
+        n--;
+    }
+    return sv.length - n;
+}
+
 static inline bool strview_isblank(StringView sv)
 {
     return strview_blank_prefix_length(sv) == sv.length;
