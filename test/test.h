@@ -16,13 +16,9 @@ typedef struct {
     unsigned int nfuncs;
     unsigned int ngroups;
     void *userdata;
-    char boldred[8];
-    char yellow[6];
-    char cyan[6];
-    char dim[5];
-    char sgr0[5];
     bool timing; // Print the time taken to run each TestGroup
     bool quiet; // Print output only for test failures
+    bool color; // Format output with SGR colors
 } TestContext;
 
 typedef struct {

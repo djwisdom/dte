@@ -122,9 +122,9 @@ static void expect_files_equal(TestContext *ctx, const char *path1, const char *
     char buf[4096];
     size_t m1 = u_make_printable(sv1, buf, sizeof(buf) - 64, 0);
     size_t m2 = u_make_printable(sv2, buf + m1, sizeof(buf) - m1, 0);
-    const char *color1 = ctx->cyan;
-    const char *color2 = ctx->yellow;
-    const char *sgr0 = ctx->sgr0;
+    const char *color1 = ctx->color ? "\033[36m" : ""; // Cyan
+    const char *color2 = ctx->color ? "\033[33m" : ""; // Yellow
+    const char *sgr0 = ctx->color ? "\033[0m" : "";
 
     // Add space padding after the shorter filename, so that both contents
     // strings are aligned and minor differences are easier to spot

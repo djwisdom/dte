@@ -18,9 +18,11 @@ static void get_time(TestContext *ctx, struct timespec *ts)
 
 static void print_timing(const TestContext *ctx, const struct timespec ts[2])
 {
+    const char *dim = ctx->color ? "\033[2m" : "";
+    const char *sgr0 = ctx->color ? "\033[0m" : "";
     double ms = timespec_to_fp_milliseconds(timespec_subtract(&ts[1], &ts[0]));
     int precision = 3 - (ms >= 1000.0) - (ms >= 100.0) - (ms >= 10.0);
-    fprintf(stderr, " %s(%0.*f ms)%s", ctx->dim, precision, ms, ctx->sgr0);
+    fprintf(stderr, " %s(%0.*f ms)%s", dim, precision, ms, sgr0);
 }
 
 static void run_tests(TestContext *ctx, const TestGroup *g)
@@ -55,7 +57,9 @@ static void run_tests(TestContext *ctx, const TestGroup *g)
         fprintf(stderr, "   CHECK  %-30s  %5u passed", t->name, passed);
 
         if (unlikely(failed > 0)) {
-            fprintf(stderr, " %s%4u FAILED%s", ctx->boldred, failed, ctx->sgr0);
+            const char *boldred = ctx->color ? "\033[1;31m" : "";
+            const char *sgr0 = ctx->color ? "\033[0m" : "";
+            fprintf(stderr, " %s%4u FAILED%s", boldred, failed, sgr0);
         }
 
         if (ctx->timing) {
@@ -87,21 +91,16 @@ int main(int argc, char *argv[])
 {
     static const char optstring[] = "cCqQtTsh";
     const char *prog = progname(argc, argv, "test");
-    bool color = isatty(STDERR_FILENO) && !xgetenv("NO_COLOR");
 
     TestContext ctx = {
         .timing = false,
-        .boldred = "\033[1;31m",
-        .yellow = "\033[33m",
-        .cyan = "\033[36m",
-        .dim = "\033[2m",
-        .sgr0 = "\033[0m",
+        .color = isatty(STDERR_FILENO) && !xgetenv("NO_COLOR"),
     };
 
     for (int ch; (ch = getopt(argc, argv, optstring)) != -1; ) {
         switch (ch) {
-            case 'c': color = true; break;
-            case 'C': color = false; break;
+            case 'c': ctx.color = true; break;
+            case 'C': ctx.color = false; break;
             case 't': ctx.timing = true; break;
             case 'T': ctx.timing = false; break;
             case 'q': ctx.quiet = true; break;
@@ -114,14 +113,6 @@ int main(int argc, char *argv[])
 
     ctx.timing = !ctx.quiet && ctx.timing;
     setvbuf(stderr, NULL, _IOLBF, 0);
-
-    if (!color) {
-        ctx.boldred[0] = '\0';
-        ctx.yellow[0] = '\0';
-        ctx.cyan[0] = '\0';
-        ctx.dim[0] = '\0';
-        ctx.sgr0[0] = '\0';
-    }
 
     // Several tests load data from the filesystem and depend on $PWD
     // being the project root directory, so perform a sanity test and
@@ -171,12 +162,14 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    const char *red = ctx.failed ? ctx.boldred : "";
-    const char *sgr0 = ctx.failed ? ctx.sgr0 : "";
+    bool color = (ctx.failed && ctx.color);
+    const char *boldred = color ? "\033[1;31m" : "";
+    const char *sgr0 = color ? "\033[0m" : "";
+
     fprintf (
         stderr,
         "\n   TOTAL  %u passed, %s%u failed%s",
-        ctx.passed, red, ctx.failed, sgr0
+        ctx.passed, boldred, ctx.failed, sgr0
     );
 
     if (ctx.timing) {
