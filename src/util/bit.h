@@ -23,7 +23,7 @@
     #define USE_STDBIT(fn, arg)
 #endif
 
-#ifdef HAS_BUILTIN_TYPES_COMPATIBLE_P
+#if HAS_BUILTIN_TYPES_COMPATIBLE_P
     #define HAS_COMPATIBLE_BUILTIN(arg, type, fn) \
         (GNUC_AT_LEAST(3, 4) || HAS_BUILTIN(__builtin_ ## fn)) \
         && __builtin_types_compatible_p(__typeof__(arg), type)

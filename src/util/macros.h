@@ -217,6 +217,8 @@
 
 #if GNUC_AT_LEAST(3, 0) || HAS_EXTENSION(typeof) || defined(__TINYC__)
     #define HAS_TYPEOF 1
+#else
+    #define HAS_TYPEOF 0
 #endif
 
 #if GNUC_AT_LEAST(3, 1) || HAS_BUILTIN(__builtin_prefetch)
@@ -389,12 +391,15 @@
     #define HAS_STATIC_ASSERT 1
 #else
     #define static_assert(x)
+    #define HAS_STATIC_ASSERT 0
 #endif
 
 // https://gcc.gnu.org/onlinedocs/gcc-3.1.1/gcc/Other-Builtins.html#:~:text=__builtin_types_compatible_p
 // https://clang.llvm.org/docs/LanguageExtensions.html#builtin-functions:~:text=__builtin_types_compatible_p
 #if GNUC_AT_LEAST(3, 1) || HAS_BUILTIN(__builtin_types_compatible_p)
     #define HAS_BUILTIN_TYPES_COMPATIBLE_P 1
+#else
+    #define HAS_BUILTIN_TYPES_COMPATIBLE_P 0
 #endif
 
 // ARRAYLEN() calculates the number of elements in an array and also
@@ -414,7 +419,7 @@
     // • https://gcc.gnu.org/bugzilla/show_bug.cgi?id=117025#c6
     // • https://gcc.gnu.org/cgit/gcc/commit/?id=517c9487f8fdc4e4e90252a9365e5823259dc783
     #define ARRAYLEN(a) _Countof(a)
-#elif defined(HAS_STATIC_ASSERT) && defined(HAS_BUILTIN_TYPES_COMPATIBLE_P)
+#elif HAS_STATIC_ASSERT && HAS_BUILTIN_TYPES_COMPATIBLE_P
     // https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3369.pdf
     #define SAME_TYPE(a, b) __builtin_types_compatible_p(__typeof__(a), __typeof__(b))
     #define DECAY(a) (&*(a))
@@ -434,7 +439,7 @@
     )
 #endif
 
-#if defined(HAS_STATIC_ASSERT) && defined(HAS_BUILTIN_TYPES_COMPATIBLE_P)
+#if HAS_STATIC_ASSERT && HAS_BUILTIN_TYPES_COMPATIBLE_P && HAS_TYPEOF
     #define static_assert_compatible_types(a, b) static_assert ( \
         __builtin_types_compatible_p(__typeof__(a), __typeof__(b)) \
     )
@@ -446,7 +451,7 @@
     #define static_assert_incompatible_types(a, b)
 #endif
 
-#if defined(HAS_STATIC_ASSERT) && defined(HAS_TYPEOF)
+#if HAS_STATIC_ASSERT && HAS_TYPEOF
     #define static_assert_offsetof(obj, field, offset) \
         static_assert(offsetof(__typeof__(obj), field) == offset)
 #else

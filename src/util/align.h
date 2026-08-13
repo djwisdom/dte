@@ -32,6 +32,7 @@ union MaxAlign {
     // Since this falls back to a no-op, it should only be used for
     // optimization purposes (not relied upon as a hard requirement)
     #define ALIGNED(alignment)
+    #define HAS_ATTR_ALIGNED 0
 #endif
 
 #if HAS_STD_C23
@@ -45,7 +46,7 @@ union MaxAlign {
 #if HAS_STD_C11
     // ISO C11 §6.7.5, §7.19
     #define MAXALIGN ALIGNAS(max_align_t)
-#elif defined(HAS_ATTR_ALIGNED) && defined(__BIGGEST_ALIGNMENT__)
+#elif HAS_ATTR_ALIGNED && defined(__BIGGEST_ALIGNMENT__)
     // https://gcc.gnu.org/onlinedocs/gcc-4.4.7/gcc/Variable-Attributes.html#:~:text=__BIGGEST_ALIGNMENT__
     #define MAXALIGN ALIGNED(__BIGGEST_ALIGNMENT__)
 #else
