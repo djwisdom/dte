@@ -16,7 +16,7 @@
  * downsides for other platforms, since __has_include() is also part
  * of C23.
  */
-#if __STDC_VERSION__ >= 202311L && HAS_INCLUDE(<stdbit.h>)
+#if HAS_STD_C23 && HAS_INCLUDE(<stdbit.h>)
     #include <stdbit.h>
     #define USE_STDBIT(fn, arg) return fn(arg)
 #else

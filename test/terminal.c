@@ -1244,7 +1244,7 @@ static void test_keycode_to_string(TestContext *ctx)
         {"C-home", MOD_CTRL | KEY_HOME},
         {"s-space", MOD_SUPER | ' '},
         {"H-end", MOD_HYPER | KEY_END},
-#if __STDC_VERSION__ >= 201112L
+#if HAS_STD_C11
         {(const char*)u8"ก", 0x0E01},
         {(const char*)u8"C-ก", MOD_CTRL | 0x0E01},
         {(const char*)u8"M-Ф", MOD_META | 0x0424},

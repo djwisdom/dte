@@ -14,7 +14,7 @@
 #if GNUC_AT_LEAST(5, 0) || HAS_BUILTIN(__builtin_mul_overflow)
     #define CHECKED_ADD(a, b, res) return __builtin_add_overflow(a, b, res)
     #define CHECKED_MUL(a, b, res) return __builtin_mul_overflow(a, b, res)
-#elif __STDC_VERSION__ >= 202311L
+#elif HAS_STD_C23
     #include <stdckdint.h>
     #define CHECKED_ADD(a, b, res) return ckd_add(res, a, b)
     #define CHECKED_MUL(a, b, res) return ckd_mul(res, a, b)

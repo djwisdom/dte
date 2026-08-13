@@ -3,7 +3,7 @@
 
 #include <stddef.h> // size_t, max_align_t
 #include <stdint.h> // intptr_t, intmax_t
-#include "macros.h" // GNUC_AT_LEAST(), HAS_ATTRIBUTE(), MIN()
+#include "macros.h" // GNUC_AT_LEAST(), HAS_STD_C23, HAS_STD_C11, HAS_ATTRIBUTE(), MIN()
 
 union MaxAlign {
     void *a;
@@ -13,9 +13,9 @@ union MaxAlign {
     intmax_t e;
 };
 
-#if __STDC_VERSION__ >= 202311L
+#if HAS_STD_C23
     #define ALIGNOF(t) alignof(t)
-#elif __STDC_VERSION__ >= 201112L
+#elif HAS_STD_C11
     #define ALIGNOF(t) _Alignof(t)
 #elif GNUC_AT_LEAST(3, 0)
     #define ALIGNOF(t) __alignof__(t)
@@ -34,15 +34,15 @@ union MaxAlign {
     #define ALIGNED(alignment)
 #endif
 
-#if __STDC_VERSION__ >= 202311L
+#if HAS_STD_C23
     #define ALIGNAS(type) alignas(type)
-#elif __STDC_VERSION__ >= 201112L
+#elif HAS_STD_C11
     #define ALIGNAS(type) _Alignas(type)
 #else // See the comment above ALIGNED()
     #define ALIGNAS(type) ALIGNED(ALIGNOF(type))
 #endif
 
-#if __STDC_VERSION__ >= 201112L
+#if HAS_STD_C11
     // ISO C11 §6.7.5, §7.19
     #define MAXALIGN ALIGNAS(max_align_t)
 #elif defined(HAS_ATTR_ALIGNED) && defined(__BIGGEST_ALIGNMENT__)

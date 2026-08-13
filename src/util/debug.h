@@ -25,7 +25,7 @@
     // https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-_005f_005fbuiltin_005funreachable
     // https://clang.llvm.org/docs/LanguageExtensions.html#builtin-unreachable
     #define UNREACHABLE() __builtin_unreachable()
-#elif __STDC_VERSION__ >= 202311L
+#elif HAS_STD_C23
     // ISO C23 §7.21.1
     #define UNREACHABLE() unreachable()
 #else

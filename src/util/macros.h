@@ -5,6 +5,18 @@
 #error C99 compiler required
 #endif
 
+#if __STDC_VERSION__ >= 201112L
+    #define HAS_STD_C11 1
+#else
+    #define HAS_STD_C11 0
+#endif
+
+#if __STDC_VERSION__ >= 202311L
+    #define HAS_STD_C23 1
+#else
+    #define HAS_STD_C23 0
+#endif
+
 #define PASTE(a, b) a##b
 #define XPASTE(a, b) PASTE(a, b)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -132,7 +144,7 @@
     #undef __attribute__
 #endif
 
-#if __STDC_VERSION__ >= 202311L
+#if HAS_STD_C23
     #define UNUSED [[__maybe_unused__]]
 #elif GNUC_AT_LEAST(3, 0) || HAS_ATTRIBUTE(unused) || defined(__TINYC__)
     #define UNUSED __attribute__((__unused__))
@@ -352,7 +364,7 @@
 #define XSTRDUP XMALLOC NONNULL_ARGS
 #define NONNULL_ARGS_AND_RETURN RETURNS_NONNULL NONNULL_ARGS
 
-#if __STDC_VERSION__ >= 201112L
+#if HAS_STD_C11
     #define noreturn _Noreturn
 #elif GNUC_AT_LEAST(3, 0) || HAS_ATTRIBUTE(noreturn) || defined(__TINYC__)
     #define noreturn __attribute__((__noreturn__))
@@ -360,11 +372,11 @@
     #define noreturn
 #endif
 
-#if __STDC_VERSION__ >= 202311L
+#if HAS_STD_C23
     // static_assert is a standard keyword in ISO C23 (§6.4.1) and the
     // second argument is optional (§6.7.11)
     #define HAS_STATIC_ASSERT 1
-#elif __STDC_VERSION__ >= 201112L
+#elif HAS_STD_C11
     // ISO C11 provides _Static_assert (§6.4.1), with a mandatory second
     // argument (§6.7.10)
     #define static_assert(x) _Static_assert((x), #x)

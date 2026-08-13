@@ -2873,7 +2873,7 @@ static void test_hashset(TestContext *ctx)
     static const char *const strings[] = {
         "foo", "Foo", "bar", "quux", "etc",
         "\t\xff\x80\b", "\t\t\t", "\x01\x02\x03\xfe\xff",
-#if __STDC_VERSION__ >= 201112L
+#if HAS_STD_C11
         (const char*)u8"ภาษาไทย",
         (const char*)u8"中文",
         (const char*)u8"日本語",
