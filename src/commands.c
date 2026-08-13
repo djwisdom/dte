@@ -2800,6 +2800,8 @@ static bool allow_macro_recording(const Command *cmd, char **args)
 
 UNITTEST {
     // NOLINTBEGIN(bugprone-assert-side-effect)
+    CHECK_CMDS_ARRAY(cmds);
+
     const char *args[4] = {NULL};
     char **argp = (char**)args;
     const Command *cmd = find_normal_command("left");
@@ -2882,54 +2884,4 @@ SystemErrno read_normal_config(EditorState *e, const char *filename, ConfigFlags
 void collect_normal_commands(PointerArray *a, StringView prefix)
 {
     COLLECT_STRING_FIELDS(cmds, name, a, prefix);
-}
-
-UNITTEST {
-    CHECK_BSEARCH_ARRAY(cmds, name);
-
-    if (!DEBUG_ASSERTIONS_ENABLED) {
-        return;
-    }
-
-    for (size_t i = 0, n = ARRAYLEN(cmds); i < n; i++) {
-        // Check that flags array is null-terminated within bounds
-        const char *name = cmds[i].name;
-        const char *flags = cmds[i].flags;
-        BUG_ON(name[0] == '\0');
-        BUG_ON(name[ARRAYLEN(cmds[0].name) - 1] != '\0');
-        BUG_ON(flags[ARRAYLEN(cmds[0].flags) - 1] != '\0');
-
-        unsigned char prev_flag = 0;
-        size_t nr_real_flags = 0;
-
-        for (size_t j = 0; flags[j]; j++) {
-            unsigned char flag = flags[j];
-            if (flag == '=') {
-                if (j && flags[j - 1] != '=') {
-                    continue;
-                }
-                BUG("invalid = in cmds[%zu].flags (%s): %s", i, name, flags);
-            }
-
-            if (!ascii_isalnum(flag)) {
-                BUG("invalid command flag: 0x%02hhX", flag);
-            }
-
-            if (prev_flag >= flag) { // Using >= here also catches duplicate flags
-                BUG (
-                    "flags -%c and -%c not in sorted order for cmds[%zu] (%s): %s",
-                    flag, prev_flag, i, name, flags
-                );
-            }
-
-            nr_real_flags++;
-            prev_flag = flag;
-        }
-
-        // Check that the number of real flags (not including '=') fits
-        // in the CommandArgs::flags array and leaves 1 byte for the
-        // null terminator
-        CommandArgs a;
-        BUG_ON(nr_real_flags >= ARRAYLEN(a.flags));
-    }
 }

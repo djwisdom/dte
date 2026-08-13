@@ -686,6 +686,11 @@ static const OptionDesc *find_option(const char *name)
     return BSEARCH(name, option_desc, option_cmp);
 }
 
+bool is_option(const char *name)
+{
+    return !!find_option(name);
+}
+
 static const OptionDesc *must_find_option(ErrorBuffer *ebuf, const char *name)
 {
     const OptionDesc *desc = find_option(name);

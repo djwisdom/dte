@@ -497,7 +497,7 @@ static const Command common_cmds[] = {
 };
 
 static const Command search_cmds[] = {
-    CMD("accept", "eH", 0, 0, cmd_search_mode_accept),
+    CMD("accept", "He", 0, 0, cmd_search_mode_accept),
     CMD("direction", "", 0, 0, cmd_direction),
     CMD("history-next", "S", 0, 0, cmd_search_history_next),
     CMD("history-prev", "S", 0, 0, cmd_search_history_prev),
@@ -510,6 +510,12 @@ static const Command command_cmds[] = {
     CMD("history-next", "S", 0, 0, cmd_command_history_next),
     CMD("history-prev", "S", 0, 0, cmd_command_history_prev),
 };
+
+UNITTEST {
+    CHECK_CMDS_ARRAY(common_cmds);
+    CHECK_CMDS_ARRAY(search_cmds);
+    CHECK_CMDS_ARRAY(command_cmds);
+}
 
 static const Command *find_cmd_mode_command(const char *name)
 {

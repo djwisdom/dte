@@ -84,6 +84,9 @@ static inline bool command_func_call (
     return r;
 }
 
+#define CHECK_CMDS_ARRAY(cmds) check_cmds_array(cmds, ARRAYLEN(cmds), #cmds)
+
 bool handle_command(CommandRunner *runner, const char *cmd) NONNULL_ARGS;
+void check_cmds_array(const Command cmds[], size_t ncmds, const char *array_name) NONNULL_ARGS;
 
 #endif

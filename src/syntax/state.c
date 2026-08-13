@@ -637,7 +637,7 @@ static const Command cmds[] = {
 };
 
 UNITTEST {
-    CHECK_BSEARCH_ARRAY(cmds, name);
+    CHECK_CMDS_ARRAY(cmds);
 }
 
 static const Command *find_syntax_command(const char *name)

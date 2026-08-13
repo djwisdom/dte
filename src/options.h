@@ -100,6 +100,7 @@ static inline bool use_spaces_for_indent(const LocalOptions *opt)
 
 struct EditorState;
 
+bool is_option(const char *name) PURE;
 bool set_option(struct EditorState *e, const char *name, const char *value, bool local, bool global, bool quiet);
 bool set_bool_option(struct EditorState *e, const char *name, bool local, bool global, bool quiet);
 bool toggle_option(struct EditorState *e, const char *name, bool global, bool verbose);

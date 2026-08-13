@@ -2,6 +2,7 @@
 #include "args.h"
 #include "parse.h"
 #include "change.h"
+#include "options.h"
 #include "util/debug.h"
 #include "util/ptr-array.h"
 #include "util/xmalloc.h"
@@ -136,4 +137,76 @@ bool handle_command(CommandRunner *runner, const char *cmd)
     }
     ptr_array_free(&array);
     return r;
+}
+
+void check_cmds_array(const Command cmds[], size_t ncmds, const char *array_name)
+{
+    BUG_ON(ncmds == 0);
+    BUG_ON(array_name[0] == '\0');
+
+    if (!DEBUG_ASSERTIONS_ENABLED) {
+        return;
+    }
+
+    // See also: check_bsearch_array() and check_array()
+    for (size_t i = 0; i < ncmds; i++) {
+        const char *name = cmds[i].name;
+        const char *flags = cmds[i].flags;
+        if (name[0] == '\0') {
+            BUG("Empty string at %s[%zu].name", array_name, i);
+        }
+        if (name[sizeof(cmds[0].name) - 1] != '\0') {
+            BUG("String sentinel missing from %s[%zu].name", array_name, i);
+        }
+        if (flags[ARRAYLEN(cmds[0].flags) - 1] != '\0') {
+            BUG("String sentinel missing from %s[%zu].flags", array_name, i);
+        }
+
+        if (is_option(name) && !streq(name, "syntax")) {
+            // Preventing this isn't strictly necessary, but not having
+            // commands and options with the same name makes links and
+            // cross-references in documentation less error prone
+            BUG("command and option with identical name: \"%s\"", name);
+        }
+
+        if (i > 0 && strcmp(name, cmds[i - 1].name) <= 0) {
+            BUG (
+                "String at %s[%zu].name not in sorted order: \"%s\" (prev: \"%s\")",
+                array_name, i, name, cmds[i - 1].name
+            );
+        }
+
+        unsigned char prev_flag = 0;
+        size_t nr_real_flags = 0;
+
+        for (size_t j = 0; flags[j]; j++) {
+            unsigned char flag = flags[j];
+            if (flag == '=') {
+                if (j && flags[j - 1] != '=') {
+                    continue;
+                }
+                BUG("invalid = in %s[%zu].flags (%s): %s", array_name, i, name, flags);
+            }
+
+            if (!ascii_isalnum(flag)) {
+                BUG("invalid command flag: 0x%02hhX", flag);
+            }
+
+            if (prev_flag >= flag) { // Using >= here also catches duplicate flags
+                BUG (
+                    "flags -%c and -%c not in sorted order for %s[%zu] (%s): %s",
+                    flag, prev_flag, array_name, i, name, flags
+                );
+            }
+
+            nr_real_flags++;
+            prev_flag = flag;
+        }
+
+        // Check that the number of real flags (not including '=') fits
+        // in the CommandArgs::flags array and leaves 1 byte for the
+        // null terminator
+        CommandArgs a;
+        BUG_ON(nr_real_flags >= ARRAYLEN(a.flags));
+    }
 }
