@@ -75,7 +75,7 @@ void macro_command_hook(MacroRecorder *m, const char *cmd_name, char **args)
 
 void macro_search_hook (
     MacroRecorder *m,
-    const char *pattern,
+    StringView pattern,
     bool reverse,
     bool add_to_history
 ) {
@@ -83,22 +83,21 @@ void macro_search_hook (
         return;
     }
 
-    char *cmd;
-    if (pattern) {
-        StringView pat = strview(pattern);
-        String buf = string_new(pat.length + sizeof("search -r -H -- ") + 8);
-        string_append_cstring(&buf, "search ");
+    String buf = string_new(pattern.length + 32);
+    string_append_cstring(&buf, "search ");
+
+    if (pattern.length) {
         string_append_cstring(&buf, reverse ? "-r " : "");
         string_append_cstring(&buf, add_to_history ? "" : "-H ");
-        string_append_cstring(&buf, unlikely(pattern[0] == '-') ? "-- " : "");
-        string_append_escaped_arg_sv(&buf, pat, true);
-        cmd = string_steal_cstring(&buf);
+        bool dash = strview_has_prefix(pattern, "-");
+        string_append_cstring(&buf, unlikely(dash) ? "-- " : "");
+        string_append_escaped_arg_sv(&buf, pattern, true);
     } else {
-        cmd = xstrdup(reverse ? "search -p" : "search -n");
+        string_append_cstring(&buf, reverse ? "-p" : "-n");
     }
 
     merge_insert_buffer(m);
-    ptr_array_append(&m->macro, cmd);
+    ptr_array_append(&m->macro, string_steal_cstring(&buf));
 }
 
 void macro_insert_char_hook(MacroRecorder *m, CodePoint c)

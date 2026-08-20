@@ -451,7 +451,7 @@ static bool cmd_search_mode_accept(EditorState *e, const CommandArgs *a)
     }
 
     if (e->macro.recording) {
-        macro_search_hook(&e->macro, pat, e->search.reverse, add_to_history);
+        macro_search_hook(&e->macro, strview(pat), e->search.reverse, add_to_history);
     }
 
     // Unselect, unless selection mode is active
