@@ -187,8 +187,9 @@ void view_do_set_selection_type(View *view, SelectionType sel)
     if (view->selection) {
         if (view->selection != sel) {
             view->selection = sel;
-            // TODO: be less brute force about this; only the first/last
-            // line of the selection can change in this case
+            // Only the first and last lines of the selection can change
+            // here, but since we track changed lines as a range, just
+            // take the simplest approach and redraw everything
             mark_all_lines_changed(view->buffer);
         }
         return;
