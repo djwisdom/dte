@@ -51,8 +51,8 @@ typedef struct {
     size_t end;
 } WordBounds;
 
-// If View::sel_eo is set to this value it means the offset must
-// be calculated from the cursor iterator. Otherwise the offset
+// If View::sel_eo is set to this value it means the end offset must
+// be calculated from the cursor iterator. Otherwise the end offset
 // is precalculated and may not be the same as the cursor position
 // (see search/replace code).
 #define SEL_EO_RECALC SSIZE_MAX

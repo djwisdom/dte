@@ -52,7 +52,7 @@ ExitCode showkey_loop(unsigned int terminal_query_level)
             // in case the call chain:
             //
             // • term_read_input() →
-            // • term_read_input_modern() →
+            // • term_read_input_legacy() →
             // • term_handle_query_reply() →
             // • term_put_level_2_queries()
             //
