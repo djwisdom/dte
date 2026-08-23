@@ -258,7 +258,7 @@ state hex-float-exp numeric
 
 state check-suffix error
     char -b a-zA-Z0-9_ this
-    inlist numeric-suffix c numeric
+    inlist integer-suffix c numeric
     noeat c
 
 state dot numeric
@@ -365,8 +365,12 @@ list constant \
 list preproccond \
     if else elif endif ifdef ifndef elifdef elifndef
 
-list -i numeric-suffix \
-    ULL UL U LLU LU LL L
+# C23 §6.4.4.1
+list integer-suffix \
+    u U l L ll LL wb WB \
+    ul UL lu LU \
+    ull ULL llu LLU \
+    uwb wbu UWB WBU
 
 list cpp-keyword \
     and and_eq bitand bitor catch class compl const_cast concept \
