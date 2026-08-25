@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "macros.h"
+#include "numtostr.h"
+#include "str-util.h"
 
 // Work around some musl-targeted toolchains failing to include this
 // header automatically and thus failing to define __STDC_ISO_10646__
@@ -17,12 +19,24 @@
 
 // The maximum Unicode codepoint allowed by RFC 3629
 #define UNICODE_MAX_VALID_CODEPOINT (0x10FFFFUL)
+#define CODEPOINT_STR_BUFSIZE (sizeof("U+10FFFF"))
 
 typedef uint32_t CodePoint;
 
 static inline bool u_is_unicode(CodePoint u)
 {
     return u <= UNICODE_MAX_VALID_CODEPOINT;
+}
+
+static inline size_t u_codepoint_to_str(CodePoint u, char buf[static CODEPOINT_STR_BUFSIZE])
+{
+    if (!u_is_unicode(u)) {
+        return copyliteral(buf, "Invalid\0") - 1;
+    }
+
+    size_t i = copyliteral(buf, "U+");
+    i += buf_umax_to_hex_str(u, buf + i, 4);
+    return i;
 }
 
 // https://www.unicode.org/versions/latest/core-spec/chapter-3/#G2630

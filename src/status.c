@@ -8,6 +8,7 @@
 #include "util/debug.h"
 #include "util/macros.h"
 #include "util/numtostr.h"
+#include "util/unicode.h"
 #include "util/utf8.h"
 #include "util/xsnprintf.h"
 
@@ -163,16 +164,8 @@ static void add_status_unicode(Formatter *f, const BlockIter *cursor)
         return;
     }
 
-    if (!u_is_unicode(u)) {
-        add_status_literal(f, "Invalid");
-        return;
-    }
-
-    char str[STRLEN("U+10FFFF") + 1];
-    str[0] = 'U';
-    str[1] = '+';
-    size_t ndigits = buf_umax_to_hex_str(u, str + 2, 4);
-    add_status_bytes(f, str, 2 + ndigits);
+    char buf[CODEPOINT_STR_BUFSIZE];
+    add_status_bytes(f, buf, u_codepoint_to_str(u, buf));
 }
 
 static void add_status_pos(Formatter *f)

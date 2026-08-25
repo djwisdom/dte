@@ -1468,6 +1468,31 @@ static void test_buf_umax_to_hex_str(TestContext *ctx)
     EXPECT_STREQ(buf, "FFFFFFFFFFFFFFFF");
 }
 
+static void test_codepoint_to_str(TestContext *ctx)
+{
+    char buf[CODEPOINT_STR_BUFSIZE];
+    EXPECT_EQ(u_codepoint_to_str(0, buf), 6);
+    EXPECT_STREQ(buf, "U+0000");
+
+    EXPECT_EQ(u_codepoint_to_str(0x340F, buf), 6);
+    EXPECT_STREQ(buf, "U+340F");
+
+    EXPECT_EQ(u_codepoint_to_str(0x1F601, buf), 7);
+    EXPECT_STREQ(buf, "U+1F601");
+
+    EXPECT_EQ(u_codepoint_to_str(0x10FFFD, buf), 8);
+    EXPECT_STREQ(buf, "U+10FFFD");
+
+    EXPECT_EQ(u_codepoint_to_str(UNICODE_MAX_VALID_CODEPOINT, buf), 8);
+    EXPECT_STREQ(buf, "U+10FFFF");
+
+    EXPECT_EQ(u_codepoint_to_str(UNICODE_MAX_VALID_CODEPOINT + 1, buf), 7);
+    EXPECT_STREQ(buf, "Invalid");
+
+    EXPECT_EQ(u_codepoint_to_str(UINT32_MAX, buf), 7);
+    EXPECT_STREQ(buf, "Invalid");
+}
+
 static void test_parse_filesize(TestContext *ctx)
 {
     EXPECT_EQ(parse_filesize("0"), 0);
@@ -4017,6 +4042,7 @@ static const TestEntry tests[] = {
     TEST(test_str_to_filepos),
     TEST(test_parse_file_line_col),
     TEST(test_buf_umax_to_hex_str),
+    TEST(test_codepoint_to_str),
     TEST(test_parse_filesize),
     TEST(test_umax_to_str),
     TEST(test_uint_to_str),
