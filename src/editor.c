@@ -128,6 +128,7 @@ EditorState *init_editor_state(const char *home, const char *dte_home)
 
             // Global-only options
             .case_sensitive_search = CSS_TRUE,
+            .center_at_eof = false,
             .crlf_newlines = false,
             .display_special = false,
             .esc_timeout = 100,

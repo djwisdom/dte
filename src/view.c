@@ -1,6 +1,7 @@
 #include "view.h"
 #include "block.h"
 #include "buffer.h"
+#include "editor.h"
 #include "indent.h"
 #include "util/ascii.h"
 #include "util/debug.h"
@@ -61,22 +62,23 @@ static bool view_is_cursor_visible(const View *v)
     return v->cy < v->vy || v->cy > v->vy + v->window->edit_h - 1;
 }
 
-static void view_center_to_cursor(View *v)
+static void view_center_to_cursor(View *view)
 {
-    size_t lines = v->buffer->nl;
-    Window *window = v->window;
-    unsigned int hh = window->edit_h / 2;
+    unsigned long height = view->window->edit_h;
+    unsigned long half_height = height / 2;
+    unsigned long lines = view->buffer->nl;
+    unsigned long cursor_y = view->cy;
 
-    if (window->edit_h >= lines || v->cy < hh) {
-        v->vy = 0;
+    if (height >= lines || half_height >= cursor_y) {
+        view->vy = 0;
         return;
     }
 
-    v->vy = v->cy - hh;
-    if (v->vy + window->edit_h > lines) {
-        // -1 makes one ~ line visible so that you know where the EOF is
-        v->vy -= v->vy + window->edit_h - lines - 1;
-    }
+    // +1 here makes one "~" line visible, so that the EOF position can
+    // still be seen even when center_at_eof is false
+    bool center_at_eof = view->window->editor->options.center_at_eof;
+    unsigned long new_y = cursor_y - half_height;
+    view->vy = center_at_eof ? new_y : MIN(new_y, (lines - height) + 1);
 }
 
 static void view_update_vx(View *v)

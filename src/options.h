@@ -69,6 +69,7 @@ typedef struct {
 typedef struct {
     COMMON_OPTIONS;
     // Only global
+    bool center_at_eof;
     bool display_special;
     bool lock_files;
     bool optimize_true_color;
